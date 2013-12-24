@@ -27,7 +27,6 @@ option(BUILD_TESTS "Build the test suite" ON)
 include(CheckTypeSize)
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
-include("cmake/set_cxx_norm.cmake")
 
 # Workaround: For some reason the C++ standard libs weren't being
 # linked by default.
