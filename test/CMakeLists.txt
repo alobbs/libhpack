@@ -5,14 +5,14 @@ include_directories (
    ${CHECK_INCLUDE_DIRS}
 )
 
-set (test_lib_hpack_SRCS
+set (test_libhpack_SRCS
   integer.c
 )
 
-link_directories (${CMAKE_BINARY_DIR}/lib_hpack)
+link_directories (${CMAKE_BINARY_DIR}/libhpack)
 
-add_executable( test_lib_hpack ${test_lib_hpack_SRCS} )
-add_dependencies( test_lib_hpack hpack)
-target_link_libraries( test_lib_hpack hpack ${CHECK_LIBRARIES})
+add_executable( test_libhpack ${test_libhpack_SRCS} )
+add_dependencies( test_libhpack hpack)
+target_link_libraries( test_libhpack hpack ${CHECK_LIBRARIES})
 
-add_test(test_lib_hpack test_lib_hpack)
+add_test(test_libhpack test_libhpack)
