@@ -1,18 +1,18 @@
-find_package(GTest)
+find_package(Check REQUIRED)
 
 include_directories (
    ${CMAKE_SOURCE_DIR}
-   ${GTEST_INCLUDE_DIRS}
+   ${CHECK_INCLUDE_DIRS}
 )
 
 set (test_lib_hpack_SRCS
-  integer_test.cpp
+  integer_test.c
 )
 
 link_directories (${CMAKE_BINARY_DIR}/lib_hpack)
 
 add_executable( test_lib_hpack ${test_lib_hpack_SRCS} )
 add_dependencies( test_lib_hpack hpack)
-target_link_libraries( test_lib_hpack hpack ${GTEST_BOTH_LIBRARIES})
+target_link_libraries( test_lib_hpack hpack ${CHECK_LIBRARIES})
 
 add_test(test_lib_hpack test_lib_hpack)

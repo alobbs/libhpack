@@ -28,14 +28,13 @@ include(CheckTypeSize)
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 
-# Workaround: For some reason the C++ standard libs weren't being
-# linked by default.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lc++ -lstdc++")
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 # Library source code
 add_subdirectory(lib_hpack)
 
 if(BUILD_TESTS)
+include(CTest)
 enable_testing(true)
 add_subdirectory(test)
 endif(BUILD_TESTS)
