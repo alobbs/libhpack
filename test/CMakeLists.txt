@@ -6,7 +6,7 @@ include_directories (
 )
 
 set (test_lib_hpack_SRCS
-  integer_test.c
+  integer.c
 )
 
 link_directories (${CMAKE_BINARY_DIR}/lib_hpack)

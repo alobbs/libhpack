@@ -1,5 +1,5 @@
 #include <check.h>
-#include "lib_hpack/integer.h"
+#include "libhpack/integer.h"
 
 START_TEST (int1337_5bits)
 {

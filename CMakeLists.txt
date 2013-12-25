@@ -31,7 +31,7 @@ include(CheckFunctionExists)
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 # Library source code
-add_subdirectory(lib_hpack)
+add_subdirectory(libhpack)
 
 if(BUILD_TESTS)
 include(CTest)
