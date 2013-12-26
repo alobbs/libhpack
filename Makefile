@@ -2,7 +2,7 @@
 
 all:
 	mkdir -p build
-	cd build ; cmake .. && make VERBOSE=1 ; cd ..
+	$(MAKE) -C build MAKEFLAGS="VERBOSE=1"
 
 clean:
 	rm -rf build
