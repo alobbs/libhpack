@@ -33,7 +33,7 @@
 #ifndef LIBHPACK_INTEGER_H
 #define LIBHPACK_INTEGER_H
 
-void
+int
 integer_encode (int            N,        /* Prefix length in bits  */
                 int            value,    /* Number to encode       */
                 unsigned char *mem,      /* Memory to encode it to */

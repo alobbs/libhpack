@@ -39,7 +39,7 @@
 
 const unsigned char limits[] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
 
-void
+int
 integer_encode (int            N,        /* Prefix length in bits  */
                 int            value,    /* Number to encode       */
                 unsigned char *mem,      /* Memory to encode it to */
@@ -58,7 +58,7 @@ integer_encode (int            N,        /* Prefix length in bits  */
     if (value < limit) {
         mem[i] = (mem[i] & ~limit) | (unsigned char)value;
         *mem_len = ++i;
-        return;
+        return 0;
     }
 
     /* the bits of the prefix are set to 1 */
@@ -75,6 +75,8 @@ integer_encode (int            N,        /* Prefix length in bits  */
 
     mem[i++] = (char)value;
     *mem_len = i;
+
+    return 0;
 }
 
 
