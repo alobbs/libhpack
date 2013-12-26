@@ -30,21 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LIBHPACK_INTEGER_H
-#define LIBHPACK_INTEGER_H
+#ifndef LIBHPACK_COMMON_H
+#define LIBHPACK_COMMON_H
 
-#include <libhpack/common.h>
+typedef enum {
+    ret_ERROR = -1,
+    ret_OK    = 0,
+} ret_t;
 
-ret_t
-integer_encode (int            N,        /* Prefix length in bits  */
-                int            value,    /* Number to encode       */
-                unsigned char *mem,      /* Memory to encode it to */
-                unsigned char *mem_len); /* Memory used            */
-
-ret_t
-integer_decode (int            N,         /* Prefix length in bits  */
-                unsigned char *mem,       /* Memory to read         */
-                unsigned char  mem_len,   /* Length of the memory   */
-                int           *ret);      /* Value return           */
-
-#endif /* LIBHPACK_INTEGER_H */
+#endif /* LIBHPACK_COMMON_H */

@@ -34,12 +34,13 @@
  * http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-05
  */
 
+#include "integer.h"
 #include <stdio.h>
 #include <math.h>
 
 const unsigned char limits[] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
 
-int
+ret_t
 integer_encode (int            N,        /* Prefix length in bits  */
                 int            value,    /* Number to encode       */
                 unsigned char *mem,      /* Memory to encode it to */
@@ -58,7 +59,7 @@ integer_encode (int            N,        /* Prefix length in bits  */
     if (value < limit) {
         mem[i] = (mem[i] & ~limit) | (unsigned char)value;
         *mem_len = ++i;
-        return 0;
+        return ret_OK;
     }
 
     /* the bits of the prefix are set to 1 */
@@ -76,11 +77,11 @@ integer_encode (int            N,        /* Prefix length in bits  */
     mem[i++] = (char)value;
     *mem_len = i;
 
-    return 0;
+    return ret_OK;
 }
 
 
-int
+ret_t
 integer_decode (int            N,         /* Prefix length in bits  */
                 unsigned char *mem,       /* Memory to read         */
                 unsigned char  mem_len,   /* Length of the memory   */
@@ -92,14 +93,14 @@ integer_decode (int            N,         /* Prefix length in bits  */
      */
     if (mem_len == 1) {
         *ret = mem[0] & limit;
-        return 0;
+        return ret_OK;
     }
 
     /* Sanity check:
      * All non-masked bits of the 1st byte must be 1s
      */
     if ((mem[0] & limit) != limit) {
-        return -1;
+        return ret_ERROR;
     }
 
     /* Unsigned variable length integer
@@ -110,5 +111,5 @@ integer_decode (int            N,         /* Prefix length in bits  */
         *ret += (mem[i]%128) * pow(128, i-1);
     }
 
-    return 0;
+    return ret_OK;
 }

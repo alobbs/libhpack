@@ -23,11 +23,15 @@ set(hpack_SOVERSION ${hpack_SOVERSION_MAJOR})
 # Options
 option(BUILD_TESTS "Build the test suite" ON)
 
-# Includes
+# Checks
 include(CheckTypeSize)
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 
+# Includes
+include_directories(${CMAKE_SOURCE_DIR})
+
+# Cmake macros
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 # Library source code
