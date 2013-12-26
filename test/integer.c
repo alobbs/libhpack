@@ -44,7 +44,7 @@
     } while(0);
 
 
-START_TEST (int10_5bits)
+START_TEST (encode_10_5bits)
 {
     unsigned char len   = 0xFF;
     unsigned char tmp[] = {0,0};
@@ -59,7 +59,7 @@ START_TEST (int10_5bits)
 }
 END_TEST
 
-START_TEST (int1337_5bits)
+START_TEST (encode_1337_5bits)
 {
     unsigned char len   = 0xFF;
     unsigned char tmp[] = {0,0,0,0,0};
@@ -76,7 +76,7 @@ START_TEST (int1337_5bits)
 }
 END_TEST
 
-START_TEST (int42_8bits)
+START_TEST (encode_42_8bits)
 {
     unsigned char len   = 0xFF;
     unsigned char tmp[] = {0,0};
@@ -91,7 +91,7 @@ START_TEST (int42_8bits)
 }
 END_TEST
 
-START_TEST (int12_6bits)
+START_TEST (encode_12_6bits)
 {
     unsigned char len   = 0xFF;
     unsigned char tmp[] = {0xC0,0};
@@ -104,7 +104,7 @@ START_TEST (int12_6bits)
 }
 END_TEST
 
-START_TEST (int1338_5bits)
+START_TEST (encode_1338_5bits)
 {
     unsigned char len   = 0xFF;
     unsigned char tmp[] = {0xA0,0,0,0,0};
@@ -120,10 +120,37 @@ START_TEST (int1338_5bits)
 END_TEST
 
 
-int
-main (void)
+START_TEST (decode_19_6bits)
 {
-    Suite   *s1    = suite_create("Integer Encoding");
+    int           err   = 0;
+    int           num   = 0;
+    unsigned char tmp[] = {0x80 | 19};
+
+    err = integer_decode (6, tmp, 1, &num);
+
+    ck_assert_int_eq (err, 0);
+    ck_assert_int_eq (num, 19);
+}
+END_TEST
+
+START_TEST (decode_1337_5bits)
+{
+    int           err   = 0;
+    int           num   = 0;
+    unsigned char tmp[] = {31,154,10};
+
+    err = integer_decode (5, tmp, 3, &num);
+
+    ck_assert_int_eq (err, 0);
+    ck_assert_int_eq (num, 1337);
+}
+END_TEST
+
+
+int
+encode_tests (void)
+{
+    Suite   *s1    = suite_create("Encoding");
     SRunner *sr    = srunner_create(s1);
     TCase   *tc1_1 = tcase_create("5bits prefix");
     TCase   *tc1_2 = tcase_create("5bits prefix w/ extra");
@@ -131,12 +158,38 @@ main (void)
     TCase   *tc1_4 = tcase_create("6bits prefix and data");
     TCase   *tc1_5 = tcase_create("5bits prefix w/ extra and data");
 
-    check_add_tc (s1, tc1_1, int10_5bits);
-    check_add_tc (s1, tc1_2, int1337_5bits);
-    check_add_tc (s1, tc1_3, int42_8bits);
-    check_add_tc (s1, tc1_4, int12_6bits);
-    check_add_tc (s1, tc1_5, int1338_5bits);
+    check_add_tc (s1, tc1_1, encode_10_5bits);
+    check_add_tc (s1, tc1_2, encode_1337_5bits);
+    check_add_tc (s1, tc1_3, encode_42_8bits);
+    check_add_tc (s1, tc1_4, encode_12_6bits);
+    check_add_tc (s1, tc1_5, encode_1338_5bits);
 
     srunner_run_all(sr, CK_VERBOSE);
     return srunner_ntests_failed(sr);
+}
+
+int
+decode_tests (void)
+{
+    Suite   *s1    = suite_create("Decoding");
+    SRunner *sr    = srunner_create(s1);
+    TCase   *tc1_1 = tcase_create("6bits prefix");
+    TCase   *tc1_2 = tcase_create("5bits prefix w/ extra");
+
+    check_add_tc (s1, tc1_1, decode_19_6bits);
+    check_add_tc (s1, tc1_2, decode_1337_5bits);
+
+    srunner_run_all(sr, CK_VERBOSE);
+    return srunner_ntests_failed(sr);
+}
+
+int
+main (void)
+{
+    int ret;
+
+    ret  = encode_tests();
+    ret += decode_tests();
+
+    return ret;
 }

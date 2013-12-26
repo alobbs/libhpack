@@ -30,8 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef LIBHPACK_INTEGER_H
+#define LIBHPACK_INTEGER_H
+
 void
 integer_encode (int            N,        /* Prefix length in bits  */
                 int            value,    /* Number to encode       */
                 unsigned char *mem,      /* Memory to encode it to */
                 unsigned char *mem_len); /* Memory used            */
+
+int
+integer_decode (int            N,         /* Prefix length in bits  */
+                unsigned char *mem,       /* Memory to read         */
+                unsigned char  mem_len,   /* Length of the memory   */
+                int           *ret);      /* Value return           */
+
+#endif /* LIBHPACK_INTEGER_H */

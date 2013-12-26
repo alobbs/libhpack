@@ -37,6 +37,8 @@
 #include <stdio.h>
 #include <math.h>
 
+const unsigned char limits[] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
+
 void
 integer_encode (int            N,        /* Prefix length in bits  */
                 int            value,    /* Number to encode       */
@@ -47,8 +49,7 @@ integer_encode (int            N,        /* Prefix length in bits  */
 
     /* N is always between 1 and 8 bits [4.1.1.]
      */
-    const unsigned char limits[] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
-    const unsigned char limit    = limits[N];
+    const unsigned char limit = limits[N];
 
     /* An integer is represented in two parts:
      * - A prefix that fills the current octet (N bits length)
@@ -74,4 +75,38 @@ integer_encode (int            N,        /* Prefix length in bits  */
 
     mem[i++] = (char)value;
     *mem_len = i;
+}
+
+
+int
+integer_decode (int            N,         /* Prefix length in bits  */
+                unsigned char *mem,       /* Memory to read         */
+                unsigned char  mem_len,   /* Length of the memory   */
+                int           *ret)       /* Value return           */
+{
+    const unsigned char limit = limits[N];
+
+    /* Trivial 1 byte number
+     */
+    if (mem_len == 1) {
+        *ret = mem[0] & limit;
+        return 0;
+    }
+
+    /* Sanity check:
+     * All non-masked bits of the 1st byte must be 1s
+     */
+    if ((mem[0] & limit) != limit) {
+        return -1;
+    }
+
+    /* Unsigned variable length integer
+     */
+    *ret = mem[0] & limit;
+
+    for (int i=1; i < mem_len; i++) {
+        *ret += (mem[i]%128) * pow(128, i-1);
+    }
+
+    return 0;
 }
