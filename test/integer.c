@@ -147,6 +147,23 @@ START_TEST (decode_1337_5bits)
 END_TEST
 
 
+START_TEST (en_decode_2147483647_5bits)
+{
+    unsigned char tmp[6];
+    unsigned char tmp_len  = 0;
+    int           err      = 0;
+    int           num      = 0;
+
+    integer_encode (5, 2147483647, tmp, &tmp_len);
+    ck_assert_int_gt (tmp_len, 0);
+
+    err = integer_decode (5, tmp, tmp_len, &num);
+    ck_assert_int_eq (err, 0);
+    ck_assert_int_eq (num, 2147483647);
+}
+END_TEST
+
+
 int
 encode_tests (void)
 {
@@ -175,9 +192,11 @@ decode_tests (void)
     SRunner *sr    = srunner_create(s1);
     TCase   *tc1_1 = tcase_create("6bits prefix");
     TCase   *tc1_2 = tcase_create("5bits prefix w/ extra");
+    TCase   *tc1_3 = tcase_create("5bits prefix w/ extra big");
 
     check_add_tc (s1, tc1_1, decode_19_6bits);
     check_add_tc (s1, tc1_2, decode_1337_5bits);
+    check_add_tc (s1, tc1_3, en_decode_2147483647_5bits);
 
     srunner_run_all(sr, CK_VERBOSE);
     return srunner_ntests_failed(sr);
