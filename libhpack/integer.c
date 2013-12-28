@@ -38,13 +38,25 @@
 #include <stdio.h>
 #include <math.h>
 
-const unsigned char limits[] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
+static const unsigned char limits[] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
 
+/**  Integer encoding
+ *
+ * Encodes an integer number into HPACK's int representation. A prefix
+ * length (in bits) can be provided so the first byte can be partially
+ * utilized even if a few bits have maybe used already.
+ *
+ * @param      N       Number of bits of the prefix
+ * @param      value   Number to encode
+ * @param[out] mem     Memory where the number has to be encoded to
+ * @param[out] mem_len Total amount of memory (in bytes) used to encode the number
+ * @retval ret_OK  number converted successfully
+ */
 ret_t
-integer_encode (int            N,        /* Prefix length in bits  */
-                int            value,    /* Number to encode       */
-                unsigned char *mem,      /* Memory to encode it to */
-                unsigned char *mem_len)  /* Memory used            */
+integer_encode (int            N,
+                int            value,
+                unsigned char *mem,
+                unsigned char *mem_len)
 {
     int i = 0;
 
@@ -80,12 +92,24 @@ integer_encode (int            N,        /* Prefix length in bits  */
     return ret_OK;
 }
 
-
+/** Integer decoding
+ *
+ * Decodes an integer number from a HPACK representation in memory. A
+ * prefix length (in bits) is provided just in case there were bits in
+ * the first byte that shouldn't be consumed.
+ *
+ * @param      N       Number of bits of the prefix
+ * @param      mem     Pointer to the first byte of memory containing the number
+ * @param      mem_len Length of the number in memory
+ * @param[out] ret     Pointer to an integer to store the decoded number
+ * @retval ret_OK Number was read successfuly
+ * @retval ret_ERROR Incorrect format
+ */
 ret_t
-integer_decode (int            N,         /* Prefix length in bits  */
-                unsigned char *mem,       /* Memory to read         */
-                unsigned char  mem_len,   /* Length of the memory   */
-                int           *ret)       /* Value return           */
+integer_decode (int            N,
+                unsigned char *mem,
+                unsigned char  mem_len,
+                int           *ret)
 {
     const unsigned char limit = limits[N];
 

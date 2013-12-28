@@ -22,6 +22,7 @@ set(hpack_SOVERSION ${hpack_SOVERSION_MAJOR})
 
 # Options
 option(BUILD_TESTS "Build the test suite" ON)
+option(BUILD_DOCS  "Build the documentation" ON)
 
 # Checks
 include(CheckTypeSize)
@@ -42,6 +43,10 @@ include(CTest)
 enable_testing(true)
 add_subdirectory(test)
 endif(BUILD_TESTS)
+
+if(BUILD_DOCS)
+add_subdirectory(doc)
+endif(BUILD_DOCS)
 
 # Final license reminder
 MESSAGE ("

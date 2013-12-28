@@ -1,0 +1,6 @@
+[submodule "doc/external/breathe"]
+	path = doc/external/breathe
+	url = https://github.com/michaeljones/breathe.git
+[submodule "doc/external/sphinx_rtd_theme"]
+	path = doc/external/sphinx_rtd_theme
+	url = https://github.com/snide/sphinx_rtd_theme.git

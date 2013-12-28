@@ -3,7 +3,7 @@
 
 ## Getting Started
 ```
-git clone https://github.com/alobbs/libhpack.git
+git clone --recursive https://github.com/alobbs/libhpack.git
 cd libhpack
 make
 ```

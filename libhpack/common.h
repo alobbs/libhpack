@@ -33,9 +33,12 @@
 #ifndef LIBHPACK_COMMON_H
 #define LIBHPACK_COMMON_H
 
+/**
+ * Return values for functions
+ */
 typedef enum {
-    ret_ERROR = -1,
-    ret_OK    = 0,
+    ret_ERROR = -1, /**< Generic error return value */
+    ret_OK    = 0,  /**< Success return value       */
 } ret_t;
 
 #endif /* LIBHPACK_COMMON_H */
