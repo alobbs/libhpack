@@ -8,5 +8,8 @@ all:
 clean:
 	rm -rf build
 
+doc:
+	$(MAKE) -C build docs
+
 test: all
 	./build/test/test_libhpack

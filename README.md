@@ -2,12 +2,14 @@
 **libhpack** implements HPACK “**Header Compression for HTTP/2.0**”, a format adapted to efficiently represent HTTP header fields in the context of the upcoming HTTP/2.0 protocol.
 
 ## Getting Started
+Build requirements include Cmake, and Check.
+
 ```
 git clone --recursive https://github.com/alobbs/libhpack.git
 cd libhpack
 make
 ```
-Build requirements include Cmake, Check, and libz.
+To render the documentation you'd have to execute ```make doc``` afterwards. That specific target depends on Sphinx and Doxygen.
 
 ## Community
 Keep track of community news and rub shoulders with the developers:
