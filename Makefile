@@ -9,7 +9,7 @@ clean:
 	rm -rf build
 
 doc:
-	$(MAKE) -C build docs
+	$(MAKE) -C build docs docs2
 
 test: all
 	./build/test/test_libhpack
