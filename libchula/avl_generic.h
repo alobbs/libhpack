@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
-/* All files in libchula are Copyright (C) 2012 Alvaro Lopez Ortega.
+/* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
  *     * Alvaro Lopez Ortega <alvaro@alobbs.com>
