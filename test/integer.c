@@ -38,10 +38,14 @@
  */
 
 #define check_add_tc(suit,testcase,func)		\
-    do {                                        \
-        suite_add_tcase (suit, testcase);       \
-        tcase_add_test (testcase, func);        \
-    } while(0);
+    TCase *testcase = tcase_create("func");     \
+    suite_add_tcase (suit, testcase);           \
+    tcase_add_test (testcase, func);
+
+#define run_test(suit)                          \
+    SRunner *sr = srunner_create(suit);         \
+    srunner_run_all(sr, CK_VERBOSE);            \
+    return srunner_ntests_failed(sr);
 
 
 START_TEST (encode_10_5bits)
@@ -167,13 +171,7 @@ END_TEST
 int
 encode_tests (void)
 {
-    Suite   *s1    = suite_create("Encoding");
-    SRunner *sr    = srunner_create(s1);
-    TCase   *tc1_1 = tcase_create("5bits prefix");
-    TCase   *tc1_2 = tcase_create("5bits prefix w/ extra");
-    TCase   *tc1_3 = tcase_create("8bits prefix");
-    TCase   *tc1_4 = tcase_create("6bits prefix and data");
-    TCase   *tc1_5 = tcase_create("5bits prefix w/ extra and data");
+    Suite *s1 = suite_create("Encoding");
 
     check_add_tc (s1, tc1_1, encode_10_5bits);
     check_add_tc (s1, tc1_2, encode_1337_5bits);
@@ -181,25 +179,19 @@ encode_tests (void)
     check_add_tc (s1, tc1_4, encode_12_6bits);
     check_add_tc (s1, tc1_5, encode_1338_5bits);
 
-    srunner_run_all(sr, CK_VERBOSE);
-    return srunner_ntests_failed(sr);
+    run_test (s1);
 }
 
 int
 decode_tests (void)
 {
-    Suite   *s1    = suite_create("Decoding");
-    SRunner *sr    = srunner_create(s1);
-    TCase   *tc1_1 = tcase_create("6bits prefix");
-    TCase   *tc1_2 = tcase_create("5bits prefix w/ extra");
-    TCase   *tc1_3 = tcase_create("5bits prefix w/ extra big");
+    Suite *s1 = suite_create("Decoding");
 
     check_add_tc (s1, tc1_1, decode_19_6bits);
     check_add_tc (s1, tc1_2, decode_1337_5bits);
     check_add_tc (s1, tc1_3, en_decode_2147483647_5bits);
 
-    srunner_run_all(sr, CK_VERBOSE);
-    return srunner_ntests_failed(sr);
+    run_test (s1);
 }
 
 int
