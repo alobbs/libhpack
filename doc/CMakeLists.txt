@@ -6,14 +6,9 @@ add_custom_target(doxygen
     COMMENT "Build doxygen xml files used by sphinx/breathe."
 )
 
-
 # configured documentation tools and intermediate build results
 set(BINARY_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/_build")
-
-# Sphinx cache with pickled ReST documents
 set(SPHINX_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_doctrees")
-
-# HTML output directory
 set(SPHINX_HTML_DIR "${CMAKE_CURRENT_BINARY_DIR}/html")
 
 # Configuration files

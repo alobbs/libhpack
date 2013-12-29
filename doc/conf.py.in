@@ -259,4 +259,4 @@ breathe_projects = {
 }
 
 breathe_default_project = 'libhpack'
-breathe_domain_by_extension = {"h" : "cpp"}
+breathe_domain_by_extension = {"h" : "c"}
