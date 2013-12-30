@@ -7,7 +7,7 @@ include_directories (
 
 file(GLOB SRCS *.c)
 
-add_executable (chula_test ${SRCS} )
+add_executable (chula_test ${SRCS})
 add_dependencies (chula_test chula)
 target_link_libraries (chula_test chula ${CHECK_LIBRARIES})
 

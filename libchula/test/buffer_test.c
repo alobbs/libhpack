@@ -50,23 +50,23 @@ START_TEST (init_heap)
 
     /* Init */
     chula_buffer_init (&buf);
-    ck_assert_int_eq (buf.len, 0);
-    ck_assert_int_eq (buf.size, 0);
-    ck_assert_ptr_eq (buf.buf, NULL);
+    ck_assert (buf.len == 0);
+    ck_assert (buf.size == 0);
+    ck_assert (buf.buf == NULL);
 
     /* Not empty */
     chula_buffer_add_str (&buf, "test");
-    ck_assert_int_gt (buf.len, 0);
-    ck_assert_ptr_ne (buf.buf, NULL);
+    ck_assert (buf.len > 0);
+    ck_assert (buf.buf != NULL);
 
     /* Empty */
     chula_buffer_clean (&buf);
-    ck_assert_int_eq (buf.len, 0);
-    ck_assert_ptr_ne (buf.buf, NULL);
+    ck_assert (buf.len == 0);
+    ck_assert (buf.buf != NULL);
 
     /* Free memory */
     chula_buffer_mrproper (&buf);
-    ck_assert_ptr_eq (buf.buf, NULL);
+    ck_assert (buf.buf == NULL);
 }
 END_TEST
 
@@ -77,21 +77,21 @@ START_TEST (init_ptr)
 
     /* Instance */
     chula_buffer_new (&buf);
-    ck_assert_ptr_ne (buf, NULL);
+    ck_assert (buf != NULL);
 
     /* Emptiness */
-    ck_assert_int_eq (buf->len, 0);
-    ck_assert_ptr_eq (buf->buf, NULL);
+    ck_assert (buf->len == 0);
+    ck_assert (buf->buf == NULL);
 
     /* Not empty */
     chula_buffer_add_str (buf, "test");
-    ck_assert_int_gt (buf->len, 0);
-    ck_assert_ptr_ne (buf->buf, NULL);
+    ck_assert (buf->len > 0);
+    ck_assert (buf->buf != NULL);
 
     /* Empty */
     chula_buffer_clean (buf);
-    ck_assert_int_eq (buf->len, 0);
-    ck_assert_ptr_ne (buf->buf, NULL);
+    ck_assert (buf->len == 0);
+    ck_assert (buf->buf != NULL);
 }
 END_TEST
 

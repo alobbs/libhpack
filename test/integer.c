@@ -58,8 +58,8 @@ START_TEST (encode_10_5bits)
     integer_encode (5, 10, tmp, &len);
 
     /* Check output */
-    ck_assert_int_eq (len, 1);
-    ck_assert_int_eq (tmp[0], 10);
+    ck_assert (len == 1);
+    ck_assert (tmp[0] == 10);
 }
 END_TEST
 
@@ -73,10 +73,10 @@ START_TEST (encode_1337_5bits)
     integer_encode (5, 1337, tmp, &len);
 
     /* Check output */
-    ck_assert_int_eq (len, 3);
-    ck_assert_int_eq (tmp[0], 31);
-    ck_assert_int_eq (tmp[1], 154);
-    ck_assert_int_eq (tmp[2], 10);
+    ck_assert (len == 3);
+    ck_assert (tmp[0] == 31);
+    ck_assert (tmp[1] == 154);
+    ck_assert (tmp[2] == 10);
 }
 END_TEST
 
@@ -90,8 +90,8 @@ START_TEST (encode_42_8bits)
     integer_encode (8, 42, tmp, &len);
 
     /* Check output */
-    ck_assert_int_eq (len, 1);
-    ck_assert_int_eq (tmp[0], 42);
+    ck_assert (len == 1);
+    ck_assert (tmp[0] == 42);
 }
 END_TEST
 
@@ -103,8 +103,8 @@ START_TEST (encode_12_6bits)
     integer_encode (6, 12, tmp, &len);
 
     /* Check output */
-    ck_assert_int_eq (len, 1);
-    ck_assert_int_eq (tmp[0], 0xC0 | 12);
+    ck_assert (len == 1);
+    ck_assert (tmp[0] == 0xC0 | 12);
 }
 END_TEST
 
@@ -116,10 +116,10 @@ START_TEST (encode_1338_5bits)
     integer_encode (5, 1338, tmp, &len);
 
     /* Check output */
-    ck_assert_int_eq (len, 3);
-    ck_assert_int_eq (tmp[0], 0xA0 | 31);
-    ck_assert_int_eq (tmp[1], 155);
-    ck_assert_int_eq (tmp[2], 10);
+    ck_assert (len == 3);
+    ck_assert (tmp[0] == 0xA0 | 31);
+    ck_assert (tmp[1] == 155);
+    ck_assert (tmp[2] == 10);
 }
 END_TEST
 
@@ -132,8 +132,8 @@ START_TEST (decode_19_6bits)
 
     err = integer_decode (6, tmp, 1, &num);
 
-    ck_assert_int_eq (err, 0);
-    ck_assert_int_eq (num, 19);
+    ck_assert (err == 0);
+    ck_assert (num == 19);
 }
 END_TEST
 
@@ -145,8 +145,8 @@ START_TEST (decode_1337_5bits)
 
     err = integer_decode (5, tmp, 3, &num);
 
-    ck_assert_int_eq (err, 0);
-    ck_assert_int_eq (num, 1337);
+    ck_assert (err == 0);
+    ck_assert (num == 1337);
 }
 END_TEST
 
@@ -159,11 +159,11 @@ START_TEST (en_decode_2147483647_5bits)
     int           num      = 0;
 
     integer_encode (5, 2147483647, tmp, &tmp_len);
-    ck_assert_int_gt (tmp_len, 0);
+    ck_assert (tmp_len > 0);
 
     err = integer_decode (5, tmp, tmp_len, &num);
-    ck_assert_int_eq (err, 0);
-    ck_assert_int_eq (num, 2147483647);
+    ck_assert (err == 0);
+    ck_assert (num == 2147483647);
 }
 END_TEST
 
