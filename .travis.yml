@@ -7,7 +7,7 @@ compiler:
 # Make sure CMake is installed
 install: |
   sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu/ precise main universe"
-  sudo apt-get install -y cmake doxygen python-sphinx gcc make
+  sudo apt-get install -y cmake doxygen python-sphinx gcc make check
 
 # Run the Build script
 script: |
