@@ -14,7 +14,7 @@ script: |
   mkdir -p _build
   cd _build
   cmake ..
-  make
+  make VERBOSE=1
   make test
 
 # Run Tests
