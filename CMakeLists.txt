@@ -97,7 +97,7 @@ CHECK_FUNCTION_EXISTS (rpl_malloc HAVE_MALLOC)
 SET(CMAKE_EXTRA_INCLUDE_FILES)
 
 if (CMAKE_COMPILER_IS_GNUCC)
-  add_definitions (-std=c99)
+  add_definitions (-std=gnu99)
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 # Library source code
