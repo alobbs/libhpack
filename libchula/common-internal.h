@@ -99,58 +99,58 @@
 /* IMPORTANT:
  * Cross compilers should define BYTE_ORDER in CFLAGS
  */
-/* #ifndef BYTE_ORDER */
-/* # ifndef  LITTLE_ENDIAN */
-/* #  define LITTLE_ENDIAN  1234    /\* LSB first: i386, vax *\/ */
-/* # endif */
-/* # ifndef BIG_ENDIAN */
-/* #  define BIG_ENDIAN     4321    /\* MSB first: 68000, ibm, net *\/ */
-/* # endif */
-/* # ifndef PDP_ENDIAN */
-/* #  define PDP_ENDIAN     3412    /\* LSB first in word, MSW first in long *\/ */
-/* # endif */
-/* # ifdef WORDS_BIGENDIAN */
-/* #   define BYTE_ORDER  BIG_ENDIAN */
-/* # else */
-/* #   define BYTE_ORDER  LITTLE_ENDIAN */
-/* # endif */
-/* #endif */
+#ifndef BYTE_ORDER
+# ifndef LITTLE_ENDIAN
+#  define LITTLE_ENDIAN  1234    /* LSB first: i386, vax */
+# endif
+# ifndef BIG_ENDIAN
+#  define BIG_ENDIAN     4321    /* MSB first: 68000, ibm, net */
+# endif
+# ifndef PDP_ENDIAN
+#  define PDP_ENDIAN     3412    /* LSB first in word, MSW first in long */
+# endif
+# ifdef WORDS_BIGENDIAN
+#   define BYTE_ORDER  BIG_ENDIAN
+# else
+#   define BYTE_ORDER  LITTLE_ENDIAN
+# endif
+#endif
 
 /* Int limit
  */
-/* #ifndef INT_MAX */
-/* # if (SIZEOF_INT == 4) */
-/* #  define INT_MAX 0x7fffffffL          /\* 2^32 - 1 *\/ */
-/* # elif (SIZEOF_INT == 8) */
-/* #  define INT_MAX 0x7fffffffffffffffL  /\* 2^64 - 1 *\/ */
-/* # else */
-/* #  error "Can't define INT_MAX" */
-/* # endif */
-/* #endif */
+#ifndef INT_MAX
+# if (SIZEOF_INT == 4)
+#  define INT_MAX 0x7fffffffL          /* 2^32 - 1 */
+# elif (SIZEOF_INT == 8)
+#  define INT_MAX 0x7fffffffffffffffL  /* 2^64 - 1 */
+# else
+#  error "Can't define INT_MAX"
+# endif
+#endif
 
 /* Long limit
  */
-/* #ifndef LONG_MAX */
-/* # if (SIZEOF_LONG == 4) */
-/* #  define LONG_MAX 0x7fffffffL */
-/* # elif (SIZEOF_LONG == 8) */
-/* #  define LONG_MAX 0x7fffffffffffffffL */
-/* # else */
-/* #  error "Can't define LONG_MAX" */
-/* # endif */
-/* #endif */
+#ifndef LONG_MAX
+# if (SIZEOF_LONG == 4)
+#  define LONG_MAX 0x7fffffffL
+# elif (SIZEOF_LONG == 8)
+#  define LONG_MAX 0x7fffffffffffffffL
+# else
+#  error "Can't define LONG_MAX"
+# endif
+#endif
 
 /* time_t limit
  */
-/* #ifndef TIME_MAX */
-/* # if (SIZEOF_TIME_T == SIZEOF_INT) */
-/* #  define TIME_MAX ((time_t)INT_MAX) */
-/* # elif (SIZEOF_TIME_T == SIZEOF_LONG) */
-/* #  define TIME_MAX ((time_t)LONG_MAX) */
-/* # else */
-/* #  error "Can't define TIME_MAX" */
-/* # endif */
-/* #endif */
+#ifndef TIME_MAX
+# if (SIZEOF_TIME_T == SIZEOF_INT)
+#  define TIME_MAX ((time_t)INT_MAX)
+# elif (SIZEOF_TIME_T == SIZEOF_LONG)
+#  define TIME_MAX ((time_t)LONG_MAX)
+# else
+#  error "Can't define TIME_MAX"
+# endif
+#endif
 
 /* Missing constants
  */
