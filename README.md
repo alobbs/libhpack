@@ -1,4 +1,5 @@
-# libhpack
+# libhpack [![Build Status](https://travis-ci.org/alobbs/libhpack.png?branch=master)](https://travis-ci.org/alobbs/libhpack)
+
 **libhpack** implements HPACK “**Header Compression for HTTP/2.0**”, a format adapted to efficiently represent HTTP header fields in the context of the upcoming HTTP/2.0 protocol.
 
 ## Getting Started
@@ -16,6 +17,7 @@ Keep track of community news and rub shoulders with the developers:
 
 * Follow @[http2d](https://twitter.com/http2d) on Twitter
 * On `irc.freenode.net` server, in the `#cherokee` channel
+* [Bug Tracker](https://github.com/alobbs/libhpack/issues): Issues and RFEs
 
 ## License
 libhpack is distributed under the [Simplified BSD License](http://opensource.org/licenses/BSD-2-Clause). See the LICENSE file for more info.
