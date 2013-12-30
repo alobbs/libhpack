@@ -1,0 +1,20 @@
+language: c
+
+compiler:
+  - gcc
+  - clang
+
+# Make sure CMake is installed
+install: |
+  sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu/ precise main universe"
+  sudo apt-get install -y cmake doxygen python-sphinx gcc
+
+# Run the Build script
+script: |
+  cmake -E make_directory build
+  cmake --build build
+  cd build ; make test
+
+# Run Tests
+after_script:
+ - if [ -f CTestTestfile.cmake ]; then ctest -V . ; fi
