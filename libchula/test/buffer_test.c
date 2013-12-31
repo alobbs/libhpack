@@ -33,10 +33,10 @@
 #include <check.h>
 #include "libchula/buffer.h"
 
-#define check_add_tc(suit,testcase,func)		\
-    TCase *testcase = tcase_create("func");     \
-    suite_add_tcase (suit, testcase);           \
-    tcase_add_test (testcase, func);
+#define check_add(suit,func)                             \
+    TCase *testcase_ ## func = tcase_create(#func);      \
+    suite_add_tcase (suit, testcase_ ## func);           \
+    tcase_add_test (testcase_ ##func, func);
 
 #define run_test(suit)                          \
     SRunner *sr = srunner_create(suit);         \
@@ -95,12 +95,29 @@ START_TEST (init_ptr)
 }
 END_TEST
 
+START_TEST (dup)
+{
+    ret_t           ret;
+    chula_buffer_t  b1   = CHULA_BUF_INIT;
+    chula_buffer_t *b2   = NULL;
+
+    chula_buffer_add_str (&b1, "testing");
+    ret = chula_buffer_dup (&b1, &b2);
+
+    ck_assert (ret == ret_ok);
+    ck_assert (&b1 != b2);
+    ck_assert (b1.len == b2->len);
+    ck_assert (b1.buf != b2->buf);
+}
+END_TEST
+
 int
 buffer_tests (void)
 {
     Suite *s1 = suite_create("Buffer");
-    check_add_tc (s1, tc1_1, init_heap);
-    check_add_tc (s1, tc1_2, init_ptr);
+    check_add (s1, init_heap);
+    check_add (s1, init_ptr);
+    check_add (s1, dup);
     run_test (s1);
 }
 
