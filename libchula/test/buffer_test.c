@@ -405,6 +405,28 @@ START_TEST (add_char)
 }
 END_TEST
 
+START_TEST (add_char_n)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_add_char_n (&b, 'a', -1);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+    ck_assert (b.buf == NULL);
+
+    ret = chula_buffer_add_char_n (&b, 'a', 0);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+    ck_assert (b.buf == NULL);
+
+    ret = chula_buffer_add_char_n (&b, 'a', 5);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 5);
+    ck_assert_str_eq (b.buf, "aaaaa");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -422,6 +444,7 @@ buffer_tests (void)
     check_add (s1, add_llong16);
     check_add (s1, add_va);
     check_add (s1, add_char);
+    check_add (s1, add_char_n);
     run_test (s1);
 }
 
