@@ -352,6 +352,42 @@ START_TEST (add_llong16)
 }
 END_TEST
 
+START_TEST (add_va)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_add_va (&b, "");
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_va (&b, "hi there");
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "hi there");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_va (&b, "%d is not one", 0);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "0 is not one");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_va (&b, "%03d rocks", 7);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "007 rocks");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_va (&b, "%s %%s", "tricky");
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "tricky %s");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_va (&b, "%d - %1.1f - %s", 1, 2.1, "foo");
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "1 - 2.1 - foo");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -367,6 +403,7 @@ buffer_tests (void)
     check_add (s1, add_llong10);
     check_add (s1, add_long16);
     check_add (s1, add_llong16);
+    check_add (s1, add_va);
     run_test (s1);
 }
 
