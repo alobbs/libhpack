@@ -37,10 +37,10 @@
  * http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-05
  */
 
-#define check_add_tc(suit,testcase,func)		\
-    TCase *testcase = tcase_create("func");     \
-    suite_add_tcase (suit, testcase);           \
-    tcase_add_test (testcase, func);
+#define check_add(suit,func)                             \
+    TCase *testcase_ ## func = tcase_create(#func);      \
+    suite_add_tcase (suit, testcase_ ## func);           \
+    tcase_add_test (testcase_ ##func, func);
 
 #define run_test(suit)                          \
     SRunner *sr = srunner_create(suit);         \
@@ -173,11 +173,11 @@ encode_tests (void)
 {
     Suite *s1 = suite_create("Encoding");
 
-    check_add_tc (s1, tc1_1, encode_10_5bits);
-    check_add_tc (s1, tc1_2, encode_1337_5bits);
-    check_add_tc (s1, tc1_3, encode_42_8bits);
-    check_add_tc (s1, tc1_4, encode_12_6bits);
-    check_add_tc (s1, tc1_5, encode_1338_5bits);
+    check_add (s1, encode_10_5bits);
+    check_add (s1, encode_1337_5bits);
+    check_add (s1, encode_42_8bits);
+    check_add (s1, encode_12_6bits);
+    check_add (s1, encode_1338_5bits);
 
     run_test (s1);
 }
@@ -187,9 +187,9 @@ decode_tests (void)
 {
     Suite *s1 = suite_create("Decoding");
 
-    check_add_tc (s1, tc1_1, decode_19_6bits);
-    check_add_tc (s1, tc1_2, decode_1337_5bits);
-    check_add_tc (s1, tc1_3, en_decode_2147483647_5bits);
+    check_add (s1, decode_19_6bits);
+    check_add (s1, decode_1337_5bits);
+    check_add (s1, en_decode_2147483647_5bits);
 
     run_test (s1);
 }
