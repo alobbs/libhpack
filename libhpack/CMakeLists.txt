@@ -14,6 +14,8 @@ set_target_properties (
     SOVERSION ${hpack_SOVERSION}
 )
 
+target_link_libraries (${LIB_NAME} ${LIBM})
+
 install (
   TARGETS ${LIB_NAME}
   ARCHIVE DESTINATION lib COMPONENT Development
