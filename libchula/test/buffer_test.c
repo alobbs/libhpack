@@ -243,6 +243,63 @@ START_TEST (add_fsize)
 }
 END_TEST
 
+START_TEST (add_long10)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_add_long10 (&b, 1l);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "1");
+
+    /* LONG_MIN: -2^31+1 */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_long10 (&b, -2147483647);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "-2147483647");
+
+    /* LONG_MAX: 2^31-1 */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_long10 (&b, 2147483647);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "2147483647");
+
+    /* ULONG_MAX: 2^32-1 */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_ulong10 (&b, 4294967295);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "4294967295");
+}
+END_TEST
+
+START_TEST (add_llong10)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_add_llong10 (&b, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "0");
+
+    /* LLONG_MIN: -2^63+1 */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_llong10 (&b, -9223372036854775807);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "-9223372036854775807");
+
+    /* LLONG_MAX: 2^63-1 */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_llong10 (&b, 9223372036854775807);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "9223372036854775807");
+
+    /* ULLONG_MAX: 2^64-1 */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_ullong10 (&b, 18446744073709551615);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "18446744073709551615");
+}
+END_TEST
 
 int
 buffer_tests (void)
@@ -254,6 +311,8 @@ buffer_tests (void)
     check_add (s1, add);
     check_add (s1, slice);
     check_add (s1, add_fsize);
+    check_add (s1, add_long10);
+    check_add (s1, add_llong10);
     run_test (s1);
 }
 
