@@ -111,6 +111,83 @@ START_TEST (dup)
 }
 END_TEST
 
+START_TEST (add)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_add (&b, "123", 3);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 3);
+
+    ret = chula_buffer_add (&b, "abcd", 4);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 3+4);
+
+    ret = chula_buffer_add (&b, "", 0);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 3+4);
+}
+END_TEST
+
+START_TEST (slice)
+{
+    ret_t           ret;
+    chula_buffer_t  a    = CHULA_BUF_INIT;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    chula_buffer_add_str (&a, "0123456789");
+
+    /* [2:4] */
+    ret = chula_buffer_add_buffer_slice (&b, &a, 2, 4);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 2);
+    ck_assert_str_eq (b.buf, "23");
+
+    /* [2:] */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_buffer_slice (&b, &a, 2, CHULA_BUF_SLIDE_NONE);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 8);
+    ck_assert_str_eq (b.buf, "23456789");
+
+    /* [-2:] */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_buffer_slice (&b, &a, -2, CHULA_BUF_SLIDE_NONE);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 2);
+    ck_assert_str_eq (b.buf, "89");
+
+    /* [:4] */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_buffer_slice (&b, &a, CHULA_BUF_SLIDE_NONE, 4);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 4);
+    ck_assert_str_eq (b.buf, "0123");
+
+    /* [:-4] */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_buffer_slice (&b, &a, CHULA_BUF_SLIDE_NONE, -4);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 6);
+    ck_assert_str_eq (b.buf, "012345");
+
+    /* [:] */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_buffer_slice (&b, &a, CHULA_BUF_SLIDE_NONE, CHULA_BUF_SLIDE_NONE);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 10);
+    ck_assert_str_eq (b.buf, "0123456789");
+
+    /* [0:0] */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_buffer_slice (&b, &a, 0, 0);
+    ck_assert (ret == ret_ok);
+     ck_assert (b.len == 0);
+}
+END_TEST
+
+
 int
 buffer_tests (void)
 {
@@ -118,6 +195,8 @@ buffer_tests (void)
     check_add (s1, init_heap);
     check_add (s1, init_ptr);
     check_add (s1, dup);
+    check_add (s1, add);
+    check_add (s1, slice);
     run_test (s1);
 }
 
