@@ -427,6 +427,39 @@ START_TEST (add_char_n)
 }
 END_TEST
 
+START_TEST (prepend)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_prepend (&b, "", 0);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+    ck_assert (b.buf == NULL);
+
+    ret = chula_buffer_prepend (&b, "!", 1);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 1);
+    ck_assert_str_eq (b.buf, "!");
+
+    ret = chula_buffer_prepend (&b, " there", 6);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 7);
+    ck_assert_str_eq (b.buf, " there!");
+
+    ret = chula_buffer_prepend (&b, "Hi", 2);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 9);
+    ck_assert_str_eq (b.buf, "Hi there!");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_prepend (&b, "Allocated", 9);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 9);
+    ck_assert_str_eq (b.buf, "Allocated");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -445,6 +478,7 @@ buffer_tests (void)
     check_add (s1, add_va);
     check_add (s1, add_char);
     check_add (s1, add_char_n);
+    check_add (s1, prepend);
     run_test (s1);
 }
 
