@@ -342,6 +342,11 @@ chula_buffer_add_buffer_slice (chula_buffer_t *buf,
 	if (unlikely (chula_buffer_is_empty (buf2)))
 		return ret_ok;
 
+    if (unlikely ((end <= begin) &&
+                  (end   != CHULA_BUF_SLIDE_NONE) &&
+                  (begin != CHULA_BUF_SLIDE_NONE)))
+        return ret_ok;
+
 	/* Check the end
 	 */
 	if (end == CHULA_BUF_SLIDE_NONE) {
@@ -352,7 +357,7 @@ chula_buffer_add_buffer_slice (chula_buffer_t *buf,
 			/* [__:x] */
 			pos_end = end;
 		} else {
-			if ((-end) > buf2->len) {
+			if ((-end) <= buf2->len) {
 				/* [__:-x] */
 				pos_end = buf2->len - (-end);
 			} else {
@@ -379,7 +384,7 @@ chula_buffer_add_buffer_slice (chula_buffer_t *buf,
 		} else {
 			if ((-begin) < buf2->len) {
 				/* [-x:__] */
-				pos_begin = buf2->len - begin;
+				pos_begin = buf2->len - (-begin);
 			} else {
 				/* [-xxxx:__] */
 				pos_begin = 0;
