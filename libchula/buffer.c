@@ -858,6 +858,9 @@ chula_buffer_prepend (chula_buffer_t *buf, const char *txt, size_t size)
 {
 	int free = buf->size - buf->len;
 
+	if (size <= 0)
+		return ret_ok;
+
 	/* Get memory
 	 */
 	if ((cuint_t) free < (size+1)) {
