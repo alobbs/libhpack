@@ -13,3 +13,4 @@ doc:
 
 test: all
 	./build/test/test_libhpack
+	./build/libchula/test/chula_test

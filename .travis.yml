@@ -15,6 +15,7 @@ script: |
   cd _build
   cmake ..
   make VERBOSE=1
+  cd ..
   make test
 
 # Run Tests
