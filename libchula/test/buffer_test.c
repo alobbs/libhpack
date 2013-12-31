@@ -187,6 +187,62 @@ START_TEST (slice)
 }
 END_TEST
 
+START_TEST (add_fsize)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_add_fsize (&b, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "0");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_fsize (&b, 900);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "900");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_fsize (&b, 1025);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "1.0K");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_fsize (&b, 2048);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "2.0K");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_fsize (&b, (2*1024) + 300);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "2.3K");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_fsize (&b, 1024*1024);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "1.0M");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_fsize (&b, 9.5*1024*1024);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "9.5M");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_fsize (&b, 2.1 * 1024*1024*1024);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "2.1G");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_fsize (&b, 9.9 * 1024*1024*1024*1024);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "9.9T");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_fsize (&b, 6.2 * 1024*1024*1024*1024*1024);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "6.2P");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -197,6 +253,7 @@ buffer_tests (void)
     check_add (s1, dup);
     check_add (s1, add);
     check_add (s1, slice);
+    check_add (s1, add_fsize);
     run_test (s1);
 }
 
