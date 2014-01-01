@@ -621,6 +621,33 @@ START_TEST (remove_string)
 }
 END_TEST
 
+START_TEST (remove_chunk)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_remove_chunk (&b, 0, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+    ck_assert (b.buf == NULL);
+
+    chula_buffer_add_str (&b, "0123456789");
+    ret = chula_buffer_remove_chunk (&b, 11, 2);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 10);
+    ck_assert_str_eq (b.buf, "0123456789");
+
+    ret = chula_buffer_remove_chunk (&b, 5, 4);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 6);
+    ck_assert_str_eq (b.buf, "012349");
+
+    ret = chula_buffer_remove_chunk (&b, 0, 99);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+}
+END_TEST
+
 int
 buffer_tests (void)
 {
@@ -646,6 +673,7 @@ buffer_tests (void)
     check_add (s1, swap_chars);
     check_add (s1, remove_dups);
     check_add (s1, remove_string);
+    check_add (s1, remove_chunk);
     run_test (s1);
 }
 
