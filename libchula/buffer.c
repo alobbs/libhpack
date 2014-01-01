@@ -892,6 +892,9 @@ chula_buffer_is_ending (chula_buffer_t *buf, char c)
 ret_t
 chula_buffer_move_to_begin (chula_buffer_t *buf, cuint_t pos)
 {
+    if (pos == 0)
+        return ret_ok;
+
 	if (pos >= buf->len) {
 		chula_buffer_clean(buf);
 		return ret_ok;
