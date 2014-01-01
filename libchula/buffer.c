@@ -1029,9 +1029,8 @@ chula_buffer_remove_string (chula_buffer_t *buf, char *string, int string_len)
 	char *tmp;
 	int   offset;
 
-	if (buf->len <= 0) {
-		return ret_ok;
-	}
+    if ((buf->len <= 0) || (string == NULL) || (string_len <= 0))
+        return ret_ok;
 
 	while ((tmp = strstr (buf->buf, string)) != NULL) {
 		offset = tmp - buf->buf;
