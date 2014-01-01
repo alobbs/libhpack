@@ -460,7 +460,6 @@ START_TEST (prepend)
 }
 END_TEST
 
-
 START_TEST (is_ending)
 {
     int             re;
@@ -479,6 +478,27 @@ START_TEST (is_ending)
 
     re = chula_buffer_is_ending (&b, '5');
     ck_assert (re == 1);
+}
+END_TEST
+
+START_TEST (move_to_begin)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    chula_buffer_add_str (&b, "0123456789");
+    ret = chula_buffer_move_to_begin (&b, 11);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&b, "0123456789");
+    ret = chula_buffer_move_to_begin (&b, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "0123456789");
+
+    ret = chula_buffer_move_to_begin (&b, 3);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "3456789");
 }
 END_TEST
 
@@ -502,6 +522,7 @@ buffer_tests (void)
     check_add (s1, add_char_n);
     check_add (s1, prepend);
     check_add (s1, is_ending);
+    check_add (s1, move_to_begin);
     run_test (s1);
 }
 
