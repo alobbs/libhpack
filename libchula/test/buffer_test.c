@@ -648,6 +648,56 @@ START_TEST (remove_chunk)
 }
 END_TEST
 
+START_TEST (cmp_buf)
+{
+    int             re;
+    chula_buffer_t  a   = CHULA_BUF_INIT;
+    chula_buffer_t  b   = CHULA_BUF_INIT;
+
+    re = chula_buffer_cmp_buf (&a, &b);
+    ck_assert (re == 0);
+
+    chula_buffer_add_str (&a, "a");
+    re = chula_buffer_cmp_buf (&a, &b);
+    ck_assert (re > 0);
+    re = chula_buffer_cmp_buf (&b, &a);
+    ck_assert (re < 0);
+
+    chula_buffer_add_str (&a, "bcd");
+    chula_buffer_add_str (&b, "abcd");
+    re = chula_buffer_cmp_buf (&a, &b);
+    ck_assert (re == 0);
+    re = chula_buffer_cmp_buf (&b, &a);
+    ck_assert (re == 0);
+}
+END_TEST
+
+START_TEST (cmp)
+{
+    int             re;
+    chula_buffer_t  b   = CHULA_BUF_INIT;
+
+    re = chula_buffer_cmp (&b, NULL, 0);
+    ck_assert (re == 0);
+
+    re = chula_buffer_cmp (&b, "a", 1);
+    ck_assert (re < 0);
+
+    chula_buffer_add_str (&b, "hola");
+    re = chula_buffer_cmp (&b, "a", 1);
+    ck_assert (re > 0);
+
+    re = chula_buffer_cmp (&b, "ho", 2);
+    ck_assert (re > 0);
+
+    re = chula_buffer_cmp (&b, "hola", 2);
+    ck_assert (re > 0);
+
+    re = chula_buffer_cmp (&b, "hola", 4);
+    ck_assert (re == 0);
+}
+END_TEST
+
 int
 buffer_tests (void)
 {
@@ -674,6 +724,8 @@ buffer_tests (void)
     check_add (s1, remove_dups);
     check_add (s1, remove_string);
     check_add (s1, remove_chunk);
+    check_add (s1, cmp_buf);
+    check_add (s1, cmp);
     run_test (s1);
 }
 
