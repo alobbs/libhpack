@@ -461,6 +461,28 @@ START_TEST (prepend)
 END_TEST
 
 
+START_TEST (is_ending)
+{
+    int             re;
+    chula_buffer_t  b   = CHULA_BUF_INIT;
+
+    re = chula_buffer_is_ending (&b, ' ');
+    ck_assert (re == 0);
+
+    re = chula_buffer_is_ending (&b, 'a');
+    ck_assert (re == 0);
+
+    chula_buffer_add_str (&b, "12345");
+
+    re = chula_buffer_is_ending (&b, '4');
+    ck_assert (re == 0);
+
+    re = chula_buffer_is_ending (&b, '5');
+    ck_assert (re == 1);
+}
+END_TEST
+
+
 int
 buffer_tests (void)
 {
@@ -479,6 +501,7 @@ buffer_tests (void)
     check_add (s1, add_char);
     check_add (s1, add_char_n);
     check_add (s1, prepend);
+    check_add (s1, is_ending);
     run_test (s1);
 }
 
