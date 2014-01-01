@@ -502,6 +502,100 @@ START_TEST (move_to_begin)
 }
 END_TEST
 
+START_TEST (ensure_size)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ck_assert (b.buf == NULL);
+    ck_assert (b.size == 0);
+
+    ret = chula_buffer_ensure_size (&b, 100);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.buf != NULL);
+    ck_assert (b.size == 100);
+
+    ret = chula_buffer_ensure_size (&b, 99);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.buf != NULL);
+    ck_assert (b.size == 100);
+
+    ret = chula_buffer_ensure_size (&b, 200);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.buf != NULL);
+    ck_assert (b.size == 200);
+}
+END_TEST
+
+START_TEST (drop_ending)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    chula_buffer_add_str (&b, "0123456789");
+
+    ret = chula_buffer_drop_ending (&b, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 10);
+    ck_assert_str_eq (b.buf, "0123456789");
+
+    ret = chula_buffer_drop_ending (&b, 2);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 8);
+    ck_assert_str_eq (b.buf, "01234567");
+
+    ret = chula_buffer_drop_ending (&b, 999);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+}
+END_TEST
+
+START_TEST (swap_chars)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    chula_buffer_add_str (&b, "0123401234");
+
+    ret = chula_buffer_swap_chars (&b, '2', '*');
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 10);
+    ck_assert_str_eq (b.buf, "01*3401*34");
+
+    ret = chula_buffer_swap_chars (&b, 'Z', '$');
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 10);
+    ck_assert_str_eq (b.buf, "01*3401*34");
+
+    chula_buffer_clean (&b);
+    ret = chula_buffer_swap_chars (&b, 'Z', '$');
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+}
+END_TEST
+
+START_TEST (remove_dups)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_remove_dups (&b, 'Z');
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&b, "abcccde");
+    ret = chula_buffer_remove_dups (&b, 'c');
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "abcde");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "aaaaaaa");
+    ret = chula_buffer_remove_dups (&b, 'a');
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 1);
+    ck_assert_str_eq (b.buf, "a");
+}
+END_TEST
 
 int
 buffer_tests (void)
@@ -523,6 +617,10 @@ buffer_tests (void)
     check_add (s1, prepend);
     check_add (s1, is_ending);
     check_add (s1, move_to_begin);
+    check_add (s1, ensure_size);
+    check_add (s1, drop_ending);
+    check_add (s1, swap_chars);
+    check_add (s1, remove_dups);
     run_test (s1);
 }
 
