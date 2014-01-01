@@ -597,6 +597,30 @@ START_TEST (remove_dups)
 }
 END_TEST
 
+START_TEST (remove_string)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_remove_string (&b, NULL, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&b, "hola hola caracola");
+    ret = chula_buffer_remove_string (&b, "hola ", 5);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "caracola");
+
+    ret = chula_buffer_remove_string (&b, "bye", 3);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "caracola");
+
+    ret = chula_buffer_remove_string (&b, "raco", 0);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "caracola");
+}
+END_TEST
+
 int
 buffer_tests (void)
 {
@@ -621,6 +645,7 @@ buffer_tests (void)
     check_add (s1, drop_ending);
     check_add (s1, swap_chars);
     check_add (s1, remove_dups);
+    check_add (s1, remove_string);
     run_test (s1);
 }
 
