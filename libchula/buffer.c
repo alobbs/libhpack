@@ -1129,6 +1129,9 @@ chula_buffer_cnt_cspn (chula_buffer_t *buf, cuint_t offset, const char *str)
 crc_t
 chula_buffer_crc32 (chula_buffer_t *buf)
 {
+    if (chula_buffer_is_empty (buf))
+        return 0;
+
 	return crc32_sz (buf->buf, buf->len);
 }
 
