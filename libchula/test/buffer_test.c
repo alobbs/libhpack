@@ -1107,6 +1107,35 @@ START_TEST (encode_sha1)
 }
 END_TEST
 
+START_TEST (sha1_digest)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    /* Empty */
+    ret = chula_buffer_encode_sha1_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 40);
+    ck_assert_str_eq (b.buf, "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+
+    /* Text */
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "abc 123");
+    ret = chula_buffer_encode_sha1_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 40);
+    ck_assert_str_eq (b.buf, "e2d0a343442ba7bd2c0537659a05e61668575f2b");
+
+    /* Binary */
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "\x00\x01\xfe\xff");
+    ret = chula_buffer_encode_sha1_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 40);
+    ck_assert_str_eq (b.buf, "302c1f256c8e9ebb5edf0822b473d0cd3d2ce84c");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1150,6 +1179,7 @@ buffer_tests (void)
     check_add (s1, md5_digest);
     check_add (s1, encode_md5);
     check_add (s1, encode_sha1);
+    check_add (s1, sha1_digest);
     run_test (s1);
 }
 
