@@ -1581,8 +1581,8 @@ chula_buffer_add_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
 
 	/* Verify that source string is not empty.
 	 */
-	if (unlikely (src->buf == NULL))
-		return ret_error;
+	if (unlikely (chula_buffer_is_empty(src)))
+		return ret_ok;
 
 	/* Verify string termination,
 	 * we assume there are no '\0' inside buffer.
@@ -1614,6 +1614,7 @@ chula_buffer_add_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
             continue;
         case '#':	/* &#35; */
         case '\'':	/* &#39; */
+        case '/':   /* &#47; */
             extra += 4;
         default:
             continue;
@@ -1669,6 +1670,11 @@ chula_buffer_add_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
 
 		case '\'':
 			memcpy (p2, "&#39;", 5);
+			p2 += 5;
+			continue;
+
+		case '/':
+			memcpy (p2, "&#47;", 5);
 			p2 += 5;
 			continue;
 
