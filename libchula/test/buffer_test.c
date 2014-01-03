@@ -920,6 +920,24 @@ START_TEST (escape_uri)
 }
 END_TEST
 
+START_TEST (escape_uri_delims)
+{
+    ret_t           ret;
+    chula_buffer_t  a    = CHULA_BUF_INIT;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_escape_uri_delims (&b, &a);
+    ck_assert (ret == ret_ok);
+    ck_assert (a.len == 0);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&a, "hola \x00\x01\x1f :?#[]@ \x7f\xff adios!");
+    ret = chula_buffer_escape_uri_delims(&b, &a);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "hola%20%00%01%1f%20%3a%3f%23%5b%5d%40%20%7f%ff%20adios!");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -956,6 +974,7 @@ buffer_tests (void)
     check_add (s1, get_utf8_len);
     check_add (s1, unescape_uri);
     check_add (s1, escape_uri);
+    check_add (s1, escape_uri_delims);
     run_test (s1);
 }
 
