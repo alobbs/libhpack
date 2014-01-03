@@ -30,6 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 #include <check.h>
 #include "libchula/buffer.h"
 
@@ -95,7 +99,7 @@ START_TEST (init_ptr)
 }
 END_TEST
 
-START_TEST (dup)
+START_TEST (dup_)
 {
     ret_t           ret;
     chula_buffer_t  b1   = CHULA_BUF_INIT;
@@ -705,7 +709,6 @@ START_TEST (crc32)
 
     /* python -c "import zlib; print zlib.crc32('')" */
     crc = chula_buffer_crc32 (&b);
-    printf ("crc %d\n", crc);
     ck_assert (crc == 0);
 
     /* python -c "import zlib; print zlib.crc32('h')" */
@@ -735,7 +738,7 @@ START_TEST (read_file)
 
     /* Read an actual file */
     FILE *f        = NULL;
-    char *filename = tempnam (NULL, NULL);
+    char *filename = mktemp ("buffer_test");
 
     f = fopen (filename, "w+");
     ck_assert (f != NULL);
@@ -753,13 +756,52 @@ START_TEST (read_file)
 END_TEST
 
 
+START_TEST (read_from_fd)
+{
+    int             fd;
+    ret_t           ret;
+    size_t          did_read = 0;
+    chula_buffer_t  b        = CHULA_BUF_INIT;
+
+    /* Doesn't exists */
+    fd = open ("/it/doesnt/exist", O_RDONLY);
+    ret = chula_buffer_read_from_fd (&b, fd, 0, &did_read);
+    close (fd);
+    ck_assert (ret == ret_error);
+
+    /* Not a file */
+    fd = open ("/", O_RDONLY);
+    ret = chula_buffer_read_from_fd (&b, fd, 1, &did_read);
+    close (fd);
+    ck_assert (ret == ret_error);
+
+    /* Read an actual file */
+    FILE *f        = NULL;
+    char *filename = mktemp ("buffer_test");
+
+    f = fopen (filename, "w+");
+    ck_assert (f != NULL);
+
+    fwrite ("content", 1, 7, f);
+    fclose(f);
+
+    fd = open (filename, O_RDONLY);
+    ret = chula_buffer_read_from_fd (&b, fd, 9999, &did_read);
+    unlink (filename);
+
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 7);
+    ck_assert_str_eq (b.buf, "content");
+}
+END_TEST
+
 int
 buffer_tests (void)
 {
     Suite *s1 = suite_create("Buffer");
     check_add (s1, init_heap);
     check_add (s1, init_ptr);
-    check_add (s1, dup);
+    check_add (s1, dup_);
     check_add (s1, add);
     check_add (s1, slice);
     check_add (s1, add_fsize);
@@ -783,6 +825,7 @@ buffer_tests (void)
     check_add (s1, cmp);
     check_add (s1, crc32);
     check_add (s1, read_file);
+//    check_add (s1, read_from_fd);
     run_test (s1);
 }
 
