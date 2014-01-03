@@ -1196,6 +1196,9 @@ chula_buffer_read_from_fd (chula_buffer_t *buf, int fd, size_t size, size_t *ret
 {
 	int  len;
 
+    if (fd < 0)
+        return ret_error;
+
 	/* Ensure there is enough space in buffer
 	 * NOTE: usually the caller should have already allocated
 	 *       enough space for the buffer, so this is a security measure
