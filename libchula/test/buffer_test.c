@@ -956,6 +956,32 @@ START_TEST (escape_arg)
 }
 END_TEST
 
+START_TEST (add_escape_html)
+{
+    ret_t           ret;
+    chula_buffer_t  a    = CHULA_BUF_INIT;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_add_escape_html (&b, &a);
+    ck_assert (ret == ret_ok);
+    ck_assert (a.len == 0);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&a, "<this>");
+    ret = chula_buffer_add_escape_html (&b, &a);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "&lt;this&gt;");
+
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+
+    chula_buffer_add_str (&a, "a & b < c > d \" e ' f / g # @[]{}-_$!");
+    ret = chula_buffer_add_escape_html (&b, &a);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "a &amp; b &lt; c &gt; d &quot; e &#39; f &#47; g &#35; @[]{}-_$!");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -994,6 +1020,7 @@ buffer_tests (void)
     check_add (s1, escape_uri);
     check_add (s1, escape_uri_delims);
     check_add (s1, escape_arg);
+    check_add (s1, add_escape_html);
     run_test (s1);
 }
 
