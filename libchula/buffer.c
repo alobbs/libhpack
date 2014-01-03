@@ -1460,14 +1460,15 @@ escape_with_table (chula_buffer_t *buffer,
 	cuint_t              n_escape    = 0;
 	static char          hex_chars[] = "0123456789abcdef";
 
-	if (unlikely (src->buf == NULL)) {
-		return ret_error;
-	}
+	if (unlikely (chula_buffer_is_empty(src)))
+		return ret_ok;
 
 	end = src->buf + src->len;
 
-	/* Count how many characters it'll have to escape
-	 */
+	/* Count how many characters it'll have to escape. Each *bit*
+     * position of the array represents whether or not the character
+     * is escaped.
+     */
 	s = src->buf;
 	do {
 		s_next = utf8_get_next_char (s);
@@ -1518,19 +1519,6 @@ escape_with_table (chula_buffer_t *buffer,
 		s = s_next;
 	} while (s < end);
 
-
-
-/* 	for (i=0; i<src->len; i++) { */
-/* 		if (is_char_escaped[*s >> 5] & (1 << (*s & 0x1f))) { */
-/* 			*t++ = '%'; */
-/* 			*t++ = hex_chars[*s >> 4]; */
-/* 			*t++ = hex_chars[*s & 0xf]; */
-/* 			s++; */
-/* 		} else { */
-/* 			*t++ = *s++; */
-/* 		} */
-/* 	} */
-
 	/* ..and the final touch
 	 */
 	*t = '\0';
@@ -1543,11 +1531,8 @@ escape_with_table (chula_buffer_t *buffer,
 ret_t
 chula_buffer_escape_uri (chula_buffer_t *buffer, chula_buffer_t *src)
 {
-	/* RFC 3986:
-	 * Each *bit* position of the array represents
-	 * whether or not the character is escaped.
-	 */
 	static uint32_t escape_uri[] = {
+        /* %00-%1F, " ", "#", "%", "?", %7F-%FF */
 		0xffffffff, 0x80000029, 0x00000000, 0x80000000,
 		0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff
 	};
@@ -1576,11 +1561,8 @@ chula_buffer_escape_uri_delims (chula_buffer_t *buffer, chula_buffer_t *src)
 ret_t
 chula_buffer_escape_arg (chula_buffer_t *buffer, chula_buffer_t *src)
 {
-	/* Escapes:
-	 *
-	 * %00..%1F, ";", " ", "#", "%", "&", "+", "?", %7F..%FF
-	 */
 	static uint32_t escape_arg[] = {
+        /* %00-%1F, " ", "#", "%", "&", "+", "?", %7F-%FF */
 		0xffffffff, 0x88000869, 0x00000000, 0x80000000,
 		0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff
 	};
