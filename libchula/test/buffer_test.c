@@ -816,6 +816,45 @@ START_TEST (multiply)
 }
 END_TEST
 
+START_TEST (get_utf8_len)
+{
+    ret_t           ret;
+    cuint_t         len  = 0;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_get_utf8_len (&b, &len);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&b, "hola");
+    ret = chula_buffer_get_utf8_len (&b, &len);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 4);
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "ñáñé");
+    ret = chula_buffer_get_utf8_len (&b, &len);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 8);
+    ck_assert (len == 4);
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "イロハニホヘト");
+    ret = chula_buffer_get_utf8_len (&b, &len);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 21);
+    ck_assert (len == 7);
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "ψυχοφθόρα");
+    ret = chula_buffer_get_utf8_len (&b, &len);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 18);
+    ck_assert (len == 9);
+}
+END_TEST
+
+
 int
 buffer_tests (void)
 {
@@ -848,6 +887,7 @@ buffer_tests (void)
     check_add (s1, read_file);
     check_add (s1, read_from_fd);
     check_add (s1, multiply);
+    check_add (s1, get_utf8_len);
     run_test (s1);
 }
 
