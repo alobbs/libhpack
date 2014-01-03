@@ -888,6 +888,38 @@ START_TEST (unescape_uri)
 }
 END_TEST
 
+START_TEST (escape_uri)
+{
+    ret_t           ret;
+    chula_buffer_t  a    = CHULA_BUF_INIT;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_escape_uri (&b, &a);
+    ck_assert (ret == ret_ok);
+    ck_assert (a.len == 0);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&a, "http://host/file?key1=one&key2=two");
+    ret = chula_buffer_escape_uri (&b, &a);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "http://host/file%3fkey1=one&key2=two");
+
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&a, "http://host/with spaces");
+    ret = chula_buffer_escape_uri(&b, &a);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "http://host/with%20spaces");
+
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&a, "\x00\x01\x1f\x7f\xff");
+    ret = chula_buffer_escape_uri(&b, &a);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "%00%01%1f%7f%ff");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -923,8 +955,10 @@ buffer_tests (void)
     check_add (s1, multiply);
     check_add (s1, get_utf8_len);
     check_add (s1, unescape_uri);
+    check_add (s1, escape_uri);
     run_test (s1);
 }
+
 
 int
 main (void)
