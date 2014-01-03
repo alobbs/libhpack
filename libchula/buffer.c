@@ -1402,8 +1402,8 @@ chula_buffer_unescape_uri (chula_buffer_t *buffer)
 
 	TRACE(ENTRIES, "Prev: %s\n", buffer->buf);
 
-	if (unlikely (buffer->buf == NULL))
-		return ret_error;
+    if (chula_buffer_is_empty (buffer))
+		return ret_ok;
 
 	/* Verify string termination,
 	 * we assume there are no '\0' inside buffer.
