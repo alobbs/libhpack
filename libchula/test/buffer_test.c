@@ -1026,6 +1026,35 @@ START_TEST (base64)
 }
 END_TEST
 
+START_TEST (md5_digest)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    /* Empty */
+    ret = chula_buffer_encode_md5_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 32);
+    ck_assert_str_eq (b.buf, "d41d8cd98f00b204e9800998ecf8427e");
+
+    /* Text */
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "hola");
+    ret = chula_buffer_encode_md5_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 32);
+    ck_assert_str_eq (b.buf, "4d186321c1a7f0f354b297e8914ab240");
+
+    /* Binary */
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "\x00\x01\xfe\xff");
+    ret = chula_buffer_encode_md5_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 32);
+    ck_assert_str_eq (b.buf, "f129ac2d8a0ee74923012d1c8ed83a86");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1066,6 +1095,7 @@ buffer_tests (void)
     check_add (s1, escape_arg);
     check_add (s1, add_escape_html);
     check_add (s1, base64);
+    check_add (s1, md5_digest);
     run_test (s1);
 }
 
