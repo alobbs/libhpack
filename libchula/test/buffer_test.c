@@ -1055,6 +1055,30 @@ START_TEST (md5_digest)
 }
 END_TEST
 
+START_TEST (encode_md5)
+{
+    ret_t           ret;
+    chula_buffer_t  a    = CHULA_BUF_INIT;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    /* Empty */
+    ret = chula_buffer_encode_md5 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 16);
+    ck_assert_str_eq (b.buf, "\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\x09\x98\xec\xf8\x42\x7e");
+
+    /* Binary */
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+
+    chula_buffer_add_str (&b, "\x00\x01\xfe\xff");
+    ret = chula_buffer_encode_md5 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 16);
+    ck_assert_str_eq (b.buf, "\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\x09\x98\xec\xf8\x42\x7e");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1096,6 +1120,7 @@ buffer_tests (void)
     check_add (s1, add_escape_html);
     check_add (s1, base64);
     check_add (s1, md5_digest);
+    check_add (s1, encode_md5);
     run_test (s1);
 }
 
