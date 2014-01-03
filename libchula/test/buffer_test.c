@@ -720,6 +720,38 @@ START_TEST (crc32)
 }
 END_TEST
 
+START_TEST (read_file)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    /* Doesn't exists */
+    ret = chula_buffer_read_file (&b, "/it/doesnt/exist");
+    ck_assert (ret != ret_ok);
+
+    /* Not a file */
+    ret = chula_buffer_read_file (&b, "/");
+    ck_assert (ret != ret_ok);
+
+    /* Read an actual file */
+    FILE *f        = NULL;
+    char *filename = tempnam (NULL, NULL);
+
+    f = fopen (filename, "w+");
+    ck_assert (f != NULL);
+
+    fwrite ("hola", 1, 4, f);
+    fclose(f);
+
+    ret = chula_buffer_read_file (&b, filename);
+    unlink (filename);
+
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 4);
+    ck_assert_str_eq (b.buf, "hola");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -750,6 +782,7 @@ buffer_tests (void)
     check_add (s1, cmp_buf);
     check_add (s1, cmp);
     check_add (s1, crc32);
+    check_add (s1, read_file);
     run_test (s1);
 }
 
