@@ -1079,6 +1079,34 @@ START_TEST (encode_md5)
 }
 END_TEST
 
+START_TEST (encode_sha1)
+{
+    ret_t           ret;
+    chula_buffer_t  a    = CHULA_BUF_INIT;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    /* Empty */
+    ret = chula_buffer_encode_sha1 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 20);
+    ck_assert_str_eq (b.buf,
+                      "\xda\x39" "\xa3\xee" "\x5e\x6b" "\x4b\x0d" "\x32\x55"
+                      "\xbf\xef" "\x95\x60" "\x18\x90" "\xaf\xd8" "\x07\x09");
+
+    /* Binary */
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+
+    chula_buffer_add_str (&b, "\x00\x01\xfe\xff");
+    ret = chula_buffer_encode_sha1 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 20);
+    ck_assert_str_eq (b.buf,
+                      "\xda\x39" "\xa3\xee" "\x5e\x6b" "\x4b\x0d" "\x32\x55"
+                      "\xbf\xef" "\x95\x60" "\x18\x90" "\xaf\xd8" "\x07\x09");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1121,6 +1149,7 @@ buffer_tests (void)
     check_add (s1, base64);
     check_add (s1, md5_digest);
     check_add (s1, encode_md5);
+    check_add (s1, encode_sha1);
     run_test (s1);
 }
 
