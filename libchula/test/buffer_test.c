@@ -698,6 +698,29 @@ START_TEST (cmp)
 }
 END_TEST
 
+START_TEST (crc32)
+{
+    crc_t           crc;
+    chula_buffer_t  b   = CHULA_BUF_INIT;
+
+    /* python -c "import zlib; print zlib.crc32('')" */
+    crc = chula_buffer_crc32 (&b);
+    printf ("crc %d\n", crc);
+    ck_assert (crc == 0);
+
+    /* python -c "import zlib; print zlib.crc32('h')" */
+    chula_buffer_add_str (&b, "h");
+    crc = chula_buffer_crc32 (&b);
+    ck_assert (crc == -1855256857);
+
+    /* python -c "import zlib; print zlib.crc32('hola')" */
+    chula_buffer_add_str (&b, "ola");
+    crc = chula_buffer_crc32 (&b);
+    ck_assert (crc == 1872820616);
+}
+END_TEST
+
+
 int
 buffer_tests (void)
 {
@@ -726,6 +749,7 @@ buffer_tests (void)
     check_add (s1, remove_chunk);
     check_add (s1, cmp_buf);
     check_add (s1, cmp);
+    check_add (s1, crc32);
     run_test (s1);
 }
 
