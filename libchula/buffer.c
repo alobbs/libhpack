@@ -1256,7 +1256,7 @@ chula_buffer_multiply (chula_buffer_t *buf, int num)
 	initial_size = buf->len;
 	chula_buffer_ensure_size (buf, buf->len * num + 1);
 
-	for (i=0; i<num; i++) {
+	for (i=1; i<num; i++) {
 		chula_buffer_add (buf, buf->buf, initial_size);
 	}
 
