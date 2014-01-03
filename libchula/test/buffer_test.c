@@ -982,6 +982,50 @@ START_TEST (add_escape_html)
 }
 END_TEST
 
+START_TEST (base64)
+{
+    ret_t           ret;
+    chula_buffer_t  a    = CHULA_BUF_INIT;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    /* Empty */
+    ret = chula_buffer_encode_base64 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (a.len == 0);
+    ck_assert (b.len == 0);
+
+    ret = chula_buffer_decode_base64 (&a);
+    ck_assert (ret == ret_ok);
+    ck_assert (a.len == 0);
+
+    /* Text string */
+    chula_buffer_add_str (&a, "testing");
+    ret = chula_buffer_encode_base64 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "dGVzdGluZw==");
+    ck_assert (b.len == 12);
+
+    ret = chula_buffer_decode_base64 (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "testing");
+    ck_assert (b.len ==7);
+
+    /* Binary */
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&a);
+
+    chula_buffer_add_str (&a, "\x00\x01\x03\x04\xfd\xfe\xff");
+    ret = chula_buffer_encode_base64 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "AAEDBP3+/w==");
+    ck_assert (b.len == 12);
+
+    ret = chula_buffer_decode_base64 (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 7);
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1021,6 +1065,7 @@ buffer_tests (void)
     check_add (s1, escape_uri_delims);
     check_add (s1, escape_arg);
     check_add (s1, add_escape_html);
+    check_add (s1, base64);
     run_test (s1);
 }
 
