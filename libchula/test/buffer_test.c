@@ -43,8 +43,9 @@
     tcase_add_test (testcase_ ##func, func);
 
 #define run_test(suit)                          \
-    SRunner *sr = srunner_create(suit);         \
-    srunner_run_all(sr, CK_VERBOSE);            \
+    SRunner *sr = srunner_create (suit);        \
+    srunner_set_fork_status (sr, CK_NOFORK);    \
+    srunner_run_all (sr, CK_VERBOSE);           \
     return srunner_ntests_failed(sr);
 
 
