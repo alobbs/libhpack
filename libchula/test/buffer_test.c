@@ -854,6 +854,40 @@ START_TEST (get_utf8_len)
 }
 END_TEST
 
+START_TEST (unescape_uri)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_unescape_uri (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&b, "http://host/file?key1=one&key2=two");
+    ret = chula_buffer_unescape_uri(&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "http://host/file?key1=one&key2=two");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "http://host/with%20spaces");
+    ret = chula_buffer_unescape_uri(&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "http://host/with spaces");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "http://host/100%25");
+    ret = chula_buffer_unescape_uri(&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "http://host/100%");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "http://host/end%00not");
+    ret = chula_buffer_unescape_uri(&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "http://host/end not");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -888,6 +922,7 @@ buffer_tests (void)
     check_add (s1, read_from_fd);
     check_add (s1, multiply);
     check_add (s1, get_utf8_len);
+    check_add (s1, unescape_uri);
     run_test (s1);
 }
 
