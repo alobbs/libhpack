@@ -1711,6 +1711,9 @@ chula_buffer_decode_base64 (chula_buffer_t *buf)
 	int      d, prev_d = 0;
 	int      buf_pos   = 0;
 
+    if (unlikely (chula_buffer_is_empty (buf)))
+        return ret_ok;
+
 	/* Base-64 decoding: This represents binary data as printable
 	 * ASCII characters. Three 8-bit binary bytes are turned into
 	 * four 6-bit values, like so:
@@ -1796,6 +1799,9 @@ chula_buffer_encode_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 
 	static const char base64tab[]=
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    if (unlikely (chula_buffer_is_empty (buf)))
+        return ret_ok;
 
 	/* Get memory
 	 */
