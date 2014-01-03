@@ -755,7 +755,6 @@ START_TEST (read_file)
 }
 END_TEST
 
-
 START_TEST (read_from_fd)
 {
     int             fd;
@@ -795,6 +794,27 @@ START_TEST (read_from_fd)
 }
 END_TEST
 
+START_TEST (multiply)
+{
+    ret_t           ret;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_multiply (&b, 10);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&b, "chula");
+
+    ret = chula_buffer_multiply (&b, 1);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 5);
+
+    ret = chula_buffer_multiply (&b, 3);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 15);
+}
+END_TEST
+
 int
 buffer_tests (void)
 {
@@ -825,7 +845,8 @@ buffer_tests (void)
     check_add (s1, cmp);
     check_add (s1, crc32);
     check_add (s1, read_file);
-//    check_add (s1, read_from_fd);
+    check_add (s1, read_from_fd);
+    check_add (s1, multiply);
     run_test (s1);
 }
 
