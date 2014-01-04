@@ -1170,6 +1170,40 @@ START_TEST (sha1_base64)
 }
 END_TEST
 
+START_TEST (encode_hex)
+{
+    ret_t           ret;
+    chula_buffer_t  a    = CHULA_BUF_INIT;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    /* Empty */
+    ret = chula_buffer_encode_hex (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+    ck_assert_str_eq (b.buf, "");
+
+    /* Text */
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+
+    chula_buffer_add_str (&a, "abc 123");
+    ret = chula_buffer_encode_hex (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 14);
+    ck_assert_str_eq (b.buf, "61626320313233");
+
+    /* Binary */
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+
+    chula_buffer_add_str (&a, "\x00\x01\xfe\xff");
+    ret = chula_buffer_encode_hex (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 8);
+    ck_assert_str_eq (b.buf, "0001feff");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1215,6 +1249,7 @@ buffer_tests (void)
     check_add (s1, encode_sha1);
     check_add (s1, sha1_digest);
     check_add (s1, sha1_base64);
+    check_add (s1, encode_hex);
     run_test (s1);
 }
 
