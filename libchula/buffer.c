@@ -2104,6 +2104,8 @@ chula_buffer_decode_hex (chula_buffer_t *buf)
 		-1,10,11,12,13,14,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,    /*   a..f     */
 		-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };  /*            */
 
+    if (unlikely (chula_buffer_is_empty (buf)))
+        return ret_ok;
 
 	for (i=0; i<buf->len/2; i++) {
 		/* It uses << 1 rather than * 2
