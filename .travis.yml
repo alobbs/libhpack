@@ -28,10 +28,6 @@ script: |
   make test ARGS="-V"
   cd ..
 
-# Run Tests
-after_script:
-  - if [ -f CTestTestfile.cmake ]; then ctest -V . ; fi
-
 after_success:
   - if [ x$COVERALLS == xyes ]; then coveralls --exclude test --exclude libchula/test --exclude-pattern 'CMake[^\.]*\.c(?:pp)?' --exclude-pattern '[^\.]*\.h'; fi
 
