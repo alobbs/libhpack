@@ -24,6 +24,16 @@ set(hpack_SOVERSION ${hpack_SOVERSION_MAJOR})
 option(BUILD_TESTS "Build the test suite" ON)
 option(BUILD_DOCS  "Build the documentation" ON)
 
+option(ENABLE_GCOV "Coverage support" false)
+if(ENABLE_GCOV)
+  set(CMAKE_C_FLAGS "-coverage ${CMAKE_C_FLAGS}")
+endif()
+
+option (USE_VALGRIND "Use valgrind when testing" true)
+if(USE_VALGRIND)
+  find_program(VALGRIND valgrind)
+endif()
+
 # Checks
 include(CheckTypeSize)
 include(CheckIncludeFiles)

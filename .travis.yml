@@ -4,12 +4,24 @@ compiler:
   - gcc
   - clang
 
+matrix:
+  include:
+    - compiler: gcc
+      env: BUILD=cmake
+    - compiler: clang
+      env: BUILD=cmake CMAKE_OPTION="-DUSE_VALGRIND=no" CFLAGS=-fsanitize=address
+    - compiler: gcc
+      env: BUILD=cmake CMAKE_OPTION="-DENABLE_GCOV=yes -DUSE_VALGRIND=no" COVERALLS=yes
+    - compiler: gcc
+      env: BUILD=cmake CMAKE_OPTION="-DENABLE_GCOV=no -DUSE_VALGRIND=yes"
+
 before_install: |
   sudo apt-get update -qq
 
 install: |
   sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu/ precise main universe"
-  sudo apt-get install -y cmake doxygen python-sphinx gcc make check
+  sudo apt-get install -y cmake doxygen python-sphinx gcc make check valgrind
+  sudo pip install cpp-coveralls --use-mirrors
 
 # Run the Build script
 script: |
@@ -22,7 +34,10 @@ script: |
 
 # Run Tests
 after_script:
- - if [ -f CTestTestfile.cmake ]; then ctest -V . ; fi
+  - if [ -f CTestTestfile.cmake ]; then ctest -V . ; fi
+
+after_success:
+  - if [ x$COVERALLS == xyes ]; then coveralls --exclude test --exclude libchula/test --exclude-pattern 'CMake[^\.]*\.c(?:pp)?' --exclude-pattern '[^\.]*\.h'; fi
 
 # Notify developers when build passed/failed.
 notifications:

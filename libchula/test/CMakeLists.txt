@@ -12,3 +12,9 @@ add_dependencies (chula_test chula)
 target_link_libraries (chula_test chula ${CHECK_LIBRARIES})
 
 add_test(chula_test chula_test)
+
+if(VALGRIND)
+  foreach(target ${ALL_TESTCASES})
+    add_test("valgrind-${target}" ${VALGRIND} --error-exitcode=255 --leak-check=full ${TEST_BIN_DIR}/${target})
+  endforeach()
+endif()
