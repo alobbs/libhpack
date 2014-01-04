@@ -1252,6 +1252,31 @@ START_TEST (end_char)
 }
 END_TEST
 
+START_TEST (replace_string)
+{
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_replace_string (&b, "hola", 4, "adios", 5);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&b, "hola caracola");
+
+    ret = chula_buffer_replace_string (&b, NULL, 0, "adios", 5);
+    ck_assert (ret == ret_deny);
+
+    ret = chula_buffer_replace_string (&b, "hola", 4, NULL, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, " caracola");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "hola caracola");
+    ret = chula_buffer_replace_string (&b, "hola", 4, "adios", 5);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "adios caracola");
+}
+END_TEST
 
 int
 buffer_tests (void)
@@ -1300,6 +1325,7 @@ buffer_tests (void)
     check_add (s1, encode_hex);
     check_add (s1, decode_hex);
     check_add (s1, end_char);
+    check_add (s1, replace_string);
     run_test (s1);
 }
 
