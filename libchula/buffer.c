@@ -2199,9 +2199,10 @@ chula_buffer_replace_string (chula_buffer_t *buf,
         replacement = "";
     }
 
-    if ((buf == NULL) ||
-        (buf->buf == NULL) ||
-        (substring == NULL) ||
+    if (chula_buffer_is_empty (buf))
+        return ret_ok;
+
+    if ((substring == NULL) ||
         (substring_length < 1) ||
         (replacement_length < 0))
     {
