@@ -1232,6 +1232,20 @@ START_TEST (decode_hex)
 }
 END_TEST
 
+START_TEST (end_char)
+{
+    char            re;
+    chula_buffer_t  b   = CHULA_BUF_INIT;
+
+    re = chula_buffer_end_char (&b);
+    ck_assert (re == '\0');
+
+    chula_buffer_add_str (&b, "ab\0cd");
+    re = chula_buffer_end_char (&b);
+    ck_assert (re == 'd');
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1279,6 +1293,7 @@ buffer_tests (void)
     check_add (s1, sha1_base64);
     check_add (s1, encode_hex);
     check_add (s1, decode_hex);
+    check_add (s1, end_char);
     run_test (s1);
 }
 
