@@ -773,7 +773,10 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
 //		LOG_ERROR (CHULA_ERROR_BUFFER_AVAIL_SIZE,
 //			   estimation, len, size, format);
 
-		chula_buffer_ensure_size (buf, buf->len + len + 2);
+		ret = chula_buffer_ensure_size (buf, buf->len + len + 2);
+        if (unlikely (ret != ret_ok))
+            return ret;
+
 		size = buf->size - buf->len;
 		len = vsnprintf (buf->buf + buf->len, size, format, args2);
 
@@ -1194,7 +1197,8 @@ chula_buffer_read_file (chula_buffer_t *buf, char *filename)
 ret_t
 chula_buffer_read_from_fd (chula_buffer_t *buf, int fd, size_t size, size_t *ret_size)
 {
-	int  len;
+    ret_t ret;
+	int   len;
 
     if (fd < 0)
         return ret_error;
@@ -1203,7 +1207,9 @@ chula_buffer_read_from_fd (chula_buffer_t *buf, int fd, size_t size, size_t *ret
 	 * NOTE: usually the caller should have already allocated
 	 *       enough space for the buffer, so this is a security measure
 	 */
-	chula_buffer_ensure_addlen(buf, size);
+	ret = chula_buffer_ensure_addlen(buf, size);
+    if (unlikely (ret != ret_ok))
+		return ret;
 
 	/* Read data at the end of the buffer
 	 */
@@ -1251,10 +1257,14 @@ chula_buffer_read_from_fd (chula_buffer_t *buf, int fd, size_t size, size_t *ret
 ret_t
 chula_buffer_multiply (chula_buffer_t *buf, int num)
 {
-	int i, initial_size;
+	ret_t ret;
+    int   i;
+    int   initial_size;
 
 	initial_size = buf->len;
-	chula_buffer_ensure_size (buf, buf->len * num + 1);
+	ret = chula_buffer_ensure_size (buf, buf->len * num + 1);
+	if (unlikely (ret != ret_ok))
+		return ret;
 
 	for (i=1; i<num; i++) {
 		chula_buffer_add (buf, buf->buf, initial_size);
@@ -1454,7 +1464,8 @@ escape_with_table (chula_buffer_t *buffer,
                    chula_buffer_t *src,
                    uint32_t       *is_char_escaped)
 {
-	unsigned char       *t;
+	ret_t                ret;
+    unsigned char       *t;
 	const unsigned char *s, *s_next;
 	char                *end;
 	cuint_t              n_escape    = 0;
@@ -1488,7 +1499,9 @@ escape_with_table (chula_buffer_t *buffer,
 
 	/* Get the memory
 	 */
-	chula_buffer_ensure_addlen (buffer, src->len + (n_escape * 3));
+	ret = chula_buffer_ensure_addlen (buffer, src->len + (n_escape * 3));
+	if (unlikely (ret != ret_ok))
+		return ret;
 
 	/* Convert it
 	 */
@@ -1861,15 +1874,18 @@ chula_buffer_encode_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 ret_t
 chula_buffer_encode_md5_digest (chula_buffer_t *buf)
 {
-	int i;
+	ret_t             ret;
+    int               i;
 	struct MD5Context context;
-	unsigned char digest[16];
+	unsigned char     digest[16];
 
 	MD5Init (&context);
 	MD5Update (&context, (md5byte *)buf->buf, buf->len);
 	MD5Final (digest, &context);
 
-	chula_buffer_ensure_size (buf, 34);
+	ret = chula_buffer_ensure_size (buf, 34);
+	if (unlikely (ret != ret_ok))
+		return ret;
 
 	for (i = 0; i < 16; ++i) {
 		int tmp;
@@ -1890,9 +1906,12 @@ chula_buffer_encode_md5_digest (chula_buffer_t *buf)
 ret_t
 chula_buffer_encode_md5 (chula_buffer_t *buf, chula_buffer_t *encoded)
 {
-	struct MD5Context context;
+	ret_t             ret;
+    struct MD5Context context;
 
-	chula_buffer_ensure_size (encoded, 17);
+	ret = chula_buffer_ensure_size (encoded, 17);
+	if (unlikely (ret != ret_ok))
+		return ret;
 
 	MD5Init (&context);
 	MD5Update (&context, (md5byte *)buf->buf, buf->len);
@@ -1912,12 +1931,16 @@ chula_buffer_encode_md5 (chula_buffer_t *buf, chula_buffer_t *encoded)
 ret_t
 chula_buffer_encode_sha1 (chula_buffer_t *buf, chula_buffer_t *encoded)
 {
-	SHA_INFO sha1;
+	ret_t    ret;
+    SHA_INFO sha1;
 
 	sha_init (&sha1);
 	sha_update (&sha1, (unsigned char*) buf->buf, buf->len);
 
-	chula_buffer_ensure_size (encoded, SHA1_DIGEST_SIZE + 1);
+	ret = chula_buffer_ensure_size (encoded, SHA1_DIGEST_SIZE + 1);
+	if (unlikely (ret != ret_ok))
+		return ret;
+
 	sha_final (&sha1, (unsigned char *) encoded->buf);
 
 	encoded->len = SHA1_DIGEST_SIZE;
@@ -1930,7 +1953,8 @@ chula_buffer_encode_sha1 (chula_buffer_t *buf, chula_buffer_t *encoded)
 ret_t
 chula_buffer_encode_sha1_digest (chula_buffer_t *buf)
 {
-	int           i;
+    ret_t         ret;
+    int           i;
 	unsigned char digest[SHA1_DIGEST_SIZE];
 	SHA_INFO      sha1;
 
@@ -1938,7 +1962,9 @@ chula_buffer_encode_sha1_digest (chula_buffer_t *buf)
 	sha_update (&sha1, (unsigned char*) buf->buf, buf->len);
 	sha_final (&sha1, digest);
 
-	chula_buffer_ensure_size (buf, (2 * SHA1_DIGEST_SIZE)+1);
+	ret = chula_buffer_ensure_size (buf, (2 * SHA1_DIGEST_SIZE)+1);
+	if (unlikely (ret != ret_ok))
+		return ret;
 
 	for (i = 0; i < SHA1_DIGEST_SIZE; ++i) {
 		int tmp;
@@ -1963,9 +1989,14 @@ chula_buffer_encode_sha1_digest (chula_buffer_t *buf)
 ret_t
 chula_buffer_encode_sha1_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 {
-	/* Prepare destination buffer
+	ret_t ret;
+
+    /* Prepare destination buffer
 	 */
-	chula_buffer_ensure_size (encoded, (SHA1_DIGEST_SIZE * 2) + 1);
+	ret = chula_buffer_ensure_size (encoded, (SHA1_DIGEST_SIZE * 2) + 1);
+	if (unlikely (ret != ret_ok))
+		return ret;
+
 	chula_buffer_clean (encoded);
 
 	/* Encode sha1 + base64
@@ -2058,15 +2089,19 @@ chula_buffer_encode_sha1_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 ret_t
 chula_buffer_encode_hex (chula_buffer_t *buf, chula_buffer_t *encoded)
 {
-	cuchar_t        *in;
-	cuchar_t        *out;
-	cuint_t         j;
-	cuint_t         i;
-	cuint_t         inlen = buf->len;
+	ret_t     ret;
+    cuchar_t *in;
+	cuchar_t *out;
+	cuint_t   j;
+	cuint_t   i;
+	cuint_t   inlen = buf->len;
 
 	/* Prepare destination buffer
 	 */
-	chula_buffer_ensure_size (encoded, (inlen * 2 + 1));
+	ret = chula_buffer_ensure_size (encoded, (inlen * 2 + 1));
+	if (unlikely (ret != ret_ok))
+		return ret;
+
 	chula_buffer_clean (encoded);
 
 	/* Encode source to destination
@@ -2302,7 +2337,9 @@ chula_buffer_substitute_string (chula_buffer_t *bufsrc,
 
 	/* Preset size of destination buffer.
 	 */
-	ret = chula_buffer_ensure_size(bufdst, result_length + 2);
+	ret = chula_buffer_ensure_size (bufdst, result_length + 2);
+	if (unlikely (ret != ret_ok))
+		return ret;
 
 	/* Build the new string
 	 */
@@ -2336,7 +2373,8 @@ chula_buffer_substitute_string (chula_buffer_t *bufsrc,
 ret_t
 chula_buffer_add_comma_marks (chula_buffer_t *buf)
 {
-	cuint_t  off, num, i;
+	ret_t    ret;
+    cuint_t  off, num, i;
 	char    *p;
 
 	if ((buf->buf == NULL) || (buf->len <= 3))
@@ -2345,7 +2383,9 @@ chula_buffer_add_comma_marks (chula_buffer_t *buf)
 	num = buf->len / 3;
 	off = buf->len % 3;
 
-	chula_buffer_ensure_size (buf, buf->len + num + 2);
+	ret = chula_buffer_ensure_size (buf, buf->len + num + 2);
+	if (unlikely (ret != ret_ok))
+		return ret;
 
 	if (off == 0) {
 		p = buf->buf + 3;
@@ -2424,7 +2464,11 @@ chula_buffer_insert (chula_buffer_t *buf,
                      size_t          txt_len,
                      size_t          pos)
 {
-	chula_buffer_ensure_size (buf, buf->len + txt_len + 1);
+    ret_t ret;
+
+	ret = chula_buffer_ensure_size (buf, buf->len + txt_len + 1);
+	if (unlikely (ret != ret_ok))
+		return ret;
 
 	/* Make room */
 	memmove (buf->buf + pos + txt_len,
