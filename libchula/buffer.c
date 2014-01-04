@@ -918,7 +918,7 @@ chula_buffer_move_to_begin (chula_buffer_t *buf, cuint_t pos)
 ret_t
 chula_buffer_ensure_addlen (chula_buffer_t *buf, size_t addlen)
 {
-    if (buf->len + addlen < buf->size)
+    if ((buf->len + addlen) < buf->size)
         return ret_ok;
 
     return chula_buffer_ensure_size (buf, ((size_t)buf->len + addlen + 1));
