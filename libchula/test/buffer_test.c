@@ -739,7 +739,7 @@ START_TEST (read_file)
 
     /* Read an actual file */
     FILE *f        = NULL;
-    char *tampleta = strdup ("buffer_XXXXXX");
+    char *template = strdup ("buffer_XXXXXX");
     char *filename = mktemp (template);
 
     f = fopen (filename, "w+");
@@ -780,7 +780,7 @@ START_TEST (read_from_fd)
 
     /* Read an actual file */
     FILE *f        = NULL;
-    char *tampleta = strdup ("buffer_XXXXXX");
+    char *template = strdup ("buffer_XXXXXX");
     char *filename = mktemp (template);
 
     f = fopen (filename, "w+");
