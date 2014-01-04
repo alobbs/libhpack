@@ -13,8 +13,6 @@ add_executable (test_libhpack ${SRCS})
 add_dependencies (test_libhpack hpack)
 target_link_libraries (test_libhpack hpack ${CHECK_LIBRARIES})
 
-add_test(test_libhpack test_libhpack)
-
 if(VALGRIND)
   foreach(target ${ALL_TESTCASES})
     add_test("valgrind-${target}" ${VALGRIND} --error-exitcode=255 --leak-check=full ${TEST_BIN_DIR}/${target})

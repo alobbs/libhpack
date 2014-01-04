@@ -121,6 +121,8 @@ if(BUILD_TESTS)
   include(CTest)
   enable_testing(true)
   add_subdirectory(test)
+  add_test(hpack test/test_libhpack)
+  add_test(chula libchula/test/chula_test)
 endif(BUILD_TESTS)
 
 if(BUILD_DOCS)

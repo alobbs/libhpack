@@ -25,7 +25,7 @@ script: |
   cd _build
   cmake $CMAKE_OPTION ..
   make VERBOSE=1
-  make VERBOSE=1 test
+  make test ARGS="-V"
   cd ..
 
 # Run Tests
