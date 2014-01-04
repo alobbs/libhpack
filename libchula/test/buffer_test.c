@@ -739,7 +739,8 @@ START_TEST (read_file)
 
     /* Read an actual file */
     FILE *f        = NULL;
-    char *filename = mktemp ("buffer_test");
+    char *tampleta = strdup ("buffer_XXXXXX");
+    char *filename = mktemp (template);
 
     f = fopen (filename, "w+");
     ck_assert (f != NULL);
@@ -753,6 +754,8 @@ START_TEST (read_file)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 4);
     ck_assert_str_eq (b.buf, "hola");
+
+    free (template);
 }
 END_TEST
 
@@ -777,7 +780,8 @@ START_TEST (read_from_fd)
 
     /* Read an actual file */
     FILE *f        = NULL;
-    char *filename = mktemp ("buffer_test");
+    char *tampleta = strdup ("buffer_XXXXXX");
+    char *filename = mktemp (template);
 
     f = fopen (filename, "w+");
     ck_assert (f != NULL);
@@ -792,6 +796,8 @@ START_TEST (read_from_fd)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 7);
     ck_assert_str_eq (b.buf, "content");
+
+    free (template);
 }
 END_TEST
 
