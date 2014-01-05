@@ -68,11 +68,30 @@ START_TEST (add)
 }
 END_TEST
 
+START_TEST (add_tail)
+{
+    chula_list_t l = LIST_HEAD_INIT(l);
+    test_entry_t e1 = {.base = LIST_HEAD_INIT(e1), .value = 1};
+    test_entry_t e2 = {.base = LIST_HEAD_INIT(e2), .value = 2};
+    test_entry_t e3 = {.base = LIST_HEAD_INIT(e3), .value = 3};
+
+    chula_list_add_tail (&e1, &l);
+    chula_list_add_tail (&e2, &l);
+    chula_list_add_tail (&e3, &l);
+
+    ck_assert (((test_entry_t *)(l.next))->value == 1);
+    ck_assert (((test_entry_t *)(l.next->next))->value == 2);
+    ck_assert (((test_entry_t *)(l.next->next->next))->value == 3);
+    ck_assert (l.next->next->next->next == &l);
+}
+END_TEST
+
 int
 list_tests (void)
 {
     Suite *s1 = suite_create("List");
     check_add (s1, empty);
     check_add (s1, add);
+    check_add (s1, add_tail);
     run_test (s1);
 }
