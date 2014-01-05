@@ -2302,16 +2302,19 @@ chula_buffer_substitute_string (chula_buffer_t *bufsrc,
     /* Verify formal parameters
      * (those which are not tested would raise a segment violation).
      */
-    if (bufsrc->buf == NULL ||
-        bufdst->buf == NULL ||
-        substring == NULL || substring_length < 1 ||
-        replacement == NULL || replacement_length < 0)
+    if (chula_buffer_is_empty (bufsrc))
+        return ret_ok;
+
+    if (substring == NULL || substring_length < 1)
         return ret_deny;
+
+    if (unlikely (replacement == NULL)) {
+        replacement = "";
+    }
 
     /* Clean / reset destination buffer.
      */
-    bufdst->buf[0] = '\0';
-    bufdst->len = 0;
+    chula_buffer_clean (bufdst);
 
     /* Calculate the new size
      */
