@@ -97,10 +97,35 @@ START_TEST (del)
     chula_list_add_tail (LIST(&e2), &l);
     chula_list_add_tail (LIST(&e3), &l);
 
-    chula_list_del (&e2);
+    chula_list_del (LIST(&e2));
 
     ck_assert (((test_entry_t *)(l.next))->value == 1);
     ck_assert (((test_entry_t *)(l.next->next))->value == 3);
+}
+END_TEST
+
+START_TEST (reparent)
+{
+    chula_list_t *i, *tmp;
+    chula_list_t l1 = LIST_HEAD_INIT(l1);
+    chula_list_t l2 = LIST_HEAD_INIT(l2);
+    test_entry_t e1 = {.base = LIST_HEAD_INIT(e1.base), .value = 1};
+    test_entry_t e2 = {.base = LIST_HEAD_INIT(e2.base), .value = 2};
+    test_entry_t e3 = {.base = LIST_HEAD_INIT(e3.base), .value = 3};
+
+    chula_list_add_tail (LIST(&e1), &l1);
+    chula_list_add_tail (LIST(&e2), &l1);
+    chula_list_add_tail (LIST(&e3), &l1);
+
+    list_for_each_safe (i, tmp, &l1) {
+        chula_list_add_tail (i, &l2);
+    }
+
+    chula_list_reparent (&l2, &l1);
+
+    ck_assert (((test_entry_t *)(l2.next))->value == 1);
+    ck_assert (((test_entry_t *)(l2.next->next))->value == 2);
+    ck_assert (((test_entry_t *)(l2.next->next->next))->value == 3);
 }
 END_TEST
 
@@ -112,5 +137,6 @@ list_tests (void)
     check_add (s1, add);
     check_add (s1, add_tail);
     check_add (s1, del);
+    check_add (s1, reparent);
     run_test (s1);
 }
