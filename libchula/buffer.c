@@ -2468,19 +2468,27 @@ chula_buffer_insert (chula_buffer_t *buf,
                      size_t          txt_len,
                      size_t          pos)
 {
-    ret_t ret;
+    ret_t  ret;
+    size_t posn;
 
+    /* Sanity check */
+    if ((txt == NULL) || (txt_len <= 0))
+        return ret_ok;
+
+    /* Memory allocation */
     ret = chula_buffer_ensure_size (buf, buf->len + txt_len + 1);
     if (unlikely (ret != ret_ok))
         return ret;
 
+    posn = MIN(pos, buf->len);
+
     /* Make room */
-    memmove (buf->buf + pos + txt_len,
-             buf->buf + pos,
-             buf->len - pos);
+    memmove (buf->buf + posn + txt_len,
+             buf->buf + posn,
+             buf->len - posn);
 
     /* Insert the string */
-    memcpy (buf->buf + pos, txt, txt_len);
+    memcpy (buf->buf + posn, txt, txt_len);
 
     buf->len += txt_len;
     buf->buf[buf->len] = '\0';
