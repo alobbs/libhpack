@@ -1402,6 +1402,36 @@ START_TEST (to_lowcase)
 }
 END_TEST
 
+START_TEST (insert)
+{
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_insert (&b, NULL, 0, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_clean (&b);
+
+    chula_buffer_add_str (&b, "123");
+    ret = chula_buffer_insert (&b, "ab", 2, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "ab123");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "123");
+    ret = chula_buffer_insert (&b, "ab", 2, 1);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "1ab23");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "123");
+    ret = chula_buffer_insert (&b, "ab", 2, 9999);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "123ab");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1455,6 +1485,7 @@ buffer_tests (void)
     check_add (s1, add_comma_marks);
     check_add (s1, trim);
     check_add (s1, to_lowcase);
+    check_add (s1, insert);
     run_test (s1);
 }
 
