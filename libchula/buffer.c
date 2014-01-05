@@ -690,6 +690,22 @@ chula_buffer_add_ullong16 (chula_buffer_t *buf, cullong_t ulNum)
 
 
 ret_t
+chula_buffer_add_uint16be (chula_buffer_t *buf, uint16_t n)
+{
+    uint16_t x = htons(n);
+    return chula_buffer_add (buf, (char *)&x, sizeof(uint16_t));
+}
+
+
+ret_t
+chula_buffer_add_uint32be (chula_buffer_t *buf, uint32_t n)
+{
+    uint32_t x = htonl(n);
+    return chula_buffer_add (buf, (char *)&x, sizeof(uint32_t));
+}
+
+
+ret_t
 chula_buffer_add_va_fixed (chula_buffer_t *buf, const char *format, ...)
 {
     int len;
@@ -2567,20 +2583,4 @@ chula_buffer_split_lines (chula_buffer_t *buf,
     }
 
     return ret_ok;
-}
-
-
-ret_t
-chula_buffer_add_uint16be (chula_buffer_t *buf, uint16_t n)
-{
-    uint16_t x = htons(n);
-    return chula_buffer_add (buf, (char *)&x, sizeof(uint16_t));
-}
-
-
-ret_t
-chula_buffer_add_uint32be (chula_buffer_t *buf, uint32_t n)
-{
-    uint32_t x = htonl(n);
-    return chula_buffer_add (buf, (char *)&x, sizeof(uint32_t));
 }
