@@ -1344,6 +1344,41 @@ START_TEST (add_comma_marks)
 }
 END_TEST
 
+START_TEST (trim)
+{
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_trim (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, " ");
+    ret = chula_buffer_trim (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "a");
+    ret = chula_buffer_trim (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "a");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, " abc ");
+    ret = chula_buffer_trim (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "abc");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "\ttesting\r\n\r\n");
+    ret = chula_buffer_trim (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "testing");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1395,6 +1430,7 @@ buffer_tests (void)
     check_add (s1, replace_string);
     check_add (s1, substitute_string);
     check_add (s1, add_comma_marks);
+    check_add (s1, trim);
     run_test (s1);
 }
 
