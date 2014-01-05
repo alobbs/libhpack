@@ -53,13 +53,13 @@ END_TEST
 START_TEST (add)
 {
     chula_list_t l = LIST_HEAD_INIT(l);
-    test_entry_t e1 = {.base = LIST_HEAD_INIT(e1), .value = 1};
-    test_entry_t e2 = {.base = LIST_HEAD_INIT(e2), .value = 2};
-    test_entry_t e3 = {.base = LIST_HEAD_INIT(e3), .value = 3};
+    test_entry_t e1 = {.base = LIST_HEAD_INIT(e1.base), .value = 1};
+    test_entry_t e2 = {.base = LIST_HEAD_INIT(e2.base), .value = 2};
+    test_entry_t e3 = {.base = LIST_HEAD_INIT(e3.base), .value = 3};
 
-    chula_list_add (&e1, &l);
-    chula_list_add (&e2, &l);
-    chula_list_add (&e3, &l);
+    chula_list_add (LIST(&e1), &l);
+    chula_list_add (LIST(&e2), &l);
+    chula_list_add (LIST(&e3), &l);
 
     ck_assert (((test_entry_t *)(l.next))->value == 3);
     ck_assert (((test_entry_t *)(l.next->next))->value == 2);
@@ -71,18 +71,36 @@ END_TEST
 START_TEST (add_tail)
 {
     chula_list_t l = LIST_HEAD_INIT(l);
-    test_entry_t e1 = {.base = LIST_HEAD_INIT(e1), .value = 1};
-    test_entry_t e2 = {.base = LIST_HEAD_INIT(e2), .value = 2};
-    test_entry_t e3 = {.base = LIST_HEAD_INIT(e3), .value = 3};
+    test_entry_t e1 = {.base = LIST_HEAD_INIT(e1.base), .value = 1};
+    test_entry_t e2 = {.base = LIST_HEAD_INIT(e2.base), .value = 2};
+    test_entry_t e3 = {.base = LIST_HEAD_INIT(e3.base), .value = 3};
 
-    chula_list_add_tail (&e1, &l);
-    chula_list_add_tail (&e2, &l);
-    chula_list_add_tail (&e3, &l);
+    chula_list_add_tail (LIST(&e1), &l);
+    chula_list_add_tail (LIST(&e2), &l);
+    chula_list_add_tail (LIST(&e3), &l);
 
     ck_assert (((test_entry_t *)(l.next))->value == 1);
     ck_assert (((test_entry_t *)(l.next->next))->value == 2);
     ck_assert (((test_entry_t *)(l.next->next->next))->value == 3);
     ck_assert (l.next->next->next->next == &l);
+}
+END_TEST
+
+START_TEST (del)
+{
+    chula_list_t l = LIST_HEAD_INIT(l);
+    test_entry_t e1 = {.base = LIST_HEAD_INIT(e1.base), .value = 1};
+    test_entry_t e2 = {.base = LIST_HEAD_INIT(e2.base), .value = 2};
+    test_entry_t e3 = {.base = LIST_HEAD_INIT(e3.base), .value = 3};
+
+    chula_list_add_tail (LIST(&e1), &l);
+    chula_list_add_tail (LIST(&e2), &l);
+    chula_list_add_tail (LIST(&e3), &l);
+
+    chula_list_del (&e2);
+
+    ck_assert (((test_entry_t *)(l.next))->value == 1);
+    ck_assert (((test_entry_t *)(l.next->next))->value == 3);
 }
 END_TEST
 
@@ -93,5 +111,6 @@ list_tests (void)
     check_add (s1, empty);
     check_add (s1, add);
     check_add (s1, add_tail);
+    check_add (s1, del);
     run_test (s1);
 }
