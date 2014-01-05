@@ -1379,6 +1379,29 @@ START_TEST (trim)
 }
 END_TEST
 
+START_TEST (to_lowcase)
+{
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_to_lowcase (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "123 456");
+    ret = chula_buffer_to_lowcase (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "123 456");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "AaBbCcDdEeFf");
+    ret = chula_buffer_to_lowcase (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "aabbccddeeff");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1431,6 +1454,7 @@ buffer_tests (void)
     check_add (s1, substitute_string);
     check_add (s1, add_comma_marks);
     check_add (s1, trim);
+    check_add (s1, to_lowcase);
     run_test (s1);
 }
 
