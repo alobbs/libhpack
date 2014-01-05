@@ -38,10 +38,33 @@
 #include "testing_macros.h"
 #include "libchula/list.h"
 
+typedef struct {
+    chula_list_t base;
+    int          value;
+} test_entry_t;
+
 START_TEST (empty)
 {
     chula_list_t l = LIST_HEAD_INIT(l);
     ck_assert (chula_list_empty(&l));
+}
+END_TEST
+
+START_TEST (add)
+{
+    chula_list_t l = LIST_HEAD_INIT(l);
+    test_entry_t e1 = {.base = LIST_HEAD_INIT(e1), .value = 1};
+    test_entry_t e2 = {.base = LIST_HEAD_INIT(e2), .value = 2};
+    test_entry_t e3 = {.base = LIST_HEAD_INIT(e3), .value = 3};
+
+    chula_list_add (&e1, &l);
+    chula_list_add (&e2, &l);
+    chula_list_add (&e3, &l);
+
+    ck_assert (((test_entry_t *)(l.next))->value == 3);
+    ck_assert (((test_entry_t *)(l.next->next))->value == 2);
+    ck_assert (((test_entry_t *)(l.next->next->next))->value == 1);
+    ck_assert (l.next->next->next->next == &l);
 }
 END_TEST
 
@@ -50,5 +73,6 @@ list_tests (void)
 {
     Suite *s1 = suite_create("List");
     check_add (s1, empty);
+    check_add (s1, add);
     run_test (s1);
 }
