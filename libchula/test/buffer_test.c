@@ -357,6 +357,41 @@ START_TEST (add_llong16)
 }
 END_TEST
 
+START_TEST (add_uint16be)
+{
+    ret_t           ret;
+    uint16_t        num;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    num = htons(0);
+    chula_buffer_add_uint16be (&b, 0);
+    ck_assert (memcmp (&num, b.buf, sizeof(uint16_t)) == 0);
+
+    num = htons(999);
+    chula_buffer_clean (&b);
+    chula_buffer_add_uint16be (&b, 999);
+    ck_assert (memcmp (&num, b.buf, b.len) == 0);
+}
+END_TEST
+
+START_TEST (add_uint32be)
+{
+    ret_t           ret;
+    uint32_t        num;
+    chula_buffer_t  b    = CHULA_BUF_INIT;
+
+    num = htons(0);
+    chula_buffer_add_uint32be (&b, 0);
+    ck_assert (memcmp (&num, b.buf, sizeof(uint32_t)) == 0);
+
+    /* 2^32 - 1 */
+    num = htonl(4294967295);
+    chula_buffer_clean (&b);
+    chula_buffer_add_uint32be (&b, 4294967295);
+    ck_assert (memcmp (&num, b.buf, b.len) == 0);
+}
+END_TEST
+
 START_TEST (add_va)
 {
     ret_t           ret;
@@ -1501,6 +1536,8 @@ buffer_tests (void)
     check_add (s1, add_llong10);
     check_add (s1, add_long16);
     check_add (s1, add_llong16);
+    check_add (s1, add_uint16be);
+    check_add (s1, add_uint32be);
     check_add (s1, add_va);
     check_add (s1, add_char);
     check_add (s1, add_char_n);
