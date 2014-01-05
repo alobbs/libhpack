@@ -35,18 +35,8 @@
 #include <unistd.h>
 
 #include <check.h>
+#include "testing_macros.h"
 #include "libchula/buffer.h"
-
-#define check_add(suit,func)                             \
-    TCase *testcase_ ## func = tcase_create(#func);      \
-    suite_add_tcase (suit, testcase_ ## func);           \
-    tcase_add_test (testcase_ ##func, func);
-
-#define run_test(suit)                          \
-    SRunner *sr = srunner_create (suit);        \
-    srunner_set_fork_status (sr, CK_NOFORK);    \
-    srunner_run_all (sr, CK_VERBOSE);           \
-    return srunner_ntests_failed(sr);
 
 
 START_TEST (init_heap)
@@ -1580,15 +1570,4 @@ buffer_tests (void)
     check_add (s1, insert_buffer);
     check_add (s1, split_lines);
     run_test (s1);
-}
-
-
-int
-main (void)
-{
-    int ret;
-
-    ret = buffer_tests();
-
-    return ret;
 }
