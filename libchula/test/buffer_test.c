@@ -1304,6 +1304,46 @@ START_TEST (substitute_string)
 }
 END_TEST
 
+START_TEST (add_comma_marks)
+{
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_add_comma_marks (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&b, "99");
+    ret = chula_buffer_add_comma_marks (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "99");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "999");
+    ret = chula_buffer_add_comma_marks (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "999");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "9999");
+    ret = chula_buffer_add_comma_marks (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "9,999");
+
+   chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "99999");
+    ret = chula_buffer_add_comma_marks (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "99,999");
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "1234567890");
+    ret = chula_buffer_add_comma_marks (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "1,234,567,890");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1354,6 +1394,7 @@ buffer_tests (void)
     check_add (s1, end_char);
     check_add (s1, replace_string);
     check_add (s1, substitute_string);
+    check_add (s1, add_comma_marks);
     run_test (s1);
 }
 
