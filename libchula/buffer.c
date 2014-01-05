@@ -2417,7 +2417,7 @@ chula_buffer_trim (chula_buffer_t *buf)
     cuint_t s, e;
     cuint_t len;
 
-    if (buf->len <= 0)
+    if (chula_buffer_is_empty (buf))
         return ret_ok;
 
     for (s=0; s < buf->len; s++) {
