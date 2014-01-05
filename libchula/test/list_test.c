@@ -140,7 +140,6 @@ END_TEST
 
 START_TEST (sort)
 {
-    chula_list_t *i, *tmp;
     chula_list_t l  = LIST_HEAD_INIT(l);
     test_entry_t e1 = {.base = LIST_HEAD_INIT(e1.base), .value = 3};
     test_entry_t e2 = {.base = LIST_HEAD_INIT(e2.base), .value = 2};
@@ -167,6 +166,28 @@ START_TEST (sort)
 }
 END_TEST
 
+START_TEST (get_len)
+{
+    size_t       len = 99;
+    chula_list_t l   = LIST_HEAD_INIT(l);
+    test_entry_t e1  = {.base = LIST_HEAD_INIT(e1.base), .value = 3};
+    test_entry_t e2  = {.base = LIST_HEAD_INIT(e2.base), .value = 2};
+
+    ck_assert (chula_list_empty(&l));
+    chula_list_get_len (&l, &len);
+    ck_assert (len == 0);
+
+    chula_list_add_tail (LIST(&e1), &l);
+    chula_list_get_len (&l, &len);
+    ck_assert (len == 1);
+
+    chula_list_add_tail (LIST(&e2), &l);
+    chula_list_get_len (&l, &len);
+    ck_assert (len == 2);
+}
+END_TEST
+
+
 int
 list_tests (void)
 {
@@ -177,5 +198,6 @@ list_tests (void)
     check_add (s1, del);
     check_add (s1, reparent);
     check_add (s1, sort);
+    check_add (s1, get_len);
     run_test (s1);
 }
