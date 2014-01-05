@@ -43,6 +43,15 @@ typedef struct {
     int          value;
 } test_entry_t;
 
+
+static int
+entry_cmp (chula_list_t *a, chula_list_t *b)
+{
+    int a_ = ((test_entry_t *)a)->value;
+    int b_ = ((test_entry_t *)b)->value;
+    return (a_ > b_) - (a_ < b_);
+}
+
 START_TEST (empty)
 {
     chula_list_t l = LIST_HEAD_INIT(l);
@@ -129,6 +138,35 @@ START_TEST (reparent)
 }
 END_TEST
 
+START_TEST (sort)
+{
+    chula_list_t *i, *tmp;
+    chula_list_t l  = LIST_HEAD_INIT(l);
+    test_entry_t e1 = {.base = LIST_HEAD_INIT(e1.base), .value = 3};
+    test_entry_t e2 = {.base = LIST_HEAD_INIT(e2.base), .value = 2};
+    test_entry_t e3 = {.base = LIST_HEAD_INIT(e3.base), .value = 1};
+    test_entry_t e4 = {.base = LIST_HEAD_INIT(e4.base), .value = 8};
+
+    /* Empty */
+    ck_assert (chula_list_empty(&l));
+    chula_list_sort (&l, entry_cmp);
+    ck_assert (chula_list_empty(&l));
+
+    /* Sort a list */
+    chula_list_add_tail (LIST(&e1), &l);
+    chula_list_add_tail (LIST(&e2), &l);
+    chula_list_add_tail (LIST(&e3), &l);
+    chula_list_add_tail (LIST(&e4), &l);
+
+    chula_list_sort (&l, entry_cmp);
+
+    ck_assert (((test_entry_t *)(l.next))->value == 1);
+    ck_assert (((test_entry_t *)(l.next->next))->value == 2);
+    ck_assert (((test_entry_t *)(l.next->next->next))->value == 3);
+    ck_assert (((test_entry_t *)(l.next->next->next->next))->value == 8);
+}
+END_TEST
+
 int
 list_tests (void)
 {
@@ -138,5 +176,6 @@ list_tests (void)
     check_add (s1, add_tail);
     check_add (s1, del);
     check_add (s1, reparent);
+    check_add (s1, sort);
     run_test (s1);
 }
