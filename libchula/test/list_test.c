@@ -259,6 +259,26 @@ START_TEST (content_free)
 }
 END_TEST
 
+START_TEST (content_free_item_simple)
+{
+    chula_list_t *i, *tmp;
+    size_t       len = 99;
+    chula_list_t l   = LIST_HEAD_INIT(l);
+
+    chula_list_content_add_tail (&l, strndup("uno", 3));
+    chula_list_content_add_tail (&l, strndup("dos", 3));
+    chula_list_content_add_tail (&l, strndup("tres", 4));
+    chula_list_content_add_tail (&l, strndup("cuatro", 5));
+
+    list_for_each_safe (i, tmp, &l) {
+        chula_list_content_free_item_simple (i);
+    }
+
+    chula_list_get_len (&l, &len);
+    ck_assert (len == 0);
+}
+END_TEST
+
 
 int
 list_tests (void)
@@ -275,5 +295,6 @@ list_tests (void)
     check_add (s1, content_add);
     check_add (s1, content_add_tail);
     check_add (s1, content_free);
+    check_add (s1, content_free_item_simple);
     run_test (s1);
 }
