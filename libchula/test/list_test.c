@@ -187,6 +187,29 @@ START_TEST (get_len)
 }
 END_TEST
 
+START_TEST (invert)
+{
+    chula_list_t l  = LIST_HEAD_INIT(l);
+    test_entry_t e1 = {.base = LIST_HEAD_INIT(e1.base), .value = 1};
+    test_entry_t e2 = {.base = LIST_HEAD_INIT(e2.base), .value = 2};
+    test_entry_t e3 = {.base = LIST_HEAD_INIT(e3.base), .value = 3};
+    test_entry_t e4 = {.base = LIST_HEAD_INIT(e4.base), .value = 4};
+
+    /* Sort a list */
+    chula_list_add_tail (LIST(&e1), &l);
+    chula_list_add_tail (LIST(&e2), &l);
+    chula_list_add_tail (LIST(&e3), &l);
+    chula_list_add_tail (LIST(&e4), &l);
+
+    chula_list_invert (&l);
+
+    ck_assert (((test_entry_t *)(l.next))->value == 4);
+    ck_assert (((test_entry_t *)(l.next->next))->value == 3);
+    ck_assert (((test_entry_t *)(l.next->next->next))->value == 2);
+    ck_assert (((test_entry_t *)(l.next->next->next->next))->value == 1);
+}
+END_TEST
+
 START_TEST (content_add)
 {
     chula_list_t l = LIST_HEAD_INIT(l);
@@ -248,6 +271,7 @@ list_tests (void)
     check_add (s1, reparent);
     check_add (s1, sort);
     check_add (s1, get_len);
+    check_add (s1, invert);
     check_add (s1, content_add);
     check_add (s1, content_add_tail);
     check_add (s1, content_free);
