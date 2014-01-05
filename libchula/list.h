@@ -110,6 +110,7 @@ chula_list_reparent (chula_list_t *list, chula_list_t *new_entry)
 
 void  chula_list_sort    (chula_list_t *head, int (*cmp)(chula_list_t *a, chula_list_t *b));
 ret_t chula_list_get_len (chula_list_t *head, size_t *len);
+ret_t chula_list_invert  (chula_list_t *head);
 
 
 /* Methods for non list elements
@@ -125,9 +126,8 @@ typedef struct {
 #define LIST_ITEM(i)      ((chula_list_item_t *)(i))
 #define LIST_ITEM_INFO(i) (LIST_ITEM(i)->info)
 
-ret_t chula_list_add_content              (chula_list_t *head, void *item);
-ret_t chula_list_add_tail_content         (chula_list_t *head, void *item);
-ret_t chula_list_invert                   (chula_list_t *head);
+ret_t chula_list_content_add              (chula_list_t *head, void *item);
+ret_t chula_list_content_add_tail         (chula_list_t *head, void *item);
 
 ret_t chula_list_content_free             (chula_list_t *head, chula_list_free_func free_func);
 ret_t chula_list_content_free_item        (chula_list_t *head, chula_list_free_func free_func);

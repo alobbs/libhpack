@@ -187,14 +187,14 @@ START_TEST (get_len)
 }
 END_TEST
 
-START_TEST (add_content)
+START_TEST (content_add)
 {
     chula_list_t l = LIST_HEAD_INIT(l);
 
-    chula_list_add_content (&l, INT_TO_POINTER(NULL));
-    chula_list_add_content (&l, INT_TO_POINTER(1));
-    chula_list_add_content (&l, INT_TO_POINTER(2));
-    chula_list_add_content (&l, INT_TO_POINTER(3));
+    chula_list_content_add (&l, INT_TO_POINTER(NULL));
+    chula_list_content_add (&l, INT_TO_POINTER(1));
+    chula_list_content_add (&l, INT_TO_POINTER(2));
+    chula_list_content_add (&l, INT_TO_POINTER(3));
 
     ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next)) == 3);
     ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next)) == 2);
@@ -203,14 +203,14 @@ START_TEST (add_content)
 }
 END_TEST
 
-START_TEST (add_tail_content)
+START_TEST (content_add_tail)
 {
     chula_list_t l = LIST_HEAD_INIT(l);
 
-    chula_list_add_tail_content (&l, INT_TO_POINTER(NULL));
-    chula_list_add_tail_content (&l, INT_TO_POINTER(1));
-    chula_list_add_tail_content (&l, INT_TO_POINTER(2));
-    chula_list_add_tail_content (&l, INT_TO_POINTER(3));
+    chula_list_content_add_tail (&l, INT_TO_POINTER(NULL));
+    chula_list_content_add_tail (&l, INT_TO_POINTER(1));
+    chula_list_content_add_tail (&l, INT_TO_POINTER(2));
+    chula_list_content_add_tail (&l, INT_TO_POINTER(3));
 
     ck_assert (LIST_ITEM_INFO(l.next) == NULL);
     ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next)) == 1);
@@ -231,7 +231,7 @@ list_tests (void)
     check_add (s1, reparent);
     check_add (s1, sort);
     check_add (s1, get_len);
-    check_add (s1, add_content);
-    check_add (s1, add_tail_content);
+    check_add (s1, content_add);
+    check_add (s1, content_add_tail);
     run_test (s1);
 }

@@ -145,7 +145,7 @@ chula_list_invert (chula_list_t *head)
 
 
 ret_t
-chula_list_add_content (chula_list_t *head, void *item)
+chula_list_content_add (chula_list_t *head, void *item)
 {
 	CHULA_NEW_STRUCT(n,list_item);
 
@@ -163,7 +163,7 @@ chula_list_add_content (chula_list_t *head, void *item)
 
 
 ret_t
-chula_list_add_tail_content (chula_list_t *head, void *item)
+chula_list_content_add_tail (chula_list_t *head, void *item)
 {
 	CHULA_NEW_STRUCT(n,list_item);
 
