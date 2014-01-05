@@ -1432,6 +1432,60 @@ START_TEST (insert)
 }
 END_TEST
 
+START_TEST (insert_buffer)
+{
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_insert_buffer (&a, &b, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert (a.len == 0);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&b, "\0");
+    ret = chula_buffer_insert_buffer (&a, &b, 0);
+    ck_assert (ret == ret_ok);
+    ck_assert (a.len == 1);
+
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&a, "hola");
+    chula_buffer_add_str (&b, "12");
+    ret = chula_buffer_insert_buffer (&a, &b, 2);
+    ck_assert (ret == ret_ok);
+    ck_assert (a.len == 6);
+    ck_assert_str_eq (a.buf, "ho12la");
+}
+END_TEST
+
+
+START_TEST (split_lines)
+{
+    ret_t          ret;
+    int            num;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    ret = chula_buffer_split_lines (&b, 80,  " ");
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 0);
+
+    chula_buffer_add_str (&b, "1 2 3 4 5 6 7 8 9");
+    ret = chula_buffer_split_lines (&b, 10,  "\t");
+    num = 0;
+    for (int i=0; i<b.len; i++) num += (b.buf[i]=='\t')?1:0;
+    ck_assert (ret == ret_ok);
+    ck_assert (num == 1);
+
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "1 2 3 4 5 6 7 8 9 10 11 12");
+    ret = chula_buffer_split_lines (&b, 10,  "*");
+    num = 0;
+    for (int i=0; i<b.len; i++) num += (b.buf[i]=='*')?1:0;
+    ck_assert (ret == ret_ok);
+    ck_assert (num == 2);
+}
+END_TEST
 
 int
 buffer_tests (void)
@@ -1486,6 +1540,8 @@ buffer_tests (void)
     check_add (s1, trim);
     check_add (s1, to_lowcase);
     check_add (s1, insert);
+    check_add (s1, insert_buffer);
+    check_add (s1, split_lines);
     run_test (s1);
 }
 
