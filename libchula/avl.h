@@ -47,7 +47,7 @@ typedef struct {
  */
 typedef struct {
 	chula_avl_generic_t base;
-	bool                 case_insensitive;
+	bool                case_insensitive;
 } chula_avl_t;
 
 #define AVL(a) ((chula_avl_t *)(a))
