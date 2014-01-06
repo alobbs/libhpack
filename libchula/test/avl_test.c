@@ -30,18 +30,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-int avl_tests (void);
-int list_tests (void);
-int buffer_tests (void);
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#include <check.h>
+#include "testing_macros.h"
+#include "libchula/avl.h"
+
+START_TEST (empty)
+{
+    ret_t       ret;
+    chula_avl_t avl;
+
+    ret = chula_avl_init (&avl);
+    ck_assert (ret == ret_ok);
+}
+END_TEST
 
 int
-main (void)
+avl_tests (void)
 {
-    int ret;
-
-    ret  = buffer_tests();
-    ret += list_tests();
-    ret += avl_tests();
-
-    return ret;
+    Suite *s1 = suite_create("AVL");
+    check_add (s1, empty);
+    run_test (s1);
 }
