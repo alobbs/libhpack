@@ -209,7 +209,6 @@ END_TEST
 START_TEST (mrproper)
 {
     ret_t       ret;
-    size_t      len;
     chula_avl_t avl;
 
     chula_avl_init (&avl);
@@ -222,6 +221,39 @@ START_TEST (mrproper)
 
     ret = chula_avl_mrproper (AVL_GENERIC(&avl), fake_free);
     ck_assert (ret == ret_ok);
+}
+END_TEST
+
+static ret_t
+while_func (chula_buffer_t *key,
+            void           *value,
+            void           *param)
+{
+    *((int *)param) += POINTER_TO_INT(value);
+    return ret_ok;
+}
+
+START_TEST (_while)
+{
+    ret_t           ret;
+    chula_avl_t     avl;
+    int             total    = 0;
+    int             expected = 0;
+    chula_buffer_t *key   = NULL;
+    void           *value = NULL;
+
+    chula_avl_init (&avl);
+
+    for (int i=0; i<1000; i++) {
+        char tmp[5];
+        expected += i;
+        snprintf (tmp, 5, "%d", i);
+        chula_avl_add_ptr (&avl, tmp, INT_TO_POINTER(i));
+    }
+
+    ret = chula_avl_while (AVL_GENERIC(&avl), while_func, &total, &key, &value);
+    ck_assert (ret == ret_ok);
+    ck_assert (total == expected);
 }
 END_TEST
 
@@ -238,5 +270,6 @@ avl_tests (void)
     check_add (s1, len);
     check_add (s1, stress);
     check_add (s1, mrproper);
+    check_add (s1, _while);
     run_test (s1);
 }
