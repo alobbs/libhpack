@@ -687,6 +687,7 @@ START_TEST (cmp_buf)
     re = chula_buffer_cmp_buf (&a, &b);
     ck_assert (re == 0);
 
+    /* Case sensitive */
     chula_buffer_add_str (&a, "a");
     re = chula_buffer_cmp_buf (&a, &b);
     ck_assert (re > 0);
@@ -699,6 +700,23 @@ START_TEST (cmp_buf)
     ck_assert (re == 0);
     re = chula_buffer_cmp_buf (&b, &a);
     ck_assert (re == 0);
+
+    /* Case insensitive */
+    chula_buffer_mrproper (&a);
+    chula_buffer_mrproper (&b);
+
+    chula_buffer_add_str (&a, "A");
+    re = chula_buffer_case_cmp_buf (&a, &b);
+    ck_assert (re > 0);
+    re = chula_buffer_case_cmp_buf (&b, &a);
+    ck_assert (re < 0);
+
+    chula_buffer_add_str (&a, "BcD");
+    chula_buffer_add_str (&b, "aBcD");
+    re = chula_buffer_case_cmp_buf (&a, &b);
+    ck_assert (re == 0);
+    re = chula_buffer_case_cmp_buf (&b, &a);
+    ck_assert (re == 0);
 }
 END_TEST
 
@@ -707,6 +725,7 @@ START_TEST (cmp)
     int             re;
     chula_buffer_t  b   = CHULA_BUF_INIT;
 
+    /* Case sensitive */
     re = chula_buffer_cmp (&b, NULL, 0);
     ck_assert (re == 0);
 
@@ -724,6 +743,28 @@ START_TEST (cmp)
     ck_assert (re > 0);
 
     re = chula_buffer_cmp (&b, "hola", 4);
+    ck_assert (re == 0);
+
+    /* Case insensitive */
+    chula_buffer_mrproper (&b);
+
+    re = chula_buffer_case_cmp (&b, NULL, 0);
+    ck_assert (re == 0);
+
+    re = chula_buffer_case_cmp (&b, "A", 1);
+    ck_assert (re < 0);
+
+    chula_buffer_add_str (&b, "hola");
+    re = chula_buffer_case_cmp (&b, "A", 1);
+    ck_assert (re > 0);
+
+    re = chula_buffer_case_cmp (&b, "hO", 2);
+    ck_assert (re > 0);
+
+    re = chula_buffer_case_cmp (&b, "HolA", 2);
+    ck_assert (re > 0);
+
+    re = chula_buffer_case_cmp (&b, "hoLa", 4);
     ck_assert (re == 0);
 }
 END_TEST
@@ -1531,6 +1572,7 @@ START_TEST (swap_buffers)
     ck_assert (b.len == 2);
 }
 END_TEST
+
 
 int
 buffer_tests (void)
