@@ -30,20 +30,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-int avl_tests (void);
-int md5_tests (void);
-int list_tests (void);
-int buffer_tests (void);
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#include <check.h>
+#include "testing_macros.h"
+#include "libchula/buffer.h"
+
+
+static void
+do_md5 (chula_buffer_t *buf, size_t size)
+{
+    ret_t ret;
+
+    chula_buffer_add_str (buf, " ");
+    chula_buffer_multiply (buf, size);
+
+    ret = chula_buffer_encode_md5_digest (buf);
+    ck_assert (ret == ret_ok);
+}
+
+START_TEST (_64Kb)
+{
+    chula_buffer_t buf = CHULA_BUF_INIT;
+
+    do_md5 (&buf, 64*1024);
+    ck_assert_str_eq (buf.buf, "c858ba08b3d55c2e7e2f31a7412a7bd5");
+}
+END_TEST
+
+START_TEST (_1Mb)
+{
+    chula_buffer_t buf = CHULA_BUF_INIT;
+
+    do_md5 (&buf, 1024*1024);
+    ck_assert_str_eq (buf.buf, "c178bdb56a620d47b0e0b167c665c873");
+}
+END_TEST
+
 
 int
-main (void)
+md5_tests (void)
 {
-    int ret;
-
-    ret  = md5_tests();
-    ret += buffer_tests();
-    ret += list_tests();
-    ret += avl_tests();
-
-    return ret;
+    Suite *s1 = suite_create("MD5");
+    check_add (s1, _64Kb);
+    check_add (s1, _1Mb);
+    run_test (s1);
 }
