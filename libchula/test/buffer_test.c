@@ -1512,6 +1512,26 @@ START_TEST (split_lines)
 }
 END_TEST
 
+START_TEST (swap_buffers)
+{
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    chula_buffer_add_str (&a, "a");
+    chula_buffer_swap_buffers (&a, &b);
+    ck_assert (a.len == 0);
+    ck_assert (a.buf == NULL);
+    ck_assert (b.len == 1);
+    ck_assert (b.buf != NULL);
+
+    chula_buffer_add_str (&a, "bb");
+    chula_buffer_swap_buffers (&a, &b);
+    ck_assert (a.len == 1);
+    ck_assert (b.len == 2);
+}
+END_TEST
+
 int
 buffer_tests (void)
 {
@@ -1569,5 +1589,6 @@ buffer_tests (void)
     check_add (s1, insert);
     check_add (s1, insert_buffer);
     check_add (s1, split_lines);
+    check_add (s1, swap_buffers);
     run_test (s1);
 }
