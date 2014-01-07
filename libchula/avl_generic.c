@@ -131,8 +131,8 @@ static chula_avl_generic_node_t *
 node_rotate_left (chula_avl_generic_node_t *node)
 {
 	chula_avl_generic_node_t *right;
-	cint_t                       a_bal;
-	cint_t                       b_bal;
+	cint_t                    a_bal;
+	cint_t                    b_bal;
 
 	right = node->right;
 
@@ -169,8 +169,8 @@ static chula_avl_generic_node_t *
 node_rotate_right (chula_avl_generic_node_t *node)
 {
 	chula_avl_generic_node_t *left;
-	cint_t                       a_bal;
-	cint_t                       b_bal;
+	cint_t                    a_bal;
+	cint_t                    b_bal;
 
 	left = node->left;
 
@@ -411,13 +411,13 @@ chula_avl_generic_add (chula_avl_generic_t *avl, chula_avl_generic_node_t *key, 
 ret_t
 chula_avl_generic_del (chula_avl_generic_t *avl, chula_avl_generic_node_t *key, void **value)
 {
-	short                      re;
-	bool                       is_left;
+	short                     re;
+	bool                      is_left;
 	chula_avl_generic_node_t *path[MAX_HEIGHT];
 	chula_avl_generic_node_t *parent;
 	chula_avl_generic_node_t *pbalance;
 	chula_avl_generic_node_t *node      = avl->root;
-	cint_t                     idx       = 1;
+	cint_t                   idx        = 1;
 
 	if (unlikely (avl->node_is_empty (key)))
 		return ret_error;
@@ -498,7 +498,7 @@ chula_avl_generic_del (chula_avl_generic_t *avl, chula_avl_generic_node_t *key, 
 			chula_avl_generic_node_t *prev    = node->left;
 			chula_avl_generic_node_t *next    = node->right;
 			chula_avl_generic_node_t *nextp   = node;
-			cint_t                       old_idx = idx + 1;
+			cint_t                    old_idx = idx + 1;
 			idx++;
 
 			/* find the immediately next node (and its parent) */
@@ -580,7 +580,7 @@ chula_avl_generic_del (chula_avl_generic_t *avl, chula_avl_generic_node_t *key, 
 ret_t
 chula_avl_generic_get (chula_avl_generic_t *avl, chula_avl_generic_node_t *key, void **value)
 {
-	short                        re;
+	short                     re;
 	chula_avl_generic_node_t *node;
 
 	if (unlikely (avl->node_is_empty (key)))
@@ -628,7 +628,7 @@ chula_avl_generic_while (chula_avl_generic_t             *avl,
                          chula_avl_generic_node_t       **key,
                          void                           **value)
 {
-	ret_t                        ret;
+	ret_t                     ret;
 	chula_avl_generic_node_t *node = avl->root;
 
 	if (avl->root == NULL) {

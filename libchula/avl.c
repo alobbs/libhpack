@@ -114,7 +114,7 @@ chula_avl_new (chula_avl_t **avl)
 ret_t
 chula_avl_add (chula_avl_t *avl, chula_buffer_t *key, void *value)
 {
-	ret_t                ret;
+	ret_t             ret;
 	chula_avl_node_t *n    = NULL;
 
 	ret = node_new (&n, key);
