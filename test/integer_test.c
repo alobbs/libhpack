@@ -104,7 +104,7 @@ START_TEST (encode_12_6bits)
 
     /* Check output */
     ck_assert (len == 1);
-    ck_assert (tmp[0] == 0xC0 | 12);
+    ck_assert (tmp[0] == (0xC0 | 12));
 }
 END_TEST
 
@@ -117,7 +117,7 @@ START_TEST (encode_1338_5bits)
 
     /* Check output */
     ck_assert (len == 3);
-    ck_assert (tmp[0] == 0xA0 | 31);
+    ck_assert (tmp[0] == (0xA0 | 31));
     ck_assert (tmp[1] == 155);
     ck_assert (tmp[2] == 10);
 }
