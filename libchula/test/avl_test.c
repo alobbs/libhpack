@@ -90,6 +90,11 @@ START_TEST (_ptr)
     chula_avl_get_ptr (&avl, "uno", &p);
     ck_assert (POINTER_TO_INT(p) == 1);
 
+    chula_avl_set_case (&avl, true);
+    chula_avl_get_ptr (&avl, "TrEs", &p);
+    ck_assert (POINTER_TO_INT(p) == 3);
+    chula_avl_set_case (&avl, false);
+
     chula_avl_del_ptr (&avl, "dos", NULL);
     chula_avl_get_ptr (&avl, "uno", &p);
     ck_assert (POINTER_TO_INT(p) == 1);
