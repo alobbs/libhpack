@@ -38,6 +38,12 @@
 #include "testing_macros.h"
 #include "libchula/avl.h"
 
+static void
+fake_free (void *p)
+{
+    UNUSED(p);
+}
+
 START_TEST (new_)
 {
     ret_t        ret;
@@ -175,7 +181,6 @@ END_TEST
 START_TEST (stress)
 {
     ret_t       ret;
-    size_t      len;
     chula_avl_t avl;
     int         pi[] = {3, 14, 15, 92, 65, 35, 89, 79, 32, 38, 46, 26, 43, 38, 32, 79, 50};
 
@@ -186,17 +191,36 @@ START_TEST (stress)
     for (int i=0; i<16; i++) {
         char tmp[10];
         snprintf (tmp, 10, "%d", pi[i]);
-        ret = chula_avl_add_ptr (&avl, tmp, NULL);
+        chula_avl_add_ptr (&avl, tmp, NULL);
     }
 
     /* Remove */
     for (int i=15; i>=0; i--) {
         char tmp[10];
         snprintf (tmp, 10, "%d", pi[i]);
-        ret = chula_avl_del_ptr (&avl, tmp, NULL);
+        chula_avl_del_ptr (&avl, tmp, NULL);
     }
 
-    ret = chula_avl_mrproper (AVL_GENERIC(&avl), NULL);
+    ret = chula_avl_mrproper (AVL_GENERIC(&avl), fake_free);
+    ck_assert (ret == ret_ok);
+}
+END_TEST
+
+START_TEST (mrproper)
+{
+    ret_t       ret;
+    size_t      len;
+    chula_avl_t avl;
+
+    chula_avl_init (&avl);
+
+    for (int i=0; i<16; i++) {
+        char tmp[3];
+        snprintf (tmp, 3, "%d", i);
+        chula_avl_add_ptr (&avl, tmp, NULL);
+    }
+
+    ret = chula_avl_mrproper (AVL_GENERIC(&avl), fake_free);
     ck_assert (ret == ret_ok);
 }
 END_TEST
@@ -213,5 +237,6 @@ avl_tests (void)
     check_add (s1, _buf);
     check_add (s1, len);
     check_add (s1, stress);
+    check_add (s1, mrproper);
     run_test (s1);
 }
