@@ -123,7 +123,6 @@ START_TEST (encode_1338_5bits)
 }
 END_TEST
 
-
 START_TEST (decode_19_6bits)
 {
     int           err   = 0;
