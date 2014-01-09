@@ -71,7 +71,7 @@ integer_encode (int            N,
     if (value < limit) {
         mem[i] = (mem[i] & ~limit) | (unsigned char)value;
         *mem_len = ++i;
-        return ret_OK;
+        return ret_ok;
     }
 
     /* the bits of the prefix are set to 1 */
@@ -89,7 +89,7 @@ integer_encode (int            N,
     mem[i++] = (char)value;
     *mem_len = i;
 
-    return ret_OK;
+    return ret_ok;
 }
 
 /** Integer decoding
@@ -102,8 +102,8 @@ integer_encode (int            N,
  * @param      mem     Pointer to the first byte of memory containing the number
  * @param      mem_len Length of the number in memory
  * @param[out] ret     Pointer to an integer to store the decoded number
- * @retval ret_OK Number was read successfuly
- * @retval ret_ERROR Incorrect format
+ * @retval ret_ok Number was read successfuly
+ * @retval ret_error Incorrect format
  */
 ret_t
 integer_decode (int            N,
@@ -117,14 +117,14 @@ integer_decode (int            N,
      */
     if (mem_len == 1) {
         *ret = mem[0] & limit;
-        return ret_OK;
+        return ret_ok;
     }
 
     /* Sanity check:
      * All non-masked bits of the 1st byte must be 1s
      */
     if ((mem[0] & limit) != limit) {
-        return ret_ERROR;
+        return ret_error;
     }
 
     /* Unsigned variable length integer
@@ -135,5 +135,5 @@ integer_decode (int            N,
         *ret += (mem[i]%128) * pow(128, i-1);
     }
 
-    return ret_OK;
+    return ret_ok;
 }

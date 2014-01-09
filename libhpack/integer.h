@@ -33,7 +33,7 @@
 #ifndef LIBHPACK_INTEGER_H
 #define LIBHPACK_INTEGER_H
 
-#include <libhpack/common.h>
+#include <libchula/common.h>
 
 ret_t
 integer_encode (int            N,        /* Prefix length in bits  */
