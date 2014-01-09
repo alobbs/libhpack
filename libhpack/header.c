@@ -131,12 +131,6 @@ static hpack_header_entry_static_t static_table[] = {
  */
 static const size_t static_table_len = sizeof(static_table) / sizeof(static_table[0]);
 
-/** String Literal Representation
- *
- * Header field names and header field values are encoded as sequences
- * of octets. This funcion adds the necesary header to a regular
- * buffer so it becomes a valid string literal.
- */
 static ret_t
 build_string_literal (chula_buffer_t *buf, bool huffman)
 {
