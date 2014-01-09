@@ -34,6 +34,7 @@
 #include <libchula/buffer.h>
 
 #include "header.h"
+#include "integer.h"
 
 typedef struct {
     chula_buffer_t name;
@@ -111,3 +112,55 @@ static hpack_header_entry_static_t static_table[] = {
     HDR_NIL("via"),
     HDR_NIL("www-authenticate"),
 };
+
+static const size_t static_table_len = sizeof(static_table) / sizeof(static_table[0]);
+
+static ret_t
+build_string_literal (chula_buffer_t *buf, bool huffman)
+{
+    /* 4.1.2 String Literal Representation */
+
+    ret_t         ret;
+    unsigned char extra    = 0;
+    unsigned char prefix[] = {0, 0, 0, 0, 0, 0};
+
+    /* Encode length */
+    ret = integer_encode (7, buf->len, prefix, &extra);
+    if (unlikely (ret != ret_ok))
+        return ret;
+
+    /* Set first bit */
+    if (huffman) {
+        prefix[0] |= (1 << 7);
+    }
+
+    /* Prepend header */
+    ret = chula_buffer_prepend (buf, (char *)prefix, extra);
+    if (unlikely (ret != ret_ok))
+        return ret;
+
+    return ret_ok;
+}
+
+
+ret_t
+test (chula_buffer_t *header_name)
+{
+    hpack_header_entry_static_t *entry;
+    int                          found = -1;
+
+    /* Deflate table
+     */
+
+    /* Static table
+     */
+    for (int i=0; i < static_table_len; i++) {
+        entry = &static_table[0];
+        if (chula_buffer_cmp_buf (&entry->name, header_name) == 0) {
+            found = i;
+            break;
+        }
+    }
+
+    return ret_ok;
+}
