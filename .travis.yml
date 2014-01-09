@@ -25,6 +25,7 @@ script: |
   cd _build
   cmake $CMAKE_OPTION -DCMAKE_BUILD_TYPE:STRING=Debug ..
   make VERBOSE=1
+  make docs
   make test ARGS="-V"
   cd ..
 

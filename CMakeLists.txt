@@ -123,10 +123,14 @@ if(BUILD_TESTS)
   add_subdirectory(test)
   add_test(hpack test/test_libhpack)
   add_test(chula libchula/test/chula_test)
+  add_test(doxy-coverage doc/external/doxy-coverage/doxy-coverage.py)
 endif(BUILD_TESTS)
 
 if(BUILD_DOCS)
   add_subdirectory(doc)
+  if(BUILD_TESTS)
+    add_test(doxy-coverage ${CMAKE_CURRENT_SOURCE_DIR}/doc/external/doxy-coverage/doxy-coverage.py ${CMAKE_CURRENT_BINARY_DIR}/doc/xml --noerror)
+  endif(BUILD_TESTS)
 endif(BUILD_DOCS)
 
 # config.h
