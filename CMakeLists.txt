@@ -123,7 +123,6 @@ if(BUILD_TESTS)
   add_subdirectory(test)
   add_test(hpack test/test_libhpack)
   add_test(chula libchula/test/chula_test)
-  add_test(doxy-coverage doc/external/doxy-coverage/doxy-coverage.py)
 endif(BUILD_TESTS)
 
 if(BUILD_DOCS)
