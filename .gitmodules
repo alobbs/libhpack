@@ -4,3 +4,6 @@
 [submodule "doc/external/sphinx_rtd_theme"]
 	path = doc/external/sphinx_rtd_theme
 	url = https://github.com/snide/sphinx_rtd_theme.git
+[submodule "doc/external/doxy-coverage"]
+	path = doc/external/doxy-coverage
+	url = https://github.com/alobbs/doxy-coverage.git
