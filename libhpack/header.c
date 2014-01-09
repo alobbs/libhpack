@@ -36,20 +36,34 @@
 #include "header.h"
 #include "integer.h"
 
+/** Header Entry
+ */
 typedef struct {
     chula_buffer_t name;
     chula_buffer_t value;
 } hpack_header_entry_static_t;
 
+/** Static Table Entry without a value
+ */
 #define HDR_NIL(n)                      \
     { .name  = CHULA_BUF_INIT_FAKE(n),  \
       .value = CHULA_BUF_INIT           \
     }
+
+/** Static Table Entry with a value
+ */
 #define HDR_VAL(n,v)                    \
     {  .name  = CHULA_BUF_INIT_FAKE(n), \
        .value = CHULA_BUF_INIT_FAKE(v)  \
     }
 
+/** Static Table (B Appendix)
+ *
+ * The static table consists of an unchangeable ordered list of (name,
+ * value) pairs. The first entry in the table is always represented by
+ * the index len(header table)+1, and the last entry in the table is
+ * represented by the index len(header table)+len(static table).
+ */
 static hpack_header_entry_static_t static_table[] = {
     HDR_NIL(":authority"),
     HDR_VAL(":method", "GET"),
@@ -113,8 +127,16 @@ static hpack_header_entry_static_t static_table[] = {
     HDR_NIL("www-authenticate"),
 };
 
+/** Length of the Static Table
+ */
 static const size_t static_table_len = sizeof(static_table) / sizeof(static_table[0]);
 
+/** String Literal Representation
+ *
+ * Header field names and header field values are encoded as sequences
+ * of octets. This funcion adds the necesary header to a regular
+ * buffer so it becomes a valid string literal.
+ */
 static ret_t
 build_string_literal (chula_buffer_t *buf, bool huffman)
 {
@@ -143,6 +165,8 @@ build_string_literal (chula_buffer_t *buf, bool huffman)
 }
 
 
+/** TMP
+ */
 ret_t
 test (chula_buffer_t *header_name)
 {

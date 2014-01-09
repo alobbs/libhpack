@@ -38,6 +38,8 @@
 #include <stdio.h>
 #include <math.h>
 
+/** Limits by number of bits
+ */
 static const unsigned char limits[] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
 
 /**  Integer encoding
@@ -50,7 +52,7 @@ static const unsigned char limits[] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
  * @param      value   Number to encode
  * @param[out] mem     Memory where the number has to be encoded to
  * @param[out] mem_len Total amount of memory (in bytes) used to encode the number
- * @retval ret_OK  number converted successfully
+ * @retval ret_ok  number converted successfully
  */
 ret_t
 integer_encode (int            N,

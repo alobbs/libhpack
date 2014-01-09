@@ -33,19 +33,5 @@
 #ifndef LIBHPACK_HEADER_H
 #define LIBHPACK_HEADER_H
 
-typedef struct {
-    unsigned char huffman:1;
-    unsigned char length:7;
-} hpack_header_base_t;
-
-typedef struct {
-    hpack_header_base_t base;
-} hpack_header_huffman_t;
-
-typedef struct {
-    hpack_header_base_t base;
-} hpack_header_plain_t;
-
-
 
 #endif /* LIBHPACK_HEADER_H */
