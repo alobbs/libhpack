@@ -25,3 +25,8 @@ build
 # Emacs
 \#*\#
 .\#*\#
+
+# Tags
+GPATH
+GRTAGS
+GTAGS
