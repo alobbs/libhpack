@@ -11,7 +11,7 @@ link_directories (${CMAKE_BINARY_DIR}/libhpack)
 
 add_executable (test_libhpack ${SRCS})
 add_dependencies (test_libhpack hpack)
-target_link_libraries (test_libhpack hpack ${CHECK_LIBRARIES})
+target_link_libraries (test_libhpack hpack chula ${CHECK_LIBRARIES})
 
 if(VALGRIND)
   foreach(target ${ALL_TESTCASES})
