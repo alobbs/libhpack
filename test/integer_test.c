@@ -37,17 +37,6 @@
  * http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-05
  */
 
-#define check_add(suit,func)                             \
-    TCase *testcase_ ## func = tcase_create(#func);      \
-    suite_add_tcase (suit, testcase_ ## func);           \
-    tcase_add_test (testcase_ ##func, func);
-
-#define run_test(suit)                          \
-    SRunner *sr = srunner_create(suit);         \
-    srunner_run_all(sr, CK_VERBOSE);            \
-    return srunner_ntests_failed(sr);
-
-
 START_TEST (encode_10_5bits)
 {
     unsigned char len   = 0xFF;
