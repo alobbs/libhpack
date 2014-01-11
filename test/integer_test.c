@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <check.h>
+#include "libchula/testing_macros.h"
 #include "libhpack/integer.h"
 
 /* All examples came from:
@@ -194,7 +194,7 @@ decode_tests (void)
 }
 
 int
-main (void)
+integer_tests (void)
 {
     int ret;
 

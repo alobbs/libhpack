@@ -34,8 +34,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <check.h>
-#include "testing_macros.h"
+#include "libchula/testing_macros.h"
 #include "libchula/avl.h"
 
 static void

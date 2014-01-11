@@ -30,18 +30,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LIBCHULA_TESTING_MACROS
-#define LIBCHULA_TESTING_MACROS
+int integer_tests (void);
+int huffman_tests (void);
 
-#define check_add(suit,func)                             \
-    TCase *testcase_ ## func = tcase_create(#func);      \
-    suite_add_tcase (suit, testcase_ ## func);           \
-    tcase_add_test (testcase_ ##func, func);
+int
+main (void)
+{
+    int ret;
 
-#define run_test(suit)                          \
-    SRunner *sr = srunner_create (suit);        \
-    srunner_set_fork_status (sr, CK_NOFORK);    \
-    srunner_run_all (sr, CK_VERBOSE);           \
-    return srunner_ntests_failed(sr);
+    ret  = integer_tests();
+    ret += huffman_tests();
 
-#endif /* LIBCHULA_TESTING_MACROS */
+    return ret;
+}
