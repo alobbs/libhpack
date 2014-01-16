@@ -42,10 +42,20 @@ typedef struct {
 	   uint32_t code;
 } hpack_huffman_code_t;
 
+/** Huffman decoding table
+ */
+typedef int16_t hpack_huffman_decode_table_t[][256];
+
 
 ret_t
 hpack_huffman_encode (chula_buffer_t             *in,
                       chula_buffer_t             *out,
                       const hpack_huffman_code_t *table);
+
+ret_t
+hpack_huffman_decode (chula_buffer_t                     *in,
+                      chula_buffer_t                     *out,
+                      const hpack_huffman_code_t         *table_codes,
+                      const hpack_huffman_decode_table_t  table_decode);
 
 #endif /* LIBHPACK_HUFFMAN_H */

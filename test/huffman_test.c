@@ -35,6 +35,30 @@
 #include "libhpack/huffman_tables.h"
 
 #define encode_test(s1,s2,table) encode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1, table)
+#define decode_test(s1,s2,t1,t2) decode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1, t1, t2)
+
+/* Requests */
+#define REQ_EXAMPLE_TEXT "www.example.com"
+#define REQ_EXAMPLE_HUFF "\xdb\x6d\x88\x3e\x68\xd1\xcb\x12\x25\xba\x7f"
+#define REQ_NOCACHE_TEXT "no-cache"
+#define REQ_NOCACHE_HUFF "\x63\x65\x4a\x13\x98\xff"
+#define REQ_CUSTOM_TEXT  "custom-value"
+#define REQ_CUSTOM_HUFF  "\x4e\xb0\x8b\x74\x97\x9a\x17\xa8\xff"
+
+/* Responses */
+#define RES_DATE1_TEXT  "Mon, 21 Oct 2013 20:13:21 GMT"
+#define RES_DATE1_HUFF  "\xa2\xfb\xa2\x03\x20\xf2\xab\x30\x31\x24\x01\x8b\x49\x0d\x32\x09\xe8\x77"
+#define RES_DATE2_TEXT  "Mon, 21 Oct 2013 20:13:22 GMT"
+#define RES_DATE2_HUFF  "\xa2\xfb\xa2\x03\x20\xf2\xab\x30\x31\x24\x01\x8b\x49\x0d\x33\x09\xe8\x77"
+#define RES_PRIV_TEXT   "private"
+#define RES_PRIV_HUFF   "\xc3\x1b\x39\xbf\x38\x7f"
+#define RES_URL_TEXT    "https://www.example.com"
+#define RES_URL_HUFF    "\xe3\x9e\x78\x64\xdd\x7a\xfd\x3d\x3d\x24\x87\x47\xdb\x87\x28\x49\x55\xf6\xff"
+#define RES_GZIP_TEXT   "gzip"
+#define RES_GZIP_HUFF   "\xe1\xfb\xb3\x0f"
+#define RES_COOKIE_TEXT "foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"
+#define RES_COOKIE_HUFF "\xdf\x7d\xfb\x36\xd3\xd9\xe1\xfc\xfc\x3f\xaf\xe7\xab\xfc\xfe\xfc\xbf\xaf\x3e\xdf\x2f\x97\x7f\xd3\x6f\xf7\xfd\x79\xf6\xf9\x77\xfd\x3d\xe1\x6b\xfa\x46\xfe\x10\xd8\x89\x44\x7d\xe1\xce\x18\xe5\x65\xf7\x6c\x2f"
+
 
 static void
 encode_string_test (char *str, int str_len,
@@ -48,9 +72,6 @@ encode_string_test (char *str, int str_len,
     chula_buffer_add (&A, str, str_len);
     chula_buffer_ensure_size (&B, 10*A.len);
 
-    char tmp1 = B.buf[0];
-    char tmp2 = B.buf[enc_len-1];
-
     ret = hpack_huffman_encode (&A, &B, huffman_table);
     ck_assert (ret == ret_ok);
     ck_assert (B.len == enc_len);
@@ -62,49 +83,115 @@ encode_string_test (char *str, int str_len,
     chula_buffer_mrproper (&B);
 }
 
+static void
+decode_string_test (char *str, int str_len,
+                    char *dec, int dec_len,
+                    const hpack_huffman_code_t         *huffman_table,
+                    const hpack_huffman_decode_table_t  table_decode)
+{
+    ret_t          ret;
+    chula_buffer_t A    = CHULA_BUF_INIT;
+    chula_buffer_t B    = CHULA_BUF_INIT;
 
-/* Requests
+    chula_buffer_add (&A, str, str_len);
+    chula_buffer_ensure_size (&B, 10*A.len);
+
+    ret = hpack_huffman_decode (&A, &B, huffman_table, table_decode);
+    ck_assert (ret == ret_ok);
+    ck_assert (B.len == dec_len);
+
+    int cmp = memcmp (B.buf, dec, dec_len);
+    ck_assert (cmp == 0);
+
+    chula_buffer_mrproper (&A);
+    chula_buffer_mrproper (&B);
+}
+
+
+/* Encode
  */
+
+/* Requests */
 START_TEST (request_www_example_com) {
-    encode_test ("www.example.com", "\xdb\x6d\x88\x3e\x68\xd1\xcb\x12\x25\xba\x7f", hpack_huffman_request);
+    encode_test (REQ_EXAMPLE_TEXT, REQ_EXAMPLE_HUFF, hpack_huffman_request);
 }
 END_TEST
 START_TEST (request_no_cache) {
-    encode_test ("no-cache", "\x63\x65\x4a\x13\x98\xff", hpack_huffman_request);
+    encode_test (REQ_NOCACHE_TEXT, REQ_NOCACHE_HUFF, hpack_huffman_request);
 }
 END_TEST
 START_TEST (request_custom_value) {
-    encode_test ("custom-value", "\x4e\xb0\x8b\x74\x97\x9a\x17\xa8\xff", hpack_huffman_request);
+    encode_test (REQ_CUSTOM_TEXT, REQ_CUSTOM_HUFF, hpack_huffman_request);
 }
 END_TEST
 
-
-/* Responses
- */
+/* Responses */
 START_TEST (response_date1) {
-    encode_test ("Mon, 21 Oct 2013 20:13:21 GMT", "\xa2\xfb\xa2\x03\x20\xf2\xab\x30\x31\x24\x01\x8b\x49\x0d\x32\x09\xe8\x77", hpack_huffman_response);
+    encode_test (RES_DATE1_TEXT, RES_DATE1_HUFF, hpack_huffman_response);
 }
 END_TEST
 START_TEST (response_date2) {
-    encode_test ("Mon, 21 Oct 2013 20:13:22 GMT", "\xa2\xfb\xa2\x03\x20\xf2\xab\x30\x31\x24\x01\x8b\x49\x0d\x33\x09\xe8\x77", hpack_huffman_response);
+    encode_test (RES_DATE2_TEXT, RES_DATE2_HUFF, hpack_huffman_response);
 }
 END_TEST
 START_TEST (response_private) {
-    encode_test ("private", "\xc3\x1b\x39\xbf\x38\x7f", hpack_huffman_response);
+    encode_test (RES_PRIV_TEXT, RES_PRIV_HUFF, hpack_huffman_response);
 }
 END_TEST
 START_TEST (response_url) {
-    encode_test ("https://www.example.com", "\xe3\x9e\x78\x64\xdd\x7a\xfd\x3d\x3d\x24\x87\x47\xdb\x87\x28\x49\x55\xf6\xff", hpack_huffman_response);
+    encode_test (RES_URL_TEXT, RES_URL_HUFF, hpack_huffman_response);
 }
 END_TEST
 START_TEST (response_gzip) {
-    encode_test ("gzip", "\xe1\xfb\xb3\x0f", hpack_huffman_response);
+    encode_test (RES_GZIP_TEXT, RES_GZIP_HUFF, hpack_huffman_response);
 }
 END_TEST
 START_TEST (response_cookie) {
-    encode_test ("foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1",
-                 "\xdf\x7d\xfb\x36\xd3\xd9\xe1\xfc\xfc\x3f\xaf\xe7\xab\xfc\xfe\xfc\xbf\xaf\x3e\xdf\x2f\x97\x7f\xd3\x6f\xf7\xfd\x79\xf6\xf9\x77\xfd\x3d\xe1\x6b\xfa\x46\xfe\x10\xd8\x89\x44\x7d\xe1\xce\x18\xe5\x65\xf7\x6c\x2f",
-                 hpack_huffman_response);
+    encode_test (RES_COOKIE_TEXT, RES_COOKIE_HUFF, hpack_huffman_response);
+}
+END_TEST
+
+
+/* Decode
+ */
+
+/* Requests */
+START_TEST (decode_request_www_example_com) {
+    decode_test (REQ_EXAMPLE_HUFF, REQ_EXAMPLE_TEXT, hpack_huffman_request, decode_req_table);
+}
+END_TEST
+START_TEST (decode_request_no_cache) {
+    decode_test (REQ_NOCACHE_HUFF, REQ_NOCACHE_TEXT, hpack_huffman_request, decode_req_table);
+}
+END_TEST
+START_TEST (decode_request_custom) {
+    decode_test (REQ_CUSTOM_HUFF, REQ_CUSTOM_TEXT, hpack_huffman_request, decode_req_table);
+}
+END_TEST
+
+/* Responses */
+START_TEST (decode_response_date1) {
+    decode_test (RES_DATE1_HUFF, RES_DATE1_TEXT, hpack_huffman_response, decode_res_table);
+}
+END_TEST
+START_TEST (decode_response_date2) {
+    decode_test (RES_DATE2_HUFF, RES_DATE2_TEXT, hpack_huffman_response, decode_res_table);
+}
+END_TEST
+START_TEST (decode_response_priv) {
+    decode_test (RES_PRIV_HUFF, RES_PRIV_TEXT, hpack_huffman_response, decode_res_table);
+}
+END_TEST
+START_TEST (decode_response_url) {
+    decode_test (RES_URL_HUFF, RES_URL_TEXT, hpack_huffman_response, decode_res_table);
+}
+END_TEST
+START_TEST (decode_response_gzip) {
+    decode_test (RES_GZIP_HUFF, RES_GZIP_TEXT, hpack_huffman_response, decode_res_table);
+}
+END_TEST
+START_TEST (decode_response_cookie) {
+    decode_test (RES_COOKIE_HUFF, RES_COOKIE_TEXT, hpack_huffman_response, decode_res_table);
 }
 END_TEST
 
@@ -116,6 +203,16 @@ encode_requests (void)
     check_add (s1, request_www_example_com);
     check_add (s1, request_no_cache);
     check_add (s1, request_custom_value);
+    run_test (s1);
+}
+
+int
+decode_requests (void)
+{
+    Suite *s1 = suite_create("Request Decoding");
+    check_add (s1, decode_request_www_example_com);
+    check_add (s1, decode_request_no_cache);
+    check_add (s1, decode_request_custom);
     run_test (s1);
 }
 
@@ -133,12 +230,27 @@ encode_responses (void)
 }
 
 int
+decode_responses (void)
+{
+    Suite *s1 = suite_create("Response Decoding");
+    check_add (s1, decode_response_date1);
+    check_add (s1, decode_response_date2);
+    check_add (s1, decode_response_priv);
+    check_add (s1, decode_response_url);
+    check_add (s1, decode_response_gzip);
+    check_add (s1, decode_response_cookie);
+    run_test (s1);
+}
+
+int
 huffman_tests (void)
 {
     int ret;
 
     ret  = encode_requests();
     ret += encode_responses();
+    ret += decode_requests();
+    ret += decode_responses();
 
     return ret;
 }

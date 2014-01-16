@@ -36,4 +36,10 @@
 extern const hpack_huffman_code_t hpack_huffman_request[257];
 extern const hpack_huffman_code_t hpack_huffman_response[257];
 
+extern const hpack_huffman_decode_table_t decode_req_table;
+extern const hpack_huffman_decode_table_t decode_res_table;
+
+// extern const int16_t hpack_huffman_req_decode_table[][256];
+// extern const int16_t hpack_huffman_res_decode_table[][256];
+
 #endif /* LIBHPACK_HUFFMAN_TABLES_H */
