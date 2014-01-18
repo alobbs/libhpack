@@ -121,7 +121,8 @@ decode (chula_buffer_t                     *in,
         const hpack_huffman_code_t         *table_codes,
         const hpack_huffman_decode_table_t  table_decode)
 {
-    int re = 0;
+    int re       = 0;
+    int len_orig = in->len - offset;
 
     if (offset >= in->len)
         return -1;
@@ -139,7 +140,7 @@ decode (chula_buffer_t                     *in,
         }
     }
 
-    if (bit_offset + table_codes[re].bits > (in->len - offset) * 8) {
+    if (bit_offset + table_codes[re].bits > len_orig * 8) {
         return -1;
     }
 
