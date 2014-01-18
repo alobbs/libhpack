@@ -69,6 +69,12 @@ hpack_huffman_encode (chula_buffer_t             *in,
     unsigned char               remaining_bits = 8;
 
     for (int n=0; n < in->len; n++) {
+        /* Memory management */
+        if (out->size - out->len < 8) {
+            chula_buffer_ensure_addlen (out, in->len);
+        }
+
+        /* Encode */
         code = &table[in->buf[n]];
         if (remaining_bits == 8) {
             out->buf[out->len] = 0;
@@ -157,6 +163,12 @@ hpack_huffman_decode (chula_buffer_t                     *in,
     unsigned int bit_offset = 0;
 
     for (int n=0; n < in->len;) {
+        /* Memory management */
+        if (out->size - out->len < 8) {
+            chula_buffer_ensure_addlen (out, in->len * 2);
+        }
+
+        /* Decode */
         re = decode (in, n, bit_offset, table_codes, table_decode);
         if (re == -1) {
             if (check_last_byte (in, n, bit_offset)) {
