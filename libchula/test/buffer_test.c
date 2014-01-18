@@ -353,12 +353,14 @@ START_TEST (add_uint16be)
     chula_buffer_t  b    = CHULA_BUF_INIT;
 
     num = htons(0);
-    chula_buffer_add_uint16be (&b, 0);
+    ret = chula_buffer_add_uint16be (&b, 0);
+    ck_assert (ret == ret_ok);
     ck_assert (memcmp (&num, b.buf, sizeof(uint16_t)) == 0);
 
     num = htons(999);
     chula_buffer_clean (&b);
-    chula_buffer_add_uint16be (&b, 999);
+    ret = chula_buffer_add_uint16be (&b, 999);
+    ck_assert (ret == ret_ok);
     ck_assert (memcmp (&num, b.buf, b.len) == 0);
 }
 END_TEST
@@ -370,13 +372,15 @@ START_TEST (add_uint32be)
     chula_buffer_t  b    = CHULA_BUF_INIT;
 
     num = htons(0);
-    chula_buffer_add_uint32be (&b, 0);
+    ret = chula_buffer_add_uint32be (&b, 0);
+    ck_assert (ret == ret_ok);
     ck_assert (memcmp (&num, b.buf, sizeof(uint32_t)) == 0);
 
     /* 2^32 - 1 */
     num = htonl(4294967295);
     chula_buffer_clean (&b);
-    chula_buffer_add_uint32be (&b, 4294967295);
+    ret = chula_buffer_add_uint32be (&b, 4294967295);
+    ck_assert (ret == ret_ok);
     ck_assert (memcmp (&num, b.buf, b.len) == 0);
 }
 END_TEST
@@ -1554,9 +1558,8 @@ END_TEST
 
 START_TEST (swap_buffers)
 {
-    ret_t          ret;
-    chula_buffer_t a    = CHULA_BUF_INIT;
-    chula_buffer_t b    = CHULA_BUF_INIT;
+    chula_buffer_t a = CHULA_BUF_INIT;
+    chula_buffer_t b = CHULA_BUF_INIT;
 
     chula_buffer_add_str (&a, "a");
     chula_buffer_swap_buffers (&a, &b);
