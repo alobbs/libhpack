@@ -36,6 +36,7 @@
 
 #define encode_test(s1,s2,table) encode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1, table)
 #define decode_test(s1,s2,t1,t2) decode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1, t1, t2)
+#define endecode_test(s1,t1,t2)  endecode_string_test(s1, sizeof(s1)-1, t1, t2)
 
 /* Requests */
 #define REQ_EXAMPLE_TEXT "www.example.com"
@@ -58,6 +59,11 @@
 #define RES_GZIP_HUFF   "\xe1\xfb\xb3\x0f"
 #define RES_COOKIE_TEXT "foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"
 #define RES_COOKIE_HUFF "\xdf\x7d\xfb\x36\xd3\xd9\xe1\xfc\xfc\x3f\xaf\xe7\xab\xfc\xfe\xfc\xbf\xaf\x3e\xdf\x2f\x97\x7f\xd3\x6f\xf7\xfd\x79\xf6\xf9\x77\xfd\x3d\xe1\x6b\xfa\x46\xfe\x10\xd8\x89\x44\x7d\xe1\xce\x18\xe5\x65\xf7\x6c\x2f"
+
+/* Texts */
+#define TEXT1 "When your hammer is C++, everything begins to look like a thumb."
+#define TEXT2 "A SQL query goes into a bar, walks up to two tables and asks, 'Can I join you?'"
+#define TEXT3 "Two bytes meet. The first byte asks, 'Are you ill?'. The second byte replies: No, just feeling a bit off."
 
 
 static void
@@ -106,6 +112,34 @@ decode_string_test (char *str, int str_len,
     chula_buffer_mrproper (&A);
     chula_buffer_mrproper (&B);
 }
+
+static void
+endecode_string_test (char *str, int str_len,
+                      const hpack_huffman_code_t         *huffman_table,
+                      const hpack_huffman_decode_table_t  table_decode)
+{
+    ret_t          ret;
+    chula_buffer_t A    = CHULA_BUF_INIT;
+    chula_buffer_t B    = CHULA_BUF_INIT;
+    chula_buffer_t C    = CHULA_BUF_INIT;
+
+    chula_buffer_add (&A, str, str_len);
+    chula_buffer_ensure_size (&B, 10*A.len);
+    chula_buffer_ensure_size (&C, A.len+1);
+
+    ret = hpack_huffman_encode (&A, &B, huffman_table);
+    ck_assert (ret == ret_ok);
+
+    ret = hpack_huffman_decode (&B, &C, huffman_table, table_decode);
+    ck_assert (ret == ret_ok);
+    int cmp = memcmp (A.buf, C.buf, A.len);
+    ck_assert (cmp == 0);
+
+    chula_buffer_mrproper (&A);
+    chula_buffer_mrproper (&B);
+    chula_buffer_mrproper (&C);
+}
+
 
 
 /* Encode
@@ -195,6 +229,36 @@ START_TEST (decode_response_cookie) {
 }
 END_TEST
 
+/* Encode-Decode
+ */
+
+/* Requests */
+START_TEST (endecode_req_text1) {
+    endecode_test (TEXT1, hpack_huffman_request, decode_req_table);
+}
+END_TEST
+START_TEST (endecode_req_text2) {
+    endecode_test (TEXT2, hpack_huffman_request, decode_req_table);
+}
+END_TEST
+START_TEST (endecode_req_text3) {
+    endecode_test (TEXT3, hpack_huffman_request, decode_req_table);
+}
+END_TEST
+
+/* Responses */
+START_TEST (endecode_res_text1) {
+    endecode_test (TEXT1, hpack_huffman_response, decode_res_table);
+}
+END_TEST
+START_TEST (endecode_res_text2) {
+    endecode_test (TEXT2, hpack_huffman_response, decode_res_table);
+}
+END_TEST
+START_TEST (endecode_res_text3) {
+    endecode_test (TEXT3, hpack_huffman_response, decode_res_table);
+}
+END_TEST
 
 int
 encode_requests (void)
@@ -243,6 +307,26 @@ decode_responses (void)
 }
 
 int
+endecode_request (void)
+{
+    Suite *s1 = suite_create("Request Enc+Decode");
+    check_add (s1, endecode_req_text1);
+    check_add (s1, endecode_req_text2);
+    check_add (s1, endecode_req_text3);
+    run_test (s1);
+}
+
+int
+endecode_responses (void)
+{
+    Suite *s1 = suite_create("Response Enc+Decode");
+    check_add (s1, endecode_res_text1);
+    check_add (s1, endecode_res_text2);
+    check_add (s1, endecode_res_text3);
+    run_test (s1);
+}
+
+int
 huffman_tests (void)
 {
     int ret;
@@ -251,6 +335,8 @@ huffman_tests (void)
     ret += encode_responses();
     ret += decode_requests();
     ret += decode_responses();
+    ret += endecode_request();
+    ret += endecode_responses();
 
     return ret;
 }
