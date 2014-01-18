@@ -72,11 +72,10 @@ encode_string_test (char *str, int str_len,
                     const hpack_huffman_code_t *huffman_table)
 {
     ret_t          ret;
-    chula_buffer_t A    = CHULA_BUF_INIT;
+    chula_buffer_t A;
     chula_buffer_t B    = CHULA_BUF_INIT;
 
-    chula_buffer_add (&A, str, str_len);
-    chula_buffer_ensure_size (&B, 10*A.len);
+    chula_buffer_fake (&A, str, str_len);
 
     ret = hpack_huffman_encode (&A, &B, huffman_table);
     ck_assert (ret == ret_ok);
@@ -85,7 +84,6 @@ encode_string_test (char *str, int str_len,
     int cmp = memcmp (B.buf, enc, enc_len);
     ck_assert (cmp == 0);
 
-    chula_buffer_mrproper (&A);
     chula_buffer_mrproper (&B);
 }
 
@@ -96,11 +94,10 @@ decode_string_test (char *str, int str_len,
                     const hpack_huffman_decode_table_t  table_decode)
 {
     ret_t          ret;
-    chula_buffer_t A    = CHULA_BUF_INIT;
+    chula_buffer_t A;
     chula_buffer_t B    = CHULA_BUF_INIT;
 
-    chula_buffer_add (&A, str, str_len);
-    chula_buffer_ensure_size (&B, 10*A.len);
+    chula_buffer_fake (&A, str, str_len);
 
     ret = hpack_huffman_decode (&A, &B, huffman_table, table_decode);
     ck_assert (ret == ret_ok);
@@ -109,7 +106,6 @@ decode_string_test (char *str, int str_len,
     int cmp = memcmp (B.buf, dec, dec_len);
     ck_assert (cmp == 0);
 
-    chula_buffer_mrproper (&A);
     chula_buffer_mrproper (&B);
 }
 
@@ -119,13 +115,11 @@ endecode_string_test (char *str, int str_len,
                       const hpack_huffman_decode_table_t  table_decode)
 {
     ret_t          ret;
-    chula_buffer_t A    = CHULA_BUF_INIT;
+    chula_buffer_t A;
     chula_buffer_t B    = CHULA_BUF_INIT;
     chula_buffer_t C    = CHULA_BUF_INIT;
 
-    chula_buffer_add (&A, str, str_len);
-    chula_buffer_ensure_size (&B, 10*A.len);
-    chula_buffer_ensure_size (&C, A.len+1);
+    chula_buffer_fake (&A, str, str_len);
 
     ret = hpack_huffman_encode (&A, &B, huffman_table);
     ck_assert (ret == ret_ok);
@@ -135,7 +129,6 @@ endecode_string_test (char *str, int str_len,
     int cmp = memcmp (A.buf, C.buf, A.len);
     ck_assert (cmp == 0);
 
-    chula_buffer_mrproper (&A);
     chula_buffer_mrproper (&B);
     chula_buffer_mrproper (&C);
 }
