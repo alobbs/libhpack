@@ -34,6 +34,8 @@ if(USE_VALGRIND)
   find_program(VALGRIND valgrind)
 endif()
 
+set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
+
 # Checks
 include(CheckTypeSize)
 include(CheckIncludeFiles)
