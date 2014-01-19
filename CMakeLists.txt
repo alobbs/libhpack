@@ -32,7 +32,7 @@ endif()
 option (USE_VALGRIND "Use valgrind when testing" true)
 if(USE_VALGRIND)
     find_program(VALGRIND valgrind)
-    set (VALGRIND_OPTIONS --leak-check=full --num-callers=100)
+    set (VALGRIND_OPTIONS --leak-check=full --num-callers=50)
 endif()
 
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
