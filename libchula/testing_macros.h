@@ -44,6 +44,8 @@
     SRunner *sr = srunner_create (suit);        \
     srunner_set_fork_status (sr, CK_NOFORK);    \
     srunner_run_all (sr, CK_VERBOSE);           \
-    return srunner_ntests_failed(sr);
+    int test_ret =  srunner_ntests_failed(sr);  \
+    srunner_free(sr);                           \
+    return test_ret;
 
 #endif /* LIBCHULA_TESTING_MACROS */

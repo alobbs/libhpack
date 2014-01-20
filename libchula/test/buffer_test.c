@@ -40,10 +40,9 @@
 
 START_TEST (init_heap)
 {
-    chula_buffer_t buf;
+    chula_buffer_t buf = CHULA_BUF_INIT;
 
     /* Init */
-    chula_buffer_init (&buf);
     ck_assert (buf.len == 0);
     ck_assert (buf.size == 0);
     ck_assert (buf.buf == NULL);
@@ -86,6 +85,8 @@ START_TEST (init_ptr)
     chula_buffer_clean (buf);
     ck_assert (buf->len == 0);
     ck_assert (buf->buf != NULL);
+
+    chula_buffer_free (buf);
 }
 END_TEST
 
@@ -102,6 +103,9 @@ START_TEST (dup_)
     ck_assert (&b1 != b2);
     ck_assert (b1.len == b2->len);
     ck_assert (b1.buf != b2->buf);
+
+    chula_buffer_mrproper(&b1);
+    chula_buffer_free(b2);
 }
 END_TEST
 
@@ -121,6 +125,8 @@ START_TEST (add)
     ret = chula_buffer_add (&b, "", 0);
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 3+4);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -177,7 +183,10 @@ START_TEST (slice)
     chula_buffer_clean (&b);
     ret = chula_buffer_add_buffer_slice (&b, &a, 0, 0);
     ck_assert (ret == ret_ok);
-     ck_assert (b.len == 0);
+    ck_assert (b.len == 0);
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -234,6 +243,8 @@ START_TEST (add_fsize)
     ret = chula_buffer_add_fsize (&b, 6.2 * 1024*1024*1024*1024*1024);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "6.2P");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -263,6 +274,8 @@ START_TEST (add_long10)
     ret = chula_buffer_add_ulong10 (&b, 4294967295);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "4294967295");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -292,6 +305,8 @@ START_TEST (add_llong10)
     ret = chula_buffer_add_ullong10 (&b, 18446744073709551615ull);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "18446744073709551615");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -320,6 +335,8 @@ START_TEST (add_long16)
     ret = chula_buffer_add_ulong16 (&b, 4294967295);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "ffffffff");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -343,6 +360,8 @@ START_TEST (add_llong16)
     ret = chula_buffer_add_ullong16 (&b, 18446744073709551615ull);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "ffffffffffffffff");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -362,6 +381,8 @@ START_TEST (add_uint16be)
     ret = chula_buffer_add_uint16be (&b, 999);
     ck_assert (ret == ret_ok);
     ck_assert (memcmp (&num, b.buf, b.len) == 0);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -382,6 +403,8 @@ START_TEST (add_uint32be)
     ret = chula_buffer_add_uint32be (&b, 4294967295);
     ck_assert (ret == ret_ok);
     ck_assert (memcmp (&num, b.buf, b.len) == 0);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -418,6 +441,8 @@ START_TEST (add_va)
     ret = chula_buffer_add_va (&b, "%d - %1.1f - %s", 1, 2.1, "foo");
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "1 - 2.1 - foo");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -435,6 +460,8 @@ START_TEST (add_char)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 2);
     ck_assert_str_eq (b.buf, "ab");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -457,6 +484,8 @@ START_TEST (add_char_n)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 5);
     ck_assert_str_eq (b.buf, "aaaaa");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -490,6 +519,8 @@ START_TEST (prepend)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 9);
     ck_assert_str_eq (b.buf, "Allocated");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -511,6 +542,8 @@ START_TEST (is_ending)
 
     re = chula_buffer_is_ending (&b, '5');
     ck_assert (re == 1);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -532,6 +565,8 @@ START_TEST (move_to_begin)
     ret = chula_buffer_move_to_begin (&b, 3);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "3456789");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -557,6 +592,8 @@ START_TEST (ensure_size)
     ck_assert (ret == ret_ok);
     ck_assert (b.buf != NULL);
     ck_assert (b.size == 200);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -580,6 +617,8 @@ START_TEST (drop_ending)
     ret = chula_buffer_drop_ending (&b, 999);
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 0);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -604,6 +643,8 @@ START_TEST (swap_chars)
     ret = chula_buffer_swap_chars (&b, 'Z', '$');
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 0);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -627,6 +668,8 @@ START_TEST (remove_dups)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 1);
     ck_assert_str_eq (b.buf, "a");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -651,6 +694,8 @@ START_TEST (remove_string)
     ret = chula_buffer_remove_string (&b, "raco", 0);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "caracola");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -678,6 +723,8 @@ START_TEST (remove_chunk)
     ret = chula_buffer_remove_chunk (&b, 0, 99);
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 0);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -720,6 +767,9 @@ START_TEST (cmp_buf)
     ck_assert (re == 0);
     re = chula_buffer_case_cmp_buf (&b, &a);
     ck_assert (re == 0);
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -769,6 +819,8 @@ START_TEST (cmp)
 
     re = chula_buffer_case_cmp (&b, "hoLa", 4);
     ck_assert (re == 0);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -790,6 +842,8 @@ START_TEST (crc32)
     chula_buffer_add_str (&b, "ola");
     crc = chula_buffer_crc32 (&b);
     ck_assert (crc == 1872820616);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -825,6 +879,7 @@ START_TEST (read_file)
     ck_assert_str_eq (b.buf, "hola");
 
     free (template);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -867,6 +922,7 @@ START_TEST (read_from_fd)
     ck_assert_str_eq (b.buf, "content");
 
     free (template);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -888,6 +944,8 @@ START_TEST (multiply)
     ret = chula_buffer_multiply (&b, 3);
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 15);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -926,6 +984,8 @@ START_TEST (get_utf8_len)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 18);
     ck_assert (len == 9);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -960,6 +1020,8 @@ START_TEST (unescape_uri)
     ret = chula_buffer_unescape_uri(&b);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "http://host/end not");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -992,6 +1054,9 @@ START_TEST (escape_uri)
     ret = chula_buffer_escape_uri(&b, &a);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "%00%01%1f%7f%ff");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1010,6 +1075,9 @@ START_TEST (escape_uri_delims)
     ret = chula_buffer_escape_uri_delims(&b, &a);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "hola%20%00%01%1f%20%3a%3f%23%5b%5d%40%20%7f%ff%20adios!<>{}-_");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1028,6 +1096,9 @@ START_TEST (escape_arg)
     ret = chula_buffer_escape_arg(&b, &a);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "hola%20%00%01%1f%20%23%25%26%2b%3f%20%7f%ff%20adios!@[]<>");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1054,6 +1125,9 @@ START_TEST (add_escape_html)
     ret = chula_buffer_add_escape_html (&b, &a);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "a &amp; b &lt; c &gt; d &quot; e &#39; f &#47; g &#35; @[]{}-_$!");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1098,6 +1172,9 @@ START_TEST (base64)
     ret = chula_buffer_decode_base64 (&b);
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 7);
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1127,6 +1204,8 @@ START_TEST (md5_digest)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 32);
     ck_assert_str_eq (b.buf, "f129ac2d8a0ee74923012d1c8ed83a86");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1151,6 +1230,9 @@ START_TEST (encode_md5)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 16);
     ck_assert_str_eq (b.buf, "\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\x09\x98\xec\xf8\x42\x7e");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1179,6 +1261,9 @@ START_TEST (encode_sha1)
     ck_assert_str_eq (b.buf,
                       "\xda\x39" "\xa3\xee" "\x5e\x6b" "\x4b\x0d" "\x32\x55"
                       "\xbf\xef" "\x95\x60" "\x18\x90" "\xaf\xd8" "\x07\x09");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1208,6 +1293,8 @@ START_TEST (sha1_digest)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 40);
     ck_assert_str_eq (b.buf, "302c1f256c8e9ebb5edf0822b473d0cd3d2ce84c");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1242,6 +1329,9 @@ START_TEST (sha1_base64)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 28);
     ck_assert_str_eq (b.buf, "MCwfJWyOnrte3wgitHPQzT0s6Ew=");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1276,6 +1366,9 @@ START_TEST (encode_hex)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 8);
     ck_assert_str_eq (b.buf, "0001feff");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1304,6 +1397,8 @@ START_TEST (decode_hex)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 4);
     ck_assert_str_eq (b.buf, "\x00\x01\xfe\xff");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1318,6 +1413,8 @@ START_TEST (end_char)
     chula_buffer_add_str (&b, "ab\0cd");
     re = chula_buffer_end_char (&b);
     ck_assert (re == 'd');
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1344,6 +1441,8 @@ START_TEST (replace_string)
     ret = chula_buffer_replace_string (&b, "hola", 4, "adios", 5);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "adios caracola");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1370,6 +1469,9 @@ START_TEST (substitute_string)
     ret = chula_buffer_substitute_string (&a, &b, "hola", 4, "adios", 5);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "adios caracola");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1410,6 +1512,8 @@ START_TEST (add_comma_marks)
     ret = chula_buffer_add_comma_marks (&b);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "1,234,567,890");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1445,6 +1549,8 @@ START_TEST (trim)
     ret = chula_buffer_trim (&b);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "testing");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1468,6 +1574,8 @@ START_TEST (to_lowcase)
     ret = chula_buffer_to_lowcase (&b);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "aabbccddeeff");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1498,6 +1606,8 @@ START_TEST (insert)
     ret = chula_buffer_insert (&b, "ab", 2, 9999);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "123ab");
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1525,6 +1635,9 @@ START_TEST (insert_buffer)
     ck_assert (ret == ret_ok);
     ck_assert (a.len == 6);
     ck_assert_str_eq (a.buf, "ho12la");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1553,6 +1666,8 @@ START_TEST (split_lines)
     for (int i=0; i<b.len; i++) num += (b.buf[i]=='*')?1:0;
     ck_assert (ret == ret_ok);
     ck_assert (num == 2);
+
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 
@@ -1572,6 +1687,9 @@ START_TEST (swap_buffers)
     chula_buffer_swap_buffers (&a, &b);
     ck_assert (a.len == 1);
     ck_assert (b.len == 2);
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
 }
 END_TEST
 

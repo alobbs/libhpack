@@ -64,6 +64,8 @@ START_TEST (empty)
 
     ret = chula_avl_init (&avl);
     ck_assert (ret == ret_ok);
+
+    chula_avl_mrproper (AVL_GENERIC(&avl), NULL);
 }
 END_TEST
 
@@ -105,6 +107,8 @@ START_TEST (_ptr)
 
     ret = chula_avl_check (AVL_GENERIC(&avl));
     ck_assert (ret == ret_ok);
+
+    chula_avl_mrproper (AVL_GENERIC(&avl), NULL);
 }
 END_TEST
 
@@ -147,6 +151,11 @@ START_TEST (_buf)
 
     ret = chula_avl_check (AVL_GENERIC(&avl));
     ck_assert (ret == ret_ok);
+
+    chula_buffer_mrproper (&uno);
+    chula_buffer_mrproper (&dos);
+    chula_buffer_mrproper (&tres);
+    chula_avl_mrproper (AVL_GENERIC(&avl), NULL);
 }
 END_TEST
 
@@ -179,6 +188,8 @@ START_TEST (len)
 
     chula_avl_len (AVL_GENERIC(&avl), &len);
     ck_assert (len == 2);
+
+    chula_avl_mrproper (AVL_GENERIC(&avl), NULL);
 }
 END_TEST
 
@@ -258,6 +269,8 @@ START_TEST (_while)
     ret = chula_avl_while (AVL_GENERIC(&avl), while_func, &total, &key, &value);
     ck_assert (ret == ret_ok);
     ck_assert (total == expected);
+
+    chula_avl_mrproper (AVL_GENERIC(&avl), NULL);
 }
 END_TEST
 

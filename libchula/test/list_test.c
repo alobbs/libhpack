@@ -222,6 +222,8 @@ START_TEST (content_add)
     ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next)) == 2);
     ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next->next)) == 1);
     ck_assert (LIST_ITEM_INFO(l.next->next->next->next) == NULL);
+
+    chula_list_content_free (&l, NULL);
 }
 END_TEST
 
@@ -238,6 +240,8 @@ START_TEST (content_add_tail)
     ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next)) == 1);
     ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next->next)) == 2);
     ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next->next->next)) == 3);
+
+    chula_list_content_free (&l, NULL);
 }
 END_TEST
 
@@ -255,6 +259,8 @@ START_TEST (content_free)
 
     chula_list_get_len (&l, &len);
     ck_assert (len == 0);
+
+    chula_list_content_free (&l, NULL);
 }
 END_TEST
 
@@ -275,6 +281,8 @@ START_TEST (content_free_item_simple)
 
     chula_list_get_len (&l, &len);
     ck_assert (len == 0);
+
+    chula_list_content_free (&l, NULL);
 }
 END_TEST
 

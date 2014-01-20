@@ -56,6 +56,8 @@ START_TEST (_64Kb)
 
     do_md5 (&buf, 64*1024);
     ck_assert_str_eq (buf.buf, "c858ba08b3d55c2e7e2f31a7412a7bd5");
+
+    chula_buffer_mrproper (&buf);
 }
 END_TEST
 
@@ -65,6 +67,8 @@ START_TEST (_1Mb)
 
     do_md5 (&buf, 1024*1024);
     ck_assert_str_eq (buf.buf, "c178bdb56a620d47b0e0b167c665c873");
+
+    chula_buffer_mrproper (&buf);
 }
 END_TEST
 
