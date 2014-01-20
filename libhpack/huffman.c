@@ -90,7 +90,7 @@ hpack_huffman_encode (chula_buffer_t             *in,
         }
 
         /* Encode */
-        code = &table[in->buf[n]];
+        code = &table[(unsigned char)in->buf[n]];
         if (remaining_bits == 8) {
             out->buf[out->len] = 0;
         }
@@ -142,14 +142,16 @@ decode (chula_buffer_t                     *in,
         const hpack_huffman_code_t         *table_codes,
         const hpack_huffman_decode_table_t  table_decode)
 {
-    int re       = 0;
-    int len_orig = in->len - offset;
+    uint8_t prefix;
+    int     re       = 0;
+    int     len_orig = in->len - offset;
 
     if (offset >= in->len)
         return -1;
 
     while (true) {
-        re = table_decode[re][get_prefix_byte(in, offset, bit_offset)];
+        prefix = get_prefix_byte(in, offset, bit_offset);
+        re = table_decode[re][prefix];
         if (re >= 0) {
             break;
         }
