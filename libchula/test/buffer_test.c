@@ -892,8 +892,8 @@ START_TEST (read_from_fd)
 
     /* Doesn't exists */
     fd = open ("/it/doesnt/exist", O_RDONLY);
+    ck_assert (fd == -1);
     ret = chula_buffer_read_from_fd (&b, fd, 0, &did_read);
-    close (fd);
     ck_assert (ret == ret_error);
 
     /* Not a file */
