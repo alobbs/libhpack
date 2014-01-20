@@ -60,6 +60,18 @@ encode_symbol (const hpack_huffman_code_t *code,
     return remaining_bits;
 }
 
+/**  Huffman encoding
+ *
+ * Encodes a buffer into another one using the provided Huffman
+ * table. The memory allocation of the output buffer is handled
+ * automatically by the function, there is no need to pre-allocate
+ * memory for the compressed buffer.
+ *
+ * @param      in      Buffer with the information to compress
+ * @param[out] out     Buffer to compress the information to
+ * @param      table   Huffman table to use for the compression
+ * @retval     ret_ok  Buffer successfully compressed
+ */
 ret_t
 hpack_huffman_encode (chula_buffer_t             *in,
                       chula_buffer_t             *out,
@@ -153,6 +165,19 @@ decode (chula_buffer_t                     *in,
     return re;
 }
 
+/**  Huffman decoding
+ *
+ * Decodes a buffer into another one using the provided Huffman code
+ * and decoding tables. The memory allocation of the output buffer is
+ * handled automatically by the function, there is no need to
+ * pre-allocate memory for the uncompressed output.
+ *
+ * @param      in           Buffer with the information to uncompress
+ * @param[out] out          Buffer to uncompress the information to
+ * @param      table_codes  Huffman code table
+ * @param      table_decode Huffman decoding table
+ * @retval     ret_ok       Buffer successfully uncompressed
+ */
 ret_t
 hpack_huffman_decode (chula_buffer_t                     *in,
                       chula_buffer_t                     *out,
