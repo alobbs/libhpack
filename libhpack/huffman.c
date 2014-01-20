@@ -77,13 +77,16 @@ hpack_huffman_encode (chula_buffer_t             *in,
                       chula_buffer_t             *out,
                       const hpack_huffman_code_t *table)
 {
+    ret_t                       ret;
     const hpack_huffman_code_t *code;
     unsigned char               remaining_bits = 8;
 
     for (int n=0; n < in->len; n++) {
         /* Memory management */
         if (out->size - out->len < 8) {
-            chula_buffer_ensure_addlen (out, in->len);
+            ret = chula_buffer_ensure_addlen (out, in->len);
+            if (unlikely(ret != ret_ok))
+                return ret;
         }
 
         /* Encode */
@@ -184,13 +187,16 @@ hpack_huffman_decode (chula_buffer_t                     *in,
                       const hpack_huffman_code_t         *table_codes,
                       const hpack_huffman_decode_table_t  table_decode)
 {
+    ret_t        ret;
     unsigned int re;
     unsigned int bit_offset = 0;
 
     for (int n=0; n < in->len;) {
         /* Memory management */
         if (out->size - out->len < 8) {
-            chula_buffer_ensure_addlen (out, in->len * 2);
+            ret = chula_buffer_ensure_addlen (out, in->len * 2);
+            if (unlikely(ret != ret_ok))
+                return ret;
         }
 
         /* Decode */
