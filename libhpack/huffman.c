@@ -115,7 +115,7 @@ check_last_byte (chula_buffer_t *src,
 
     return ((bit_offset > 0) &&
             (src->len == n+1) &&
-            ((src->buf[n] & mask) == mask));
+            (((uint8_t)(src->buf[n]) & mask) == mask));
 }
 
 static inline uint8_t
@@ -137,13 +137,13 @@ get_prefix_byte (chula_buffer_t *in, int offset, unsigned char bit_offset)
 
 static int
 decode (chula_buffer_t                     *in,
-        int                                 offset,
+        unsigned int                        offset,
         unsigned char                       bit_offset,
         const hpack_huffman_code_t         *table_codes,
         const hpack_huffman_decode_table_t  table_decode)
 {
     uint8_t prefix;
-    int     re       = 0;
+    int16_t re       = 0;
     int     len_orig = in->len - offset;
 
     if (offset >= in->len)
@@ -190,10 +190,11 @@ hpack_huffman_decode (chula_buffer_t                     *in,
                       const hpack_huffman_decode_table_t  table_decode)
 {
     ret_t        ret;
+    unsigned int n;
     unsigned int re;
     unsigned int bit_offset = 0;
 
-    for (int n=0; n < in->len;) {
+    for (n=0; n < in->len;) {
         /* Memory management */
         if (out->size - out->len < 8) {
             ret = chula_buffer_ensure_addlen (out, in->len * 2);

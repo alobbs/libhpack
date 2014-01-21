@@ -58,7 +58,11 @@
 #define RES_GZIP_TEXT   "gzip"
 #define RES_GZIP_HUFF   "\xe1\xfb\xb3\x0f"
 #define RES_COOKIE_TEXT "foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"
-#define RES_COOKIE_HUFF "\xdf\x7d\xfb\x36\xd3\xd9\xe1\xfc\xfc\x3f\xaf\xe7\xab\xfc\xfe\xfc\xbf\xaf\x3e\xdf\x2f\x97\x7f\xd3\x6f\xf7\xfd\x79\xf6\xf9\x77\xfd\x3d\xe1\x6b\xfa\x46\xfe\x10\xd8\x89\x44\x7d\xe1\xce\x18\xe5\x65\xf7\x6c\x2f"
+#define RES_COOKIE_HUFF \
+    "\xdf\x7d\xfb\x36\xd3\xd9\xe1\xfc\xfc\x3f\xaf\xe7\xab\xfc\xfe\xfc"  \
+    "\xbf\xaf\x3e\xdf\x2f\x97\x7f\xd3\x6f\xf7\xfd\x79\xf6\xf9\x77\xfd"  \
+    "\x3d\xe1\x6b\xfa\x46\xfe\x10\xd8\x89\x44\x7d\xe1\xce\x18\xe5\x65"  \
+    "\xf7\x6c\x2f"
 
 /* Texts */
 #define TEXT1 "When your hammer is C++, everything begins to look like a thumb."
@@ -67,8 +71,8 @@
 
 
 static void
-encode_string_test (char *str, int str_len,
-                    char *enc, int enc_len,
+encode_string_test (char *str, size_t str_len,
+                    char *enc, size_t enc_len,
                     const hpack_huffman_code_t *huffman_table)
 {
     ret_t          ret;
@@ -81,15 +85,15 @@ encode_string_test (char *str, int str_len,
     ck_assert (ret == ret_ok);
     ck_assert (B.len == enc_len);
 
-    int cmp = memcmp (B.buf, enc, enc_len);
-    ck_assert (cmp == 0);
+    for (int i=0; i<enc_len; i++)
+        ck_assert (enc[i] == B.buf[i]);
 
     chula_buffer_mrproper (&B);
 }
 
 static void
-decode_string_test (char *str, int str_len,
-                    char *dec, int dec_len,
+decode_string_test (char *str, size_t str_len,
+                    char *dec, size_t dec_len,
                     const hpack_huffman_code_t         *huffman_table,
                     const hpack_huffman_decode_table_t  table_decode)
 {
@@ -103,14 +107,14 @@ decode_string_test (char *str, int str_len,
     ck_assert (ret == ret_ok);
     ck_assert (B.len == dec_len);
 
-    int cmp = memcmp (B.buf, dec, dec_len);
-    ck_assert (cmp == 0);
+    for (int i=0; i<dec_len; i++)
+        ck_assert (dec[i] == B.buf[i]);
 
     chula_buffer_mrproper (&B);
 }
 
 static void
-endecode_string_test (char *str, int str_len,
+endecode_string_test (char *str, size_t str_len,
                       const hpack_huffman_code_t         *huffman_table,
                       const hpack_huffman_decode_table_t  table_decode)
 {
@@ -126,8 +130,10 @@ endecode_string_test (char *str, int str_len,
 
     ret = hpack_huffman_decode (&B, &C, huffman_table, table_decode);
     ck_assert (ret == ret_ok);
-    int cmp = memcmp (A.buf, C.buf, A.len);
-    ck_assert (cmp == 0);
+
+    ck_assert (A.len == C.len);
+    for (int i=0; i<A.len; i++)
+        ck_assert (A.buf[i] == C.buf[i]);
 
     chula_buffer_mrproper (&B);
     chula_buffer_mrproper (&C);
