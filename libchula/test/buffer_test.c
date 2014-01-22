@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 #include "libchula/testing_macros.h"
 #include "libchula/buffer.h"
@@ -864,6 +865,7 @@ START_TEST (read_file)
     FILE *f        = NULL;
     char *template = strdup ("buffer_XXXXXX");
     char *filename = mktemp (template);
+    ck_assert (filename != NULL);
 
     f = fopen (filename, "w+");
     ck_assert (f != NULL);
