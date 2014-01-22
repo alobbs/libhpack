@@ -37,6 +37,9 @@ endif()
 
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
 
+# pkg-config
+find_package(PkgConfig)
+
 # Checks
 include(CheckTypeSize)
 include(CheckIncludeFiles)
