@@ -30,7 +30,7 @@ script: |
   cd ..
 
 after_success:
-  - if [ x$COVERALLS == xyes ]; then coveralls --exclude doc --exclude test --exclude libchula/test --exclude _build --exclude-pattern 'CMake[^\.]*\.c(?:pp)?' --exclude-pattern '[^\.]*\.h'; fi
+  - if [ x$COVERALLS == xyes ]; then coveralls --exclude doc --exclude test --exclude libchula/test --exclude-pattern 'CMakeFiles' --exclude-pattern 'CMake[^\.]*\.c(?:pp)?' --exclude-pattern '[^\.]*\.h'; fi
 
 # Notify developers when build passed/failed.
 notifications:
