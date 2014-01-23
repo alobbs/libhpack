@@ -1340,6 +1340,21 @@ chula_buffer_print_debug (chula_buffer_t *buf, int len)
 }
 
 
+ret_t
+chula_buffer_print_cstr (chula_buffer_t *buf)
+{
+    int i;
+
+    for (i=0; i<buf->len; i++) {
+        unsigned char c = buf->buf[i];
+        printf("\"\\x%02x\"", c);
+    }
+    printf ("\n");
+
+    return ret_ok;
+}
+
+
 static const char *
 utf8_get_next_char (const char *string)
 {

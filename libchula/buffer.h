@@ -145,5 +145,6 @@ ret_t chula_buffer_to_lowcase           (chula_buffer_t  *buf);
 ret_t chula_buffer_split_lines          (chula_buffer_t  *buf, int columns, const char *indent);
 
 ret_t chula_buffer_print_debug          (chula_buffer_t  *buf, int length);
+ret_t chula_buffer_print_cstr           (chula_buffer_t  *buf);
 
 #endif /* CHULA_BUFFER_H */
