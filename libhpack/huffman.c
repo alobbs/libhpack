@@ -103,6 +103,8 @@ hpack_huffman_encode (chula_buffer_t             *in,
         out->len++;
     }
 
+    chula_buffer_ensure_size (out, out->len+1);
+    out->buf[out->len] = '\0';
     return ret_ok;
 }
 
@@ -224,5 +226,7 @@ hpack_huffman_decode (chula_buffer_t                     *in,
         bit_offset &= 0x7;
     }
 
+    chula_buffer_ensure_size (out, out->len+1);
+    out->buf[out->len] = '\0';
     return ret_ok;
 }
