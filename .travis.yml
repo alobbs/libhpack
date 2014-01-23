@@ -21,8 +21,8 @@ install: |
 
 # Run the Build script
 script: |
-  mkdir -p _build
-  cd _build
+  mkdir -p build
+  cd build
   cmake $CMAKE_OPTION -DCMAKE_BUILD_TYPE:STRING=Debug ..
   make VERBOSE=1
   make docs
@@ -31,7 +31,7 @@ script: |
 
 after_success: |
   if [ x$COVERALLS == xyes ]; then \
-    coveralls --verbose --exclude doc --exclude test --exclude libchula/test --exclude-pattern 'CMake[^\.]*\.c(?:pp)?' --exclude-pattern '[^\.]*\.h'; \
+    coveralls --exclude build --exclude doc --exclude test --exclude libchula/test --exclude-pattern 'CMake[^\.]*\.c(?:pp)?' --exclude-pattern '[^\.]*\.h'; \
   fi
 
 # Notify developers when build passed/failed.
