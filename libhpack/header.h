@@ -33,5 +33,10 @@
 #ifndef LIBHPACK_HEADER_H
 #define LIBHPACK_HEADER_H
 
+#include <libchula/buffer.h>
+
+ret_t hpack_header_parse (chula_buffer_t *buf,
+                          unsigned int    offset,
+                          unsigned int   *consumed);
 
 #endif /* LIBHPACK_HEADER_H */

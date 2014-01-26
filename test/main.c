@@ -32,6 +32,7 @@
 
 int integer_tests (void);
 int huffman_tests (void);
+int header_tests (void);
 
 int
 main (void)
@@ -40,6 +41,7 @@ main (void)
 
     ret  = integer_tests();
     ret += huffman_tests();
+    ret += header_tests();
 
     return ret;
 }
