@@ -114,27 +114,30 @@ END_TEST
 
 START_TEST (decode_19_6bits)
 {
-    int           err   = 0;
+    ret_t         ret;
     int           num   = 0;
+    int           con   = 0;
     unsigned char tmp[] = {0x80 | 19};
 
-    err = integer_decode (6, tmp, 1, &num);
-
-    ck_assert (err == 0);
+    ret = integer_decode (6, tmp, 1, &num, &con);
+    ck_assert (ret == ret_ok);
+    ck_assert (con == 1);
     ck_assert (num == 19);
 }
 END_TEST
 
 START_TEST (decode_1337_5bits)
 {
-    int           err   = 0;
+    ret_t         ret;
     int           num   = 0;
+    int           con   = 0;
     unsigned char tmp[] = {31,154,10};
 
-    err = integer_decode (5, tmp, 3, &num);
+    ret = integer_decode (5, tmp, 3, &num, &con);
 
-    ck_assert (err == 0);
+    ck_assert (ret == ret_ok);
     ck_assert (num == 1337);
+    ck_assert (con == 3);
 }
 END_TEST
 
@@ -145,12 +148,14 @@ START_TEST (en_decode_2147483647_5bits)
     unsigned char tmp_len  = 0;
     int           err      = 0;
     int           num      = 0;
+    int           con      = 0;
 
     integer_encode (5, 2147483647, tmp, &tmp_len);
     ck_assert (tmp_len > 0);
 
-    err = integer_decode (5, tmp, tmp_len, &num);
+    err = integer_decode (5, tmp, tmp_len, &num, &con);
     ck_assert (err == 0);
+    ck_assert (con == 6);
     ck_assert (num == 2147483647);
 }
 END_TEST

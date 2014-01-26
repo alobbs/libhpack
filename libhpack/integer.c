@@ -94,16 +94,28 @@ integer_encode (int            N,
     return ret_ok;
 }
 
+static inline bool
+isnt_final_byte (char *s, int N)
+{
+    return (*s & limits[N]) & (1 << (N-1));
+}
+
 /** Integer decoding
  *
  * Decodes an integer number from a HPACK representation in memory. A
  * prefix length (in bits) is provided just in case there were bits in
  * the first byte that shouldn't be consumed.
  *
- * @param      N       Number of bits of the prefix
- * @param      mem     Pointer to the first byte of memory containing the number
- * @param      mem_len Length of the number in memory
- * @param[out] ret     Pointer to an integer to store the decoded number
+ * The function will stop reading memory when the number is completed.
+ * The mem_len parameter is the maximum length of memory it could try
+ * to read to parse the number, but it doesn't necesarily mean that it
+ * will read it all.
+ *
+ * @param      N        Number of bits of the prefix
+ * @param      mem      Pointer to the first byte of memory containing the number
+ * @param      mem_len  Length (in bytes) of the memory holding the number
+ * @param[out] ret      Pointer to an integer to store the decoded number
+ * @param[out] consumed Memory processed to read the number (in bytes)
  * @retval ret_ok Number was read successfuly
  * @retval ret_error Incorrect format
  */
@@ -111,22 +123,17 @@ ret_t
 integer_decode (int            N,
                 unsigned char *mem,
                 unsigned char  mem_len,
-                int           *ret)
+                int           *ret,
+                int           *consumed)
 {
     const unsigned char limit = limits[N];
 
     /* Trivial 1 byte number
      */
-    if (mem_len == 1) {
+    if (! isnt_final_byte (&mem[0], N)) {
         *ret = mem[0] & limit;
+        *consumed = 1;
         return ret_ok;
-    }
-
-    /* Sanity check:
-     * All non-masked bits of the 1st byte must be 1s
-     */
-    if ((mem[0] & limit) != limit) {
-        return ret_error;
     }
 
     /* Unsigned variable length integer
@@ -135,7 +142,11 @@ integer_decode (int            N,
 
     for (int i=1; i < mem_len; i++) {
         *ret += (mem[i]%128) * pow(128, i-1);
+        if (! isnt_final_byte (&mem[i], 8)) {
+            *consumed = i + 1;
+            return ret_ok;
+        }
     }
 
-    return ret_ok;
+    return ret_error;
 }

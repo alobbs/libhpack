@@ -45,6 +45,7 @@ ret_t
 integer_decode (int            N,         /* Prefix length in bits  */
                 unsigned char *mem,       /* Memory to read         */
                 unsigned char  mem_len,   /* Length of the memory   */
-                int           *ret);      /* Value return           */
+                int           *ret,       /* Value return           */
+                int           *consumed); /* Length of encoded num  */
 
 #endif /* LIBHPACK_INTEGER_H */
