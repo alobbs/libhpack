@@ -32,10 +32,7 @@
 
 #include "common-internal.h"
 #include "util.h"
-// #include "error_log.h"
-// #include "logger.h"
-// #include "bogotime.h"
-// #include "socket.h"
+#include "missing_sysfuncs.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -66,7 +63,7 @@
 #endif
 
 #ifdef HAVE_SYS_FILIO_H
-# include <sys/filio.h>     /* defines FIONBIO and FIONREAD */
+# include <sys/filio.h>
 #endif
 
 #ifdef HAVE_SYS_IOCTL_H
@@ -80,7 +77,7 @@
 #endif
 
 #ifdef HAVE_NETDB_H
-# include <netdb.h>         /* defines gethostbyname()  */
+# include <netdb.h>
 #endif
 
 #ifdef HAVE_SYSLOG_H
@@ -147,10 +144,8 @@ const char *month[13] = {
 char *
 chula_strerror_r (int err, char *buf, size_t bufsize)
 {
-#ifdef _WIN32
-	return win_strerror (err, buf, bufsize);
-#else
 	char *p;
+
 	if (buf == NULL)
 		return NULL;
 
@@ -166,7 +161,6 @@ chula_strerror_r (int err, char *buf, size_t bufsize)
 	}
 
 	return p;
-#endif
 }
 
 
@@ -201,253 +195,56 @@ chula_max_str (char *s1, char *s2)
 	return (s1>s2) ? s1 : s2;
 }
 
-
 ret_t
-chula_sys_fdlimit_get (cuint_t *limit)
+chula_atoi (const char *str, int *ret_value)
 {
-#ifdef HAVE_GETRLIMIT
-        struct rlimit rlp;
+	int tmp;
 
-        rlp.rlim_cur = rlp.rlim_max = RLIM_INFINITY;
-        if (getrlimit (RLIMIT_NOFILE, &rlp))
-            return ret_error;
-
-        *limit = rlp.rlim_cur;
-	return ret_ok;
-#else
-#ifdef HAVE_GETDTABLESIZE
-	int nfiles;
-
-	nfiles = getdtablesize();
-        if (nfiles <= 0) return ret_error;
-
-	*limit = nfiles;
-	return ret_ok;
-#else
-#ifdef OPEN_MAX
-        *limit = OPEN_MAX;         /* need to include limits.h somehow */
-	return ret_ok;
-#else
-        *limit = FD_SETSIZE;
-	return ret_ok;
-#endif
-#endif
-#endif
-}
-
-
-ret_t
-chula_sys_fdlimit_set (cuint_t limit)
-{
-#ifndef _WIN32
-	int           re;
-	struct rlimit rl;
-
-	rl.rlim_cur = limit;
-	rl.rlim_max = limit;
-
-	re = setrlimit (RLIMIT_NOFILE, &rl);
-	if (re != 0) {
+	errno = 0;
+	tmp = strtol (str, NULL, 10);
+	if (errno != 0) {
 		return ret_error;
 	}
-#endif
 
+	*ret_value = tmp;
 	return ret_ok;
 }
 
-
-#ifndef HAVE_STRSEP
-char *
-strsep (char** str, const char* delims)
+ret_t
+chula_atob (const char *str, bool *ret_value)
 {
-	char* token;
+	ret_t ret;
+	int   tmp;
 
-	if (*str == NULL) {
-		/* No more tokens
-		 */
-		return NULL;
+	ret = chula_atoi (str, &tmp);
+	if (ret != ret_ok) {
+		return ret;
 	}
 
-	token = *str;
-	while (**str!='\0') {
-		if (strchr(delims,**str)!=NULL) {
-			**str='\0';
-			(*str)++;
-			return token;
+	*ret_value = !!tmp;
+	return ret_ok;
+}
+
+int
+chula_string_is_ipv6 (chula_buffer_t *ip)
+{
+	cuint_t i;
+	cuint_t colons = 0;
+
+	for (i=0; i<ip->len; i++) {
+		if (ip->buf[i] == ':') {
+			colons += 1;
+			if (colons == 2)
+				return 1;
 		}
-		(*str)++;
 	}
 
-	/* There is no other token
-	 */
-	*str=NULL;
-	return token;
-}
-#endif
-
-
-#ifndef HAVE_STRCASESTR
-char *
-strcasestr (register char *s, register char *find)
-{
-	register char c, sc;
-	register size_t len;
-
-	if ((c = *find++) != 0) {
-		len = strlen(find);
-		do {
-			do {
-				if ((sc = *s++) == 0)
-					return NULL;
-			} while (sc != c);
-		} while (strncasecmp(s, find, len) != 0);
-		s--;
-	}
-	return ((char *) s);
-}
-#endif
-
-char *
-strncasestrn (const char *s, size_t slen, const char *find, size_t findlen)
-{
-        char c;
-	char sc;
-
-	if (unlikely (find == NULL) || (findlen == 0))
-		return (char *)s;
-
-	if (unlikely (*find == '\0'))
-		return (char *)s;
-
-	c = *find;
-	find++;
-	findlen--;
-
-	do {
-		do {
-			if (slen-- < 1 || (sc = *s++) == '\0')
-				return NULL;
-		} while (CHULA_CHAR_TO_LOWER(sc) != CHULA_CHAR_TO_LOWER(c));
-		if (findlen > slen) {
-			return NULL;
-		}
-	} while (strncasecmp (s, find, findlen) != 0);
-
-	s--;
-        return (char *)s;
-}
-
-char *
-strncasestr (const char *s, const char *find, size_t slen)
-{
-	return strncasestrn (s, slen, find, strlen(find));
+	return 0;
 }
 
 
-
-#ifndef HAVE_MALLOC
-void *
-rpl_malloc (size_t n)
-{
-	if (unlikely (n == 0))
-		n = 1;
-
-	return malloc (n);
-}
-#endif
-
-
-
-/* The following few lines has been copy and pasted from Todd
- * C. Miller <Todd.Miller@courtesan.com> code. BSD licensed.
+/* Files and Directories
  */
-
-/* Appends src to string dst of size siz (unlike strncat, siz is the
- * full size of dst, not space left).  At most siz-1 characters
- * will be copied.  Always NUL terminates (unless siz <= strlen(dst)).
- * Returns strlen(src) + MIN(siz, strlen(initial dst)).
- * If retval >= siz, truncation occurred.
- */
-
-#ifndef HAVE_STRLCAT
-size_t
-strlcat (char *dst, const char *src, size_t siz)
-{
-	register char *d = dst;
-        register const char *s = src;
-        register size_t n = siz;
-        size_t dlen;
-
-        /* Find the end of dst and adjust bytes left but don't go past end */
-        while (n-- != 0 && *d != '\0')
-                d++;
-        dlen = d - dst;
-        n = siz - dlen;
-
-        if (n == 0)
-                return(dlen + strlen(s));
-        while (*s != '\0') {
-                if (n != 1) {
-                        *d++ = *s;
-                        n--;
-                }
-                s++;
-        }
-        *d = '\0';
-
-        return(dlen + (s - src));       /* count does not include NUL */
-}
-#endif
-
-
-
-
-#if !defined(HAVE_GMTIME_R)
-static pthread_mutex_t gmtime_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
-
-struct tm *
-chula_gmtime (const time_t *timep, struct tm *result)
-{
-#ifdef HAVE_GMTIME_R
-	/* Use the thread safe version anyway (no data copy).
-	 */
-	return gmtime_r (timep, result);
-#else
-	struct tm *tmp;
-
-	CHULA_MUTEX_LOCK (&gmtime_mutex);
-	if (likely ((tmp = gmtime (timep)) != NULL))
-		memcpy (result, tmp, sizeof(struct tm));
-	CHULA_MUTEX_UNLOCK (&gmtime_mutex);
-
-	return (tmp == NULL ? NULL : result);
-#endif
-}
-
-
-#if !defined(HAVE_LOCALTIME_R)
-static pthread_mutex_t localtime_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
-
-struct tm *
-chula_localtime (const time_t *timep, struct tm *result)
-{
-#ifdef HAVE_LOCALTIME_R
-	/* Use the thread safe version anyway (no data copy).
-	 */
-	return localtime_r (timep, result);
-#else
-	struct tm *tmp;
-
-	CHULA_MUTEX_LOCK (&localtime_mutex);
-	if (likely ((tmp = localtime (timep)) != NULL))
-		memcpy (result, tmp, sizeof(struct tm));
-	CHULA_MUTEX_UNLOCK (&localtime_mutex);
-
-	return (tmp == NULL ? NULL : result);
-#endif
-}
 
 
 DIR *
@@ -461,7 +258,6 @@ chula_opendir (const char *dirname)
 
 	return re;
 }
-
 
 #if !defined(HAVE_READDIR_R)
 static pthread_mutex_t readdir_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -481,11 +277,11 @@ chula_readdir (DIR *dirstream, struct dirent *entry, struct dirent **result)
 	return ENOSYS;
 #else
 # ifdef HAVE_READDIR_R_2
-        /* We cannot rely on the return value of readdir_r as it
-	 * differs between various platforms (HPUX returns 0 on
-	 * success whereas Solaris returns non-zero)
-         */
-        entry->d_name[0] = '\0';
+    /* We cannot rely on the return value of readdir_r as it
+     * differs between various platforms (HPUX returns 0 on
+     * success whereas Solaris returns non-zero)
+     */
+    entry->d_name[0] = '\0';
 
 	do {
 		errno = 0;
@@ -493,7 +289,7 @@ chula_readdir (DIR *dirstream, struct dirent *entry, struct dirent **result)
 	} while (errno == EINTR);
 
 	if (entry->d_name[0] != '\0') {
-                *result = entry;
+        *result = entry;
 		return 0;
 	}
 
@@ -529,7 +325,6 @@ chula_readdir (DIR *dirstream, struct dirent *entry, struct dirent **result)
 #endif
 }
 
-
 int
 chula_closedir (DIR *dirstream)
 {
@@ -542,307 +337,287 @@ chula_closedir (DIR *dirstream)
 	return re;
 }
 
-
-ret_t
-chula_split_pathinfo (chula_buffer_t  *path,
-			 cuint_t             init_pos,
-			 int                 allow_dirs,
-			 char              **pathinfo,
-			 int                *pathinfo_len)
+int chula_stat (const char *path, struct stat *buf)
 {
-	char        *cur;
-	struct stat  st;
-	char        *last_dir = NULL;
+	int re;
 
-	if (init_pos > path->len)
-		return ret_not_found;
+	do {
+		re = stat (path, buf);
+	} while ((re == -1) && (errno == EINTR));
 
-	for (cur = path->buf + init_pos; *cur && (cur < path->buf + path->len); cur++) {
-		if (*cur != '/') continue;
-		*cur = '\0';
-
-		/* Handle not found case
-		 */
-		if (chula_stat (path->buf, &st) == -1) {
-			*cur = '/';
-
-			if ((allow_dirs) && (last_dir != NULL)) {
-				*pathinfo = last_dir;
-				*pathinfo_len = (path->buf + path->len) - last_dir;
-				return ret_ok;
-			}
-			return ret_not_found;
-		}
-
-		/* Handle directory case
-		 */
-		if (S_ISDIR(st.st_mode)) {
-			*cur = '/';
-			last_dir = cur;
-			continue;
-		}
-
-		/* Build the PathInfo string
-		 */
-		*cur = '/';
-		*pathinfo = cur;
-		*pathinfo_len = (path->buf + path->len) - cur;
-		return ret_ok;
-	}
-
-	*pathinfo_len = 0;
-	return ret_ok;
+	return re;
 }
-
-
-ret_t
-chula_split_arguments (chula_buffer_t *request,
-			  int                init_pos,
-			  char             **arguments,
-			  int               *arguments_len)
-{
-	char *tmp;
-	char *p   = request->buf + init_pos;
-	char *end = request->buf + request->len;
-
-	tmp = strchr (p, '?');
-	if (tmp == NULL) {
-		*arguments     = NULL;
-		*arguments_len = 0;
-		return ret_ok;
-	}
-
-	*arguments = tmp+1;
-	*arguments_len = end - *arguments;
-
-	return ret_ok;
-}
-
 
 int
-chula_estimate_va_length (const char *fmt, va_list ap)
+chula_lstat (const char *path, struct stat *buf)
 {
-	char      *p;
-	cuchar_t   ch;
-	cllong_t   ll;
-	cullong_t  ul;
-	bool       lflag;
-	bool       llflag;
-	cuint_t    width;
-	char       padc;
-	cuint_t    len = 0;
+	int re;
 
-#define LEN_NUM(var,base)    \
-	do {                 \
-		var /= base; \
-		len++;       \
-        } while (var > 0);   \
-	len++
+	do {
+		re = lstat (path, buf);
+	} while ((re == -1) && (errno == EINTR));
 
-	for (;;) {
-		width = 0;
-		padc  = ' ';
-
-		while ((ch = *fmt++) != '%') {
-			if (ch == '\0')
-				return len+1;
-			len++;
-		}
-		lflag = llflag = false;
-
-reswitch:
-		switch (ch = *fmt++) {
-		case 's':
-			p = va_arg(ap, char *);
-			len += strlen (p ? p : "(null)");
-			break;
-		case 'd':
-			ll = lflag ? va_arg(ap, clong_t) : va_arg(ap, int);
-		        if (unlikely (ll < 0)) {
-				ll = -ll;
-				len++;
-			}
-			LEN_NUM(ll,10);
-			break;
-		case 'l':
-			if (lflag == false)
-				lflag = true;
-			else
-				llflag = true;
-			goto reswitch;
-		case 'u':
-			if (llflag) {
-				ul = va_arg(ap, cullong_t);
-			} else {
-				ul = lflag ? va_arg(ap, long) : va_arg(ap, int);
-			}
-			LEN_NUM(ul,10);
-			break;
-		case '0':
-			padc = '0';
-			goto reswitch;
-		case '1': case '2': case '3': case '4':
-		case '5': case '6': case '7': case '8': case '9':
-			for (width = 0;; ++fmt) {
-				width = width * 10 + ch - '0';
-				ch = *fmt;
-				if (ch < '0' || ch > '9')
-					break;
-			}
-			len += width;
-			goto reswitch;
-		case 'c':
-			(void) va_arg(ap, int);
-			len++;
-			break;
-		case 'o':
-			ll = lflag ? va_arg(ap, clong_t) : va_arg(ap, int);
-		        if (unlikely (ll < 0)) {
-				ll = -ll;
-				len++;
-			}
-		        LEN_NUM(ll,8);
-			break;
-		case 'f':
-			ul = va_arg(ap, double); /* FIXME: Add float numbers support */
-			len += 30;
-			LEN_NUM(ul,10);
-			break;
-		case 'p':
-			len += 2;                /* Pointer: "0x" + hex value */
-			if (sizeof(void *) > sizeof(int))
-				lflag = true;
-		case 'x':
-			ll = lflag ? va_arg(ap, clong_t) : va_arg(ap, int);
-		        if (unlikely (ll < 0)) {
-				ll = -ll;
-				len++;
-			}
-		        LEN_NUM(ll,16);
-			break;
-		case '%':
-			len++;
-		default:
-			len+=2;
-		}
-	}
-
-	return -1;
+	return re;
 }
 
-
-long
-chula_eval_formated_time (chula_buffer_t *buf)
+int
+chula_fstat (int filedes, struct stat *buf)
 {
-	char end;
-	int  mul = 1;
+	int re;
 
-	if (unlikely (chula_buffer_is_empty (buf)))
+	do {
+		re = fstat (filedes, buf);
+	} while ((re == -1) && (errno == EINTR));
+
+	return re;
+}
+
+int
+chula_access (const char *pathname, int mode)
+{
+	int re;
+
+	do {
+		re = access (pathname, mode);
+	} while ((re == -1) && (errno == EINTR));
+
+	return re;
+}
+
+int
+chula_open (const char *path, int oflag, int mode)
+{
+	int re;
+
+	do {
+		re = open (path, oflag, mode);
+	} while ((re < 0) && (errno == EINTR));
+
+	return re;
+}
+
+int
+chula_unlink (const char *path)
+{
+	int re;
+
+	do {
+		re = unlink (path);
+	} while ((re < 0) && (errno == EINTR));
+
+	return re;
+}
+
+int
+chula_pipe (int fildes[2])
+{
+	int re;
+
+	do {
+		re = pipe (fildes);
+	} while ((re < 0) && (errno == EINTR));
+
+	return re;
+}
+
+ret_t
+chula_mkstemp (chula_buffer_t *buffer, int *fd)
+{
+	int re;
+
+#ifdef _WIN32
+	re = chula_win32_mkstemp (buffer);
+#else
+	re = mkstemp (buffer->buf);
+#endif
+	if (re < 0) return ret_error;
+
+	*fd = re;
+	return ret_ok;
+}
+
+ret_t
+chula_mkdtemp (char *template)
+{
+	char *re;
+
+	re = mkdtemp (template);
+	if (unlikely (re == NULL)) {
+		return ret_error;
+	}
+
+	return ret_ok;
+}
+
+ret_t
+chula_mkdir (const char *path, int mode)
+{
+	int re;
+
+	do {
+		re = mkdir (path, mode);
+	} while ((re < 0) && (errno == EINTR));
+
+	return re;
+}
+
+ret_t
+chula_mkdir_p (chula_buffer_t *path, int mode)
+{
+	int          re;
+    char        *p;
+	int          err;
+	struct stat  foo;
+
+	/* There is no directory
+	 */
+	if (chula_buffer_is_empty (path)) {
 		return ret_ok;
-
-	end = chula_buffer_end_char (buf);
-	switch (end) {
-	case 's':
-		mul = 1;
-		break;
-	case 'm':
-		mul = 60;
-		break;
-	case 'h':
-		mul = 60 * 60;
-		break;
-	case 'd':
-		mul = 60 * 60 * 24;
-		break;
-	case 'w':
-		mul = 60 * 60 * 24 * 7;
-		break;
-	default:
-		break;
 	}
 
-	return atol(buf->buf) * mul;
-}
+	/* Check whether the directory exists
+	 */
+	re = chula_stat (path->buf, &foo);
+	if (re == 0) {
+		return ret_ok;
+	}
 
+	/* Create the directory tree
+	 */
+	p = path->buf;
+	while (true) {
+		p = strchr (p+1, '/');
+		if (p == NULL)
+			break;
+
+		*p = '\0';
+
+		re = chula_stat (path->buf, &foo);
+		if (re != 0) {
+			re = chula_mkdir (path->buf, mode);
+			if ((re != 0) && (errno != EEXIST)) {
+				err = errno;
+				*p = '/';
+
+//				LOG_ERRNO (err, chula_err_error, CHULA_ERROR_UTIL_MKDIR, path->buf, getuid());
+				return ret_error;
+			}
+		}
+
+		*p = '/';
+
+		p++;
+		if (p > path->buf + path->len)
+			return ret_ok;
+	}
+
+	re = chula_mkdir (path->buf, mode);
+	if ((re != 0) && (errno != EEXIST)) {
+		err = errno;
+
+//		LOG_ERRNO (err, chula_err_error, CHULA_ERROR_UTIL_MKDIR, path->buf, getuid());
+		return ret_error;
+	}
+
+	return ret_ok;
+}
 
 ret_t
-chula_gethostbyname (chula_buffer_t *hostname, struct addrinfo **addr)
+chula_mkdir_p_perm (chula_buffer_t *dir_path,
+                    int                create_mode,
+                    int                ensure_perm)
 {
-	int              n;
-	struct addrinfo  hints;
+	int         re;
+	ret_t       ret;
+	struct stat foo;
 
-	/* What we are trying to get
+	/* Does it exist?
 	 */
-	memset (&hints, 0, sizeof(struct addrinfo));
-
-	hints.ai_family   = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-
-#ifdef AI_ADDRCONFIG
-	/* Workaround for loopback host addresses:
-	 *
-	 * If a computer does not have any outgoing IPv6 network
-	 * interface, but its loopback network interface supports
-	 * IPv6, a getaddrinfo call on "localhost" with AI_ADDRCONFIG
-	 * won't return the IPv6 loopback address "::1", because
-	 * getaddrinfo() thinks the computer cannot connect to any
-	 * IPv6 destination, ignoring the remote vs. local/loopback
-	 * distinction.
-	 */
-	if ((chula_buffer_cmp_str (hostname, "::1")       == 0) ||
-	    (chula_buffer_cmp_str (hostname, "127.0.0.1") == 0) ||
-	    (chula_buffer_cmp_str (hostname, "localhost")  == 0) ||
-	    (chula_buffer_cmp_str (hostname, "localhost6") == 0) ||
-	    (chula_buffer_cmp_str (hostname, "localhost.localdomain")   == 0) ||
-	    (chula_buffer_cmp_str (hostname, "localhost6.localdomain6") == 0))
-	{
-		hints.ai_flags = AI_ADDRCONFIG;
+	re = chula_stat (dir_path->buf, &foo);
+	if (re != 0) {
+		/* Create the directory
+		 */
+		ret = chula_mkdir_p (dir_path, create_mode);
+		if (ret != ret_ok) {
+			return ret_error;
+		}
 	}
-#endif
 
-	/* Resolve address
+	/* Check permissions
 	 */
-	n = getaddrinfo (hostname->buf, NULL, &hints, addr);
-	if (n < 0) {
-		return ret_error;
+	re = chula_access (dir_path->buf, ensure_perm);
+	if (re != 0) {
+		return ret_deny;
 	}
 
 	return ret_ok;
 }
-
 
 ret_t
-chula_gethostname (chula_buffer_t *buf)
+chula_rm_rf (chula_buffer_t *path,
+             uid_t              only_uid)
 {
-	int  re;
+	int               re;
+	DIR              *d;
+	struct dirent    *entry;
+	char              entry_buf[512];
+	struct stat       info;
+	chula_buffer_t tmp = CHULA_BUF_INIT;
 
-#ifdef HAVE_GETHOSTNAME
-	char host_name[HOST_NAME_MAX + 1];
-
-	re = gethostname (host_name, HOST_NAME_MAX);
-	if (re) {
-		return ret_error;
+	/* Remove the directory contents
+	 */
+	d = chula_opendir (path->buf);
+	if (d == NULL) {
+		return ret_ok;
 	}
 
-	chula_buffer_add (buf, host_name, strlen(host_name));
+	while (true) {
+		re = chula_readdir (d, (struct dirent *)entry_buf, &entry);
+		if ((re != 0) || (entry == NULL))
+			break;
 
-	return ret_ok;
+        if (!strncmp (entry->d_name, ".",  1)) continue;
+        if (!strncmp (entry->d_name, "..", 2)) continue;
 
-#elif defined(HAVE_SYS_UTSNAME_H) && defined(HAVE_UNAME)
-	struct utsname info;
+		chula_buffer_clean      (&tmp);
+		chula_buffer_add_buffer (&tmp, path);
+		chula_buffer_add_char   (&tmp, '/');
+		chula_buffer_add        (&tmp, entry->d_name, strlen(entry->d_name));
 
-	re = uname (&info);
-	if (re) {
-		return ret_error;
+		if (only_uid != -1) {
+			re = chula_stat (tmp.buf, &info);
+			if (re != 0) continue;
+
+			if (info.st_uid != only_uid)
+				continue;
+		}
+
+		if (S_ISDIR (info.st_mode)) {
+			chula_rm_rf (&tmp, only_uid);
+			TRACE (ENTRIES, "Removing cache dir: %s\n", tmp.buf, re);
+		} else if (S_ISREG (info.st_mode)) {
+			re = unlink (tmp.buf);
+			TRACE (ENTRIES, "Removing cache file: %s, re=%d\n", tmp.buf, re);
+		}
 	}
 
-	chula_buffer_add (buf, info.nodename, sizeof(info.nodename));
+	chula_closedir (d);
 
+	/* It should be empty by now
+	 */
+	re = rmdir (path->buf);
+	TRACE (ENTRIES, "Removing main vserver cache dir: %s, re=%d\n", path->buf, re);
+
+	/* Clean up
+	 */
+	chula_buffer_mrproper (&tmp);
 	return ret_ok;
-#endif
-
-	return ret_error;
 }
+
+
+
+/* File Descriptors
+ */
 
 
 ret_t
@@ -852,11 +627,11 @@ chula_fd_set_nodelay (int fd, bool enable)
 	int flags = 0;
 
 	/* Disable the Nagle algorithm. This means that segments are
-         * always sent as soon as possible, even if there is only a
-         * small amount of data. When not set, data is buffered until
-         * there is a sufficient amount to send out, thereby avoiding
-         * the frequent sending of small packets, which results in
-         * poor utilization of the network.
+     * always sent as soon as possible, even if there is only a
+     * small amount of data. When not set, data is buffered until
+     * there is a sufficient amount to send out, thereby avoiding
+     * the frequent sending of small packets, which results in
+     * poor utilization of the network.
 	 */
 
 #ifdef _WIN32
@@ -926,7 +701,6 @@ chula_fd_set_nonblocking (int fd, bool enable)
 	return ret_ok;
 }
 
-
 ret_t
 chula_fd_set_closexec (int fd)
 {
@@ -952,7 +726,6 @@ chula_fd_set_closexec (int fd)
 	return ret_ok;
 }
 
-
 ret_t
 chula_fd_set_reuseaddr (int fd)
 {
@@ -967,207 +740,82 @@ chula_fd_set_reuseaddr (int fd)
 	return ret_ok;
 }
 
-
-
 ret_t
-chula_syslog (int priority, chula_buffer_t *buf)
+chula_fd_close (int fd)
 {
-	char *p;
-	char *nl, *end;
+	int re;
 
-	if (chula_buffer_is_empty(buf))
-		return ret_ok;
-
-	p   = buf->buf;
-	end = buf->buf + buf->len;
+	if (unlikely (fd < 0)) {
+		return ret_error;
+	}
 
 	do {
-		nl = strchr (p, '\n');
-		if (nl != NULL)
-			*nl = '\0';
-
-		syslog (priority, "%s", p);
-
-		if (nl == NULL) {
-			break;
-		}
-
-		*nl = '\n';
-		p = nl + 1;
-	} while (p < end);
-
-	return ret_ok;
-}
-
-
-ret_t
-chula_path_short (chula_buffer_t *path)
-{
-	char *p   = path->buf;
-	char *end = path->buf + path->len;
-
-	while (p < end) {
-		char    *dots_end;
-		char    *prev_slash;
-		cuint_t  len;
-
-		if (p[0] != '.') {
-			p++;
-			continue;
-		}
-
-		if ((p[1] == '/') && (p > path->buf) && (*(p-1) == '/')) {
-			chula_buffer_remove_chunk (path, p - path->buf, 2);
-			p -= 1;
-			continue;
-		}
-
-		if (end < p+2) {
-			return ret_ok;
-		}
-
-		if (p[1] != '.') {
-			p+=2;
-			continue;
-		}
-
-		dots_end = p + 2;
-		while ((dots_end < end) && (*dots_end == '.')) {
-			dots_end++;
-		}
-
-		if (dots_end >= end)
-			return ret_ok;
-
-		prev_slash = p-1;
-
-		if (prev_slash < path->buf)
-			return ret_ok;
-
-		if (*prev_slash != '/') {
-			p = dots_end;
-			continue;
-		}
-
-		if (prev_slash > path->buf)
-			prev_slash--;
-
-		while ((prev_slash > path->buf) && (*prev_slash != '/')) {
-			prev_slash--;
-		}
-
-		len = dots_end - prev_slash;
-
-		chula_buffer_remove_chunk (path, (prev_slash - path->buf), len);
-
-		end = path->buf + path->len;
-		p -= (len - (dots_end - p));
-	}
-
-	return ret_ok;
-}
-
-
-ret_t
-chula_path_arg_eval (chula_buffer_t *path)
-{
-	ret_t  ret;
-	char  *d;
-	char   tmp[512];
-
-	if (path->buf[0] != '/') {
-		d = getcwd (tmp, sizeof(tmp));
-
-		chula_buffer_prepend (path, (char *)"/", 1);
-		chula_buffer_prepend (path, d, strlen(d));
-	}
-
-	ret = chula_path_short (path);
-	if (ret != ret_ok)
-		return ret_error;
-
-	return ret_ok;
-}
-
-
-long *
-chula_get_timezone_ref (void)
-{
-#ifdef HAVE_STRUCT_TM_GMTOFF
-	struct tm   tm;
-	time_t      timestamp;
-	static long tz         = 43201; /* 12h+1s: out of range */
-
-	if (unlikely (tz == 43201)) {
-		timestamp = time(NULL);
-		chula_localtime (&timestamp, &tm);
-		tz = -tm.tm_gmtoff;
-	}
-	return &tz;
+#ifdef _WIN32
+		re = closesocket (fd);
 #else
-# ifdef HAVE_INT_TIMEZONE
-	return &timezone;
-# else
-	static long _faked_timezone = 0;
-	return &_faked_timezone;
-# endif
+		re = close (fd);
+#endif
+	} while ((re == -1) && (errno == EINTR));
+
+	TRACE (ENTRIES",close_fd", "fd=%d re=%d\n", fd, re);
+	return (re == 0) ? ret_ok : ret_error;
+}
+
+ret_t
+chula_sys_fdlimit_get (cuint_t *limit)
+{
+#ifdef HAVE_GETRLIMIT
+        struct rlimit rlp;
+
+        rlp.rlim_cur = rlp.rlim_max = RLIM_INFINITY;
+        if (getrlimit (RLIMIT_NOFILE, &rlp))
+            return ret_error;
+
+        *limit = rlp.rlim_cur;
+	return ret_ok;
+#else
+#ifdef HAVE_GETDTABLESIZE
+	int nfiles;
+
+	nfiles = getdtablesize();
+        if (nfiles <= 0) return ret_error;
+
+	*limit = nfiles;
+	return ret_ok;
+#else
+#ifdef OPEN_MAX
+        *limit = OPEN_MAX;         /* need to include limits.h somehow */
+	return ret_ok;
+#else
+        *limit = FD_SETSIZE;
+	return ret_ok;
+#endif
+#endif
 #endif
 }
 
 
 ret_t
-chula_parse_query_string (chula_buffer_t *qstring, chula_avl_t *arguments)
+chula_sys_fdlimit_set (cuint_t limit)
 {
-	ret_t  ret;
- 	char  *string;
-	char  *token;
+	int           re;
+	struct rlimit rl;
 
-	if (chula_buffer_is_empty (qstring)) {
-		return ret_ok;
+	rl.rlim_cur = limit;
+	rl.rlim_max = limit;
+
+	re = setrlimit (RLIMIT_NOFILE, &rl);
+	if (re != 0) {
+		return ret_error;
 	}
 
-	string = qstring->buf;
-
-	while ((token = (char *) strsep(&string, "&")) != NULL) {
-		char *equ, *val;
-
-		if (*token == '\0') {
-			*token = '&';
-			continue;
-		}
-
-		if ((equ = strchr(token, '=')) != NULL) {
-			chula_buffer_t *value;
-
-			val = equ+1;
-
-			ret = chula_buffer_new (&value);
-			if (unlikely (ret != ret_ok)) {
-				return ret;
-			}
-
-			chula_buffer_add (value, val, strlen(val));
-
-			*equ = '\0';
-			chula_avl_add_ptr (arguments, token, value);
-			*equ = '=';
-
-		} else {
-			chula_avl_add_ptr (arguments, token, NULL);
-		}
-
-		/* UGLY hack, part 1:
-		 * It restore the string modified by the strtok() function
-		 */
-		token[strlen(token)] = '&';
-	}
-
-	/* UGLY hack, part 2:
-	 */
-	qstring->buf[qstring->len] = '\0';
 	return ret_ok;
 }
 
+
+
+/* Users & Groups
+ */
 
 static ret_t
 clone_struct_passwd (struct passwd *source, struct passwd *target, char *buf, size_t buflen)
@@ -1427,7 +1075,6 @@ chula_getpwuid (uid_t uid, struct passwd *pwbuf, char *buf, size_t buflen)
 	return ret_no_sys;
 }
 
-
 ret_t
 chula_getpwnam_uid (const char *name, struct passwd *pwbuf, char *buf, size_t buflen)
 {
@@ -1455,7 +1102,6 @@ chula_getpwnam_uid (const char *name, struct passwd *pwbuf, char *buf, size_t bu
 
 	return ret_ok;
 }
-
 
 
 #if !defined(HAVE_GETGRNAM_R)
@@ -1624,7 +1270,6 @@ chula_getgrgid (gid_t gid, struct group *grbuf, char *buf, size_t buflen)
 	return ret_no_sys;
 }
 
-
 ret_t
 chula_getgrnam_gid (const char *name, struct group *grbuf, char *buf, size_t buflen)
 {
@@ -1654,589 +1299,305 @@ chula_getgrnam_gid (const char *name, struct group *grbuf, char *buf, size_t buf
 }
 
 
-ret_t
-chula_fd_close (int fd)
-{
-	int re;
 
-	if (unlikely (fd < 0)) {
-		return ret_error;
-	}
-
-	do {
-#ifdef _WIN32
-		re = closesocket (fd);
-#else
-		re = close (fd);
-#endif
-	} while ((re == -1) && (errno == EINTR));
-
-	TRACE (ENTRIES",close_fd", "fd=%d re=%d\n", fd, re);
-	return (re == 0) ? ret_ok : ret_error;
-}
+/* Time management functions
+ */
 
 
-ret_t
-chula_get_shell (const char **shell, const char **binary)
-{
-	char *t1, *t2;
-
-	/* Set the shell path
-	 */
-#ifdef _WIN32
-	*shell = getenv("ComSpec");
-#else
-	*shell = "/bin/sh";
+#if !defined(HAVE_GMTIME_R)
+static pthread_mutex_t gmtime_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-	/* Find the binary
+struct tm *
+chula_gmtime (const time_t *timep, struct tm *result)
+{
+#ifdef HAVE_GMTIME_R
+	/* Use the thread safe version anyway (no data copy).
 	 */
-	t1 = strrchr (*shell, '\\');
-	t2 = strrchr (*shell, '/');
-
-	t1 = chula_max_str (t1, t2);
-	if (t1 == NULL) return ret_error;
-
-	*binary = &t1[1];
-
-	return ret_ok;
-}
-
-
-ret_t
-chula_buf_add_bogonow (chula_buffer_t *buf,
-			bool             update)
-{
-	struct tm tmloc;
-	float now = 1; // fixme
-//	ev_tstamp now    = ev_now(EV_DEFAULT);
-	time_t    nowt   = (unsigned int)now;
-	int       usecs  = ((double)now - (long)now) * 1000;
-
-	chula_localtime ((const time_t *)&nowt, &tmloc);
-
-	chula_buffer_add_va (buf, "%02d/%02d/%d %02d:%02d:%02d.%03d",
-			      tmloc.tm_mday,
-			      tmloc.tm_mon + 1,
-			      tmloc.tm_year + 1900,
-			      tmloc.tm_hour,
-			      tmloc.tm_min,
-			      tmloc.tm_sec,
-			      usecs);
-	return ret_ok;
-}
-
-
-ret_t
-chula_buf_add_backtrace (chula_buffer_t *buf,
-			    int                n_skip,
-			    const char        *new_line,
-			    const char        *line_pre)
-{
-#if HAVE_BACKTRACE
-	void    *array[128];
-	size_t   size;
-	char   **strings;
-	size_t   i;
-	int      line_pre_len;
-	int      new_line_len;
-
-	line_pre_len = strlen (line_pre);
-	new_line_len = strlen (new_line);
-
-	size = backtrace (array, 128);
-	strings = backtrace_symbols (array, size);
-
-	for (i=n_skip; i < size; i++) {
-		if (line_pre_len > 0) {
-			chula_buffer_add (buf, line_pre, line_pre_len);
-		}
-		chula_buffer_add (buf, strings[i], strlen(strings[i]));
-		chula_buffer_add (buf, new_line, new_line_len);
-	}
-
-	free (strings);
-	return ret_ok;
+	return gmtime_r (timep, result);
 #else
-	return ret_no_sys;
+	struct tm *tmp;
+
+	CHULA_MUTEX_LOCK (&gmtime_mutex);
+	if (likely ((tmp = gmtime (timep)) != NULL))
+		memcpy (result, tmp, sizeof(struct tm));
+	CHULA_MUTEX_UNLOCK (&gmtime_mutex);
+
+	return (tmp == NULL ? NULL : result);
 #endif
 }
 
 
-ret_t
-chula_mkstemp (chula_buffer_t *buffer, int *fd)
-{
-	int re;
-
-#ifdef _WIN32
-	re = chula_win32_mkstemp (buffer);
-#else
-	re = mkstemp (buffer->buf);
+#if !defined(HAVE_LOCALTIME_R)
+static pthread_mutex_t localtime_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
-	if (re < 0) return ret_error;
 
-	*fd = re;
-	return ret_ok;
+struct tm *
+chula_localtime (const time_t *timep, struct tm *result)
+{
+#ifdef HAVE_LOCALTIME_R
+	/* Use the thread safe version anyway (no data copy).
+	 */
+	return localtime_r (timep, result);
+#else
+	struct tm *tmp;
+
+	CHULA_MUTEX_LOCK (&localtime_mutex);
+	if (likely ((tmp = localtime (timep)) != NULL))
+		memcpy (result, tmp, sizeof(struct tm));
+	CHULA_MUTEX_UNLOCK (&localtime_mutex);
+
+	return (tmp == NULL ? NULL : result);
+#endif
 }
 
 
-ret_t
-chula_mkdtemp (char *template)
+long *
+chula_get_timezone_ref (void)
 {
-	char *re;
+#ifdef HAVE_STRUCT_TM_GMTOFF
+	struct tm   tm;
+	time_t      timestamp;
+	static long tz         = 43201; /* 12h+1s: out of range */
 
-	re = mkdtemp (template);
-	if (unlikely (re == NULL)) {
-		return ret_error;
+	if (unlikely (tz == 43201)) {
+		timestamp = time(NULL);
+		chula_localtime (&timestamp, &tm);
+		tz = -tm.tm_gmtoff;
 	}
-
-	return ret_ok;
+	return &tz;
+#else
+# ifdef HAVE_INT_TIMEZONE
+	return &timezone;
+# else
+	static long _faked_timezone = 0;
+	return &_faked_timezone;
+# endif
+#endif
 }
 
 
-ret_t
-chula_fix_dirpath (chula_buffer_t *buf)
-{
-	while ((buf->len > 1) &&
-	       (chula_buffer_is_ending (buf, '/')))
-	{
-		chula_buffer_drop_ending (buf, 1);
-	}
 
-	return ret_ok;
-}
+/* Paths Management
+ */
+
 
 
 ret_t
-chula_mkdir_p (chula_buffer_t *path, int mode)
+chula_path_short (chula_buffer_t *path)
 {
-	int          re;
-        char        *p;
-	int          err;
-	struct stat  foo;
+	char *p   = path->buf;
+	char *end = path->buf + path->len;
 
-	/* There is no directory
-	 */
-	if (chula_buffer_is_empty (path)) {
-		return ret_ok;
-	}
+	while (p < end) {
+		char    *dots_end;
+		char    *prev_slash;
+		cuint_t  len;
 
-	/* Check whether the directory exists
-	 */
-	re = chula_stat (path->buf, &foo);
-	if (re == 0) {
-		return ret_ok;
-	}
-
-	/* Create the directory tree
-	 */
-	p = path->buf;
-	while (true) {
-		p = strchr (p+1, '/');
-		if (p == NULL)
-			break;
-
-		*p = '\0';
-
-		re = chula_stat (path->buf, &foo);
-		if (re != 0) {
-			re = chula_mkdir (path->buf, mode);
-			if ((re != 0) && (errno != EEXIST)) {
-				err = errno;
-				*p = '/';
-
-//				LOG_ERRNO (err, chula_err_error, CHULA_ERROR_UTIL_MKDIR, path->buf, getuid());
-				return ret_error;
-			}
+		if (p[0] != '.') {
+			p++;
+			continue;
 		}
 
-		*p = '/';
-
-		p++;
-		if (p > path->buf + path->len)
-			return ret_ok;
-	}
-
-	re = chula_mkdir (path->buf, mode);
-	if ((re != 0) && (errno != EEXIST)) {
-		err = errno;
-
-//		LOG_ERRNO (err, chula_err_error, CHULA_ERROR_UTIL_MKDIR, path->buf, getuid());
-		return ret_error;
-	}
-
-	return ret_ok;
-}
-
-
-ret_t
-chula_mkdir_p_perm (chula_buffer_t *dir_path,
-		       int                create_mode,
-		       int                ensure_perm)
-{
-	int         re;
-	ret_t       ret;
-	struct stat foo;
-
-	/* Does it exist?
-	 */
-	re = chula_stat (dir_path->buf, &foo);
-	if (re != 0) {
-		/* Create the directory
-		 */
-		ret = chula_mkdir_p (dir_path, create_mode);
-		if (ret != ret_ok) {
-			return ret_error;
-		}
-	}
-
-	/* Check permissions
-	 */
-	re = chula_access (dir_path->buf, ensure_perm);
-	if (re != 0) {
-		return ret_deny;
-	}
-
-	return ret_ok;
-}
-
-
-ret_t
-chula_rm_rf (chula_buffer_t *path,
-		uid_t              only_uid)
-{
-	int               re;
-	DIR              *d;
-	struct dirent    *entry;
-	char              entry_buf[512];
-	struct stat       info;
-	chula_buffer_t tmp = CHULA_BUF_INIT;
-
-	/* Remove the directory contents
-	 */
-	d = chula_opendir (path->buf);
-	if (d == NULL) {
-		return ret_ok;
-	}
-
-	while (true) {
-		re = chula_readdir (d, (struct dirent *)entry_buf, &entry);
-		if ((re != 0) || (entry == NULL))
-			break;
-
-                if (!strncmp (entry->d_name, ".",  1)) continue;
-                if (!strncmp (entry->d_name, "..", 2)) continue;
-
-		chula_buffer_clean      (&tmp);
-		chula_buffer_add_buffer (&tmp, path);
-		chula_buffer_add_char   (&tmp, '/');
-		chula_buffer_add        (&tmp, entry->d_name, strlen(entry->d_name));
-
-		if (only_uid != -1) {
-			re = chula_stat (tmp.buf, &info);
-			if (re != 0) continue;
-
-			if (info.st_uid != only_uid)
-				continue;
+		if ((p[1] == '/') && (p > path->buf) && (*(p-1) == '/')) {
+			chula_buffer_remove_chunk (path, p - path->buf, 2);
+			p -= 1;
+			continue;
 		}
 
-		if (S_ISDIR (info.st_mode)) {
-			chula_rm_rf (&tmp, only_uid);
-			TRACE (ENTRIES, "Removing cache dir: %s\n", tmp.buf, re);
-		} else if (S_ISREG (info.st_mode)) {
-			re = unlink (tmp.buf);
-			TRACE (ENTRIES, "Removing cache file: %s, re=%d\n", tmp.buf, re);
-		}
-	}
-
-	chula_closedir (d);
-
-	/* It should be empty by now
-	 */
-	re = rmdir (path->buf);
-	TRACE (ENTRIES, "Removing main vserver cache dir: %s, re=%d\n", path->buf, re);
-
-	/* Clean up
-	 */
-	chula_buffer_mrproper (&tmp);
-	return ret_ok;
-}
-
-
-ret_t
-chula_iovec_skip_sent (struct iovec *orig, uint16_t  orig_len,
-			  struct iovec *dest, uint16_t *dest_len,
-			  size_t sent)
-{
-	int    i;
- 	int    j      = 0;
-	size_t total  = 0;
-
-	for (i=0; i<orig_len; i++) {
-		if (sent >= total + orig[i].iov_len) {
-			/* Already sent */
-			total += orig[i].iov_len;
-
-		} else if (j > 0) {
-			/* Add the whole thing */
-			dest[j].iov_len  = orig[i].iov_len;
-			dest[j].iov_base = orig[i].iov_base;
-			j++;
-
-		} else {
-			/* Add only a piece */
-			dest[j].iov_len  = orig[i].iov_len  - (sent - total);
-			dest[j].iov_base = ((char *)orig[i].iov_base) + (sent - total);
-			j++;
-		}
-	}
-
-	*dest_len = j;
-	return ret_ok;
-}
-
-
-ret_t
-chula_iovec_was_sent (struct iovec *orig, uint16_t orig_len, size_t sent)
-{
-	int    i;
-	size_t total =0;
-
-	for (i=0; i<orig_len; i++) {
-		total += orig[i].iov_len;
-		if (total > sent) {
-			return ret_eagain;
-		}
-	}
-
-	return ret_ok;
-}
-
-
-/* ret_t */
-/* chula_io_stat (chula_iocache_t          *iocache, */
-/* 		  chula_buffer_t         *path, */
-/* 		  bool                     useit, */
-/* 		  struct stat             *nocache_info, */
-/* 		  chula_iocache_entry_t **io_entry, */
-/* 		  struct stat            **info) */
-/* { */
-/* 	ret_t ret; */
-/* 	int   re  = -1; */
-
-/* 	/\* I/O cache */
-/* 	 *\/ */
-/* 	if ((useit) && */
-/* 	    (iocache != NULL)) */
-/* 	{ */
-/* 		ret = chula_iocache_autoget (iocache, path, iocache_stat, io_entry); */
-/* 		TRACE (ENTRIES, "%s, use_iocache=1 ret=%d\n", path->buf, ret); */
-
-/* 		switch (ret) { */
-/* 		case ret_ok: */
-/* 		case ret_ok_and_sent: */
-/* 			*info = &(*io_entry)->state; */
-/* 			return (*io_entry)->state_ret; */
-
-/* 		case ret_no_sys: */
-/* 			goto without; */
-
-/* 		case ret_deny: */
-/* 		case ret_not_found: */
-/* 			return ret; */
-/* 		default: */
-/* 			return ret_error; */
-/* 		} */
-/* 	} */
-
-/* 	/\* Without cache */
-/* 	 *\/ */
-/* without: */
-/* 	re = chula_stat (path->buf, nocache_info); */
-/* 	TRACE (ENTRIES, "%s, use_iocache=0 re=%d\n", path->buf, re); */
-
-/* 	if (re >= 0) { */
-/* 		*info = nocache_info; */
-/* 		return ret_ok; */
-/* 	} */
-
-/* 	switch (errno) { */
-/* 	case ENOENT: */
-/* 	case ENOTDIR: */
-/* 		return ret_not_found; */
-/* 	case EACCES: */
-/* 		return ret_deny; */
-/* 	default: */
-/* 		return ret_error; */
-/* 	} */
-
-/* 	return ret_error; */
-/* } */
-
-
-char *
-chula_header_get_next_line (char *string)
-{
-	char *end1;
-	char *end2 = string;
-
-	/* RFC states that EOL should be made by CRLF only, but some
-	 * old clients (HTTP 0.9 and a few HTTP/1.0 robots) may send
-	 * LF only as EOL, so try to catch that case too (of course CR
-	 * only is ignored); anyway leading spaces after a LF or CRLF
-	 * means that the new line is the continuation of previous
-	 * line (first line excluded).
-	 */
-	do {
-		end1 = end2;
-		end2 = strchr (end1, CHR_LF);
-
-		if (unlikely (end2 == NULL))
-			return NULL;
-
-		end1 = end2;
-		if (likely (end2 != string && *(end1 - 1) == CHR_CR))
-			--end1;
-
-		++end2;
-	} while (*end2 == CHR_SP || *end2 == CHR_HT);
-
-	return end1;
-}
-
-ret_t
-chula_header_del_entry (chula_buffer_t *header,
-			   const char        *header_name,
-			   int                header_name_len)
-{
-	char                        *end;
-	char                        *begin;
-	const char                  *header_end;
-
-	begin      = header->buf;
-	header_end = header->buf + header->len;
-
-	while ((begin < header_end)) {
-		end = chula_header_get_next_line (begin);
-		if (end == NULL) {
-			break;
-		}
-
-		/* Is it the header? */
-		if (strncasecmp (begin, header_name, header_name_len) == 0) {
-			while ((*end == CHR_CR) || (*end == CHR_LF))
-				end++;
-
-			chula_buffer_remove_chunk (header, begin - header->buf, end - begin);
+		if (end < p+2) {
 			return ret_ok;
 		}
 
-		/* Next line */
-		while ((*end == CHR_CR) || (*end == CHR_LF))
-			end++;
-		begin = end;
+		if (p[1] != '.') {
+			p+=2;
+			continue;
+		}
+
+		dots_end = p + 2;
+		while ((dots_end < end) && (*dots_end == '.')) {
+			dots_end++;
+		}
+
+		if (dots_end >= end)
+			return ret_ok;
+
+		prev_slash = p-1;
+
+		if (prev_slash < path->buf)
+			return ret_ok;
+
+		if (*prev_slash != '/') {
+			p = dots_end;
+			continue;
+		}
+
+		if (prev_slash > path->buf)
+			prev_slash--;
+
+		while ((prev_slash > path->buf) && (*prev_slash != '/')) {
+			prev_slash--;
+		}
+
+		len = dots_end - prev_slash;
+
+		chula_buffer_remove_chunk (path, (prev_slash - path->buf), len);
+
+		end = path->buf + path->len;
+		p -= (len - (dots_end - p));
 	}
 
+	return ret_ok;
+}
+
+
+ret_t
+chula_path_arg_eval (chula_buffer_t *path)
+{
+	ret_t  ret;
+	char  *d;
+	char   tmp[512];
+
+	if (path->buf[0] != '/') {
+		d = getcwd (tmp, sizeof(tmp));
+
+		chula_buffer_prepend (path, (char *)"/", 1);
+		chula_buffer_prepend (path, d, strlen(d));
+	}
+
+	ret = chula_path_short (path);
+	if (ret != ret_ok)
+		return ret_error;
+
+	return ret_ok;
+}
+
+ret_t
+chula_path_find_exec (const char     *bin_name,
+                      chula_buffer_t *fullpath)
+{
+	int   re;
+	char *p, *q;
+	char *path;
+
+	p = getenv("PATH");
+	if (p == NULL) {
+		return ret_not_found;
+	}
+
+	path = strdup(p);
+	if (unlikely (path == NULL)) {
+		return ret_nomem;
+	}
+
+	p = path;
+	do {
+		q = strchr (p, ':');
+		if (q) {
+			*q = '\0';
+		}
+
+		chula_buffer_clean   (fullpath);
+		chula_buffer_add     (fullpath, p, strlen(p));
+		chula_buffer_add_str (fullpath, "/");
+		chula_buffer_add     (fullpath, bin_name, strlen(bin_name));
+
+		re = chula_access (fullpath->buf, X_OK);
+		if (re == 0) {
+			free (path);
+			return ret_ok;
+		}
+
+		p = q + 1;
+	} while(q);
+
+	free (path);
 	return ret_not_found;
 }
 
 
-#ifndef HAVE_STRNSTR
-char *
-strnstr (const char *s, const char *find, size_t slen)
-{
-	char c, sc;
-	size_t len;
 
-	if ((c = *find++) != '\0') {
-		len = strlen(find);
-		do {
-			do {
-				if (slen-- < 1 || (sc = *s++) == '\0')
-					return (NULL);
-			} while (sc != c);
-			if (len > slen)
-				return (NULL);
-		} while (strncmp(s, find, len) != 0);
-		s--;
+/* Network related utilities
+ */
+
+
+ret_t
+chula_gethostbyname (chula_buffer_t *hostname, struct addrinfo **addr)
+{
+	int              n;
+	struct addrinfo  hints;
+
+	/* What we are trying to get
+	 */
+	memset (&hints, 0, sizeof(struct addrinfo));
+
+	hints.ai_family   = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+
+#ifdef AI_ADDRCONFIG
+	/* Workaround for loopback host addresses:
+	 *
+	 * If a computer does not have any outgoing IPv6 network
+	 * interface, but its loopback network interface supports
+	 * IPv6, a getaddrinfo call on "localhost" with AI_ADDRCONFIG
+	 * won't return the IPv6 loopback address "::1", because
+	 * getaddrinfo() thinks the computer cannot connect to any
+	 * IPv6 destination, ignoring the remote vs. local/loopback
+	 * distinction.
+	 */
+	if ((chula_buffer_cmp_str (hostname, "::1")       == 0) ||
+	    (chula_buffer_cmp_str (hostname, "127.0.0.1") == 0) ||
+	    (chula_buffer_cmp_str (hostname, "localhost")  == 0) ||
+	    (chula_buffer_cmp_str (hostname, "localhost6") == 0) ||
+	    (chula_buffer_cmp_str (hostname, "localhost.localdomain")   == 0) ||
+	    (chula_buffer_cmp_str (hostname, "localhost6.localdomain6") == 0))
+	{
+		hints.ai_flags = AI_ADDRCONFIG;
 	}
-	return ((char *)s);
-}
 #endif
 
+	/* Resolve address
+	 */
+	n = getaddrinfo (hostname->buf, NULL, &hints, addr);
+	if (n < 0) {
+		return ret_error;
+	}
 
-/* ret_t */
-/* chula_find_header_end_cstr (char      *c_str, */
-/* 			       cint_t     c_len, */
-/* 			       char     **end, */
-/* 			       cuint_t   *sep_len) */
-/* { */
-/* 	char *p; */
-/* 	char *fin; */
-/* 	char *begin; */
-/* 	int   cr_n, lf_n; */
+	return ret_ok;
+}
 
-/* 	if ((c_str == NULL) || (c_len <= 0)) */
-/* 		return ret_not_found; */
+ret_t
+chula_gethostname (chula_buffer_t *buf)
+{
+	int  re;
 
-/* 	p   = c_str; */
-/* 	fin = c_str + MIN(c_len, MAX_HEADER_LEN); */
+#ifdef HAVE_GETHOSTNAME
+	char host_name[HOST_NAME_MAX + 1];
 
-/* 	while (p < fin) { */
-/*  		if ((*p == CHR_CR) || (*p == CHR_LF)) { */
-/* 			cr_n  = 0; */
-/* 			lf_n  = 0; */
-/* 			begin = p; */
+	re = gethostname (host_name, HOST_NAME_MAX);
+	if (re) {
+		return ret_error;
+	}
 
-/* 			/\* Valid scenarios: */
-/* 			 * CR_n: [CRLF_CRLF] 0, 1, 1, 2, 2  | [LF_LF] 0, 0 */
-/* 			 * LF_n:             0, 0, 1, 1, 2  |         1, 2 */
-/* 			 * */
-/* 			 * so, the two forbidden situations are: */
-/* 			 * CR_n: 1, 2 */
-/* 			 * LF_n: 2, 0 */
-/* 			 *\/ */
-/* 			while (p < fin) { */
-/* 				if (*p == CHR_LF) { */
-/* 					lf_n++; */
-/* 					if (lf_n == 2) { */
-/* 						*end     = begin; */
-/* 						*sep_len = (p - begin) + 1; */
-/* 						return ret_ok; */
-/* 					} */
+	chula_buffer_add (buf, host_name, strlen(host_name));
 
-/* 				} else if (*p == CHR_CR) { */
-/* 					cr_n++; */
+	return ret_ok;
 
-/* 				} else { */
-/* 					break; */
-/* 				} */
+#elif defined(HAVE_SYS_UTSNAME_H) && defined(HAVE_UNAME)
+	struct utsname info;
 
-/* 				if (unlikely (((cr_n == 1) && (lf_n == 2)) || */
-/* 					      ((cr_n == 2) && (lf_n == 0)))) */
-/* 				{ */
-/* 					return ret_error; */
-/* 				} */
+	re = uname (&info);
+	if (re) {
+		return ret_error;
+	}
 
-/* 				p++; */
-/* 			} */
-/* 		} */
+	chula_buffer_add (buf, info.nodename, sizeof(info.nodename));
 
-/* 		p++; */
-/* 	} */
+	return ret_ok;
+#endif
 
-/* 	return ret_not_found; */
-/* } */
-
-
-/* ret_t */
-/* chula_find_header_end (chula_buffer_t  *buf, */
-/* 			  char              **end, */
-/* 			  cuint_t            *sep_len) */
-/* { */
-/* 	return chula_find_header_end_cstr (buf->buf, buf->len, end, sep_len); */
-/* } */
-
+	return ret_error;
+}
 
 ret_t
 chula_ntop (int family, struct sockaddr *addr, char *dst, size_t cnt)
@@ -2293,261 +1654,171 @@ error:
 }
 
 
-/* ret_t */
-/* chula_tmp_dir_copy (chula_buffer_t *buffer) */
-/* { */
-/* 	char *p; */
 
-/* 	/\* Read a custom Http2d variable */
-/* 	 *\/ */
-/* 	p = getenv("CHULA_TMPDIR"); */
-/* 	if (p != NULL) { */
-/* 		chula_buffer_add (buffer, p, strlen(p)); */
-/* 		return ret_ok; */
-/* 	} */
+/* Random Numbers
+ */
 
-/* 	/\* Read the system variable */
-/* 	 *\/ */
-/* #ifdef _WIN32 */
-/* 	p = getenv("TEMP"); */
-/* #else */
-/* 	p = getenv("TMPDIR"); */
-/* #endif */
-/* 	if (p != NULL) { */
-/* 		chula_buffer_add (buffer, p, strlen(p)); */
-/* 		return ret_ok; */
-/* 	} */
 
-/* 	/\* Since everything has failed, let's go for whatever autoconf */
-/* 	 * detected at compilation time. */
-/* 	 *\/ */
-/* 	chula_buffer_add_str (buffer, TMPDIR); */
-/* 	return ret_ok; */
-/* } */
+void
+chula_random_seed (void)
+{
+#ifdef HAVE_SRANDOMDEV
+	srandomdev();
+#else
+	int            fd;
+	ssize_t        re;
+	unsigned       seed;
+	struct timeval tv;
+
+	/* Read from device
+	 */
+	if ((fd = open("/dev/hwrng", O_RDONLY)) >= 0 ||
+	    (fd = open("/dev/random", O_RDONLY)) >= 0 ||
+	    (fd = open("/dev/urandom", O_RDONLY)) >= 0)
+	{
+		do {
+			re = read (fd, &seed, sizeof(seed));
+		} while ((re == -1) && (errno == EINTR));
+
+		chula_fd_close(fd);
+
+		if (re == sizeof(seed))
+			goto out;
+	}
+
+	/* Home-made seed
+	 */
+    gettimeofday (&tv, NULL);
+    seed = (getpid() << 16) ^ tv.tv_sec ^ tv.tv_usec;
+
+out:
+	/* Set the seed
+	 */
+# if HAVE_SRANDOM
+	srandom (seed);
+# else
+	srand (seed);
+# endif
+#endif
+}
+
+
+long
+chula_random (void)
+{
+#ifdef HAVE_RANDOM
+	return random();
+#else
+	return rand();
+#endif
+}
+
+
+
+/* Misc
+ */
+
+
+long
+chula_eval_formated_time (chula_buffer_t *buf)
+{
+	char end;
+	int  mul = 1;
+
+	if (unlikely (chula_buffer_is_empty (buf)))
+		return ret_ok;
+
+	end = chula_buffer_end_char (buf);
+	switch (end) {
+	case 's':
+		mul = 1;
+		break;
+	case 'm':
+		mul = 60;
+		break;
+	case 'h':
+		mul = 60 * 60;
+		break;
+	case 'd':
+		mul = 60 * 60 * 24;
+		break;
+	case 'w':
+		mul = 60 * 60 * 24 * 7;
+		break;
+	default:
+		break;
+	}
+
+	return atol(buf->buf) * mul;
+}
 
 
 ret_t
-chula_parse_host (chula_buffer_t  *buf,
-		     chula_buffer_t  *host,
-		     cuint_t            *port)
+chula_syslog (int priority, chula_buffer_t *buf)
 {
 	char *p;
-	char *colon;
+	char *nl, *end;
 
-	colon = strchr (buf->buf, ':');
-	if (colon == NULL) {
-		/* Host
-		 */
-		chula_buffer_add_buffer (host, buf);
+	if (chula_buffer_is_empty(buf))
 		return ret_ok;
-	}
 
-	p = strchr (colon+1, ':');
-	if (p == NULL) {
-		/* Host:port
-		 */
-		*port = atoi (colon+1);
-		chula_buffer_add (host, buf->buf, colon - buf->buf);
-		return ret_ok;
-	}
+	p   = buf->buf;
+	end = buf->buf + buf->len;
 
-#ifdef HAVE_IPV6
-	if (buf->buf[0] != '[') {
-		/* IPv6
-		 */
-		chula_buffer_add_buffer (host, buf);
-		return ret_ok;
-	}
+	do {
+		nl = strchr (p, '\n');
+		if (nl != NULL)
+			*nl = '\0';
 
-	/* [IPv6]:port
-	 */
-	colon = strrchr(buf->buf, ']');
-	if (unlikely (colon == NULL))
-		return ret_error;
-	if (unlikely (colon[1] != ':'))
-		return ret_error;
+		syslog (priority, "%s", p);
 
-	colon += 1;
-	*port = atoi(colon+1);
-	chula_buffer_add (host, buf->buf+1, (colon-1)-(buf->buf+1));
+		if (nl == NULL) {
+			break;
+		}
+
+		*nl = '\n';
+		p = nl + 1;
+	} while (p < end);
+
 	return ret_ok;
+}
+
+
+ret_t
+chula_buf_add_backtrace (chula_buffer_t *buf,
+                         int             n_skip,
+                         const char     *new_line,
+                         const char     *line_pre)
+{
+#if HAVE_BACKTRACE
+	void    *array[128];
+	size_t   size;
+	char   **strings;
+	size_t   i;
+	int      line_pre_len;
+	int      new_line_len;
+
+	line_pre_len = strlen (line_pre);
+	new_line_len = strlen (new_line);
+
+	size = backtrace (array, 128);
+	strings = backtrace_symbols (array, size);
+
+	for (i=n_skip; i < size; i++) {
+		if (line_pre_len > 0) {
+			chula_buffer_add (buf, line_pre, line_pre_len);
+		}
+		chula_buffer_add (buf, strings[i], strlen(strings[i]));
+		chula_buffer_add (buf, new_line, new_line_len);
+	}
+
+	free (strings);
+	return ret_ok;
+#else
+	return ret_no_sys;
 #endif
-
-	return ret_error;
 }
 
-
-int
-chula_string_is_ipv6 (chula_buffer_t *ip)
-{
-	cuint_t i;
-	cuint_t colons = 0;
-
-	for (i=0; i<ip->len; i++) {
-		if (ip->buf[i] == ':') {
-			colons += 1;
-			if (colons == 2)
-				return 1;
-		}
-	}
-
-	return 0;
-}
-
-
-ret_t
-chula_find_exec_in_path (const char        *bin_name,
-			    chula_buffer_t *fullpath)
-{
-	int   re;
-	char *p, *q;
-	char *path;
-
-	p = getenv("PATH");
-	if (p == NULL) {
-		return ret_not_found;
-	}
-
-	path = strdup(p);
-	if (unlikely (path == NULL)) {
-		return ret_nomem;
-	}
-
-	p = path;
-	do {
-		q = strchr (p, ':');
-		if (q) {
-			*q = '\0';
-		}
-
-		chula_buffer_clean   (fullpath);
-		chula_buffer_add     (fullpath, p, strlen(p));
-		chula_buffer_add_str (fullpath, "/");
-		chula_buffer_add     (fullpath, bin_name, strlen(bin_name));
-
-		re = chula_access (fullpath->buf, X_OK);
-		if (re == 0) {
-			free (path);
-			return ret_ok;
-		}
-
-		p = q + 1;
-	} while(q);
-
-	free (path);
-	return ret_not_found;
-}
-
-
-ret_t
-chula_atoi (const char *str, int *ret_value)
-{
-	int tmp;
-
-	errno = 0;
-	tmp = strtol (str, NULL, 10);
-	if (errno != 0) {
-		return ret_error;
-	}
-
-	*ret_value = tmp;
-	return ret_ok;
-}
-
-
-ret_t
-chula_atob (const char *str, bool *ret_value)
-{
-	ret_t ret;
-	int   tmp;
-
-	ret = chula_atoi (str, &tmp);
-	if (ret != ret_ok) {
-		return ret;
-	}
-
-	*ret_value = !!tmp;
-	return ret_ok;
-}
-
-
-/* ret_t */
-/* chula_copy_local_address (void              *sock, */
-/* 			     chula_buffer_t *buf) */
-/* { */
-/* 	int                 re; */
-/* 	chula_sockaddr_t my_address; */
-/* 	cuint_t             my_address_len = 0; */
-/* 	char                ip_str[CHE_INET_ADDRSTRLEN+1]; */
-/* 	chula_socket_t  *socket = SOCKET(sock); */
-
-/* 	/\* Get the address */
-/* 	 *\/ */
-/* 	my_address_len = sizeof(my_address); */
-/* 	re = getsockname (SOCKET_FD(socket), (struct sockaddr *)&my_address, &my_address_len); */
-/* 	if (re != 0) { */
-/* 		return ret_error; */
-/* 	} */
-
-/* 	/\* Build the string */
-/* 	 *\/ */
-/* 	chula_ntop (my_address.sa_in.sin_family, */
-/* 		       (struct sockaddr *) &my_address, */
-/* 		       ip_str, sizeof(ip_str)-1); */
-
-/* 	/\* Copy it to the buffer */
-/* 	 *\/ */
-/* 	chula_buffer_add (buf, ip_str, strlen(ip_str)); */
-/* 	return ret_ok; */
-/* } */
-
-
-int chula_stat (const char *path, struct stat *buf)
-{
-	int re;
-
-	do {
-		re = stat (path, buf);
-	} while ((re == -1) && (errno == EINTR));
-
-	return re;
-}
-
-int
-chula_lstat (const char *path, struct stat *buf)
-{
-	int re;
-
-	do {
-		re = lstat (path, buf);
-	} while ((re == -1) && (errno == EINTR));
-
-	return re;
-}
-
-int
-chula_fstat (int filedes, struct stat *buf)
-{
-	int re;
-
-	do {
-		re = fstat (filedes, buf);
-	} while ((re == -1) && (errno == EINTR));
-
-	return re;
-}
-
-int
-chula_access (const char *pathname, int mode)
-{
-	int re;
-
-	do {
-		re = access (pathname, mode);
-	} while ((re == -1) && (errno == EINTR));
-
-	return re;
-}
 
 ret_t
 chula_wait_pid (int pid, int *retcode)
@@ -2603,114 +1874,70 @@ chula_reset_signals (void)
 }
 
 
-int
-chula_unlink (const char *path)
+ret_t
+chula_get_shell (const char **shell, const char **binary)
 {
-	int re;
+	char *t1, *t2;
 
-	do {
-		re = unlink (path);
-	} while ((re < 0) && (errno == EINTR));
+	/* Set the shell path
+	 */
+#ifdef _WIN32
+	*shell = getenv("ComSpec");
+#else
+	*shell = "/bin/sh";
+#endif
 
-	return re;
-}
+	/* Find the binary
+	 */
+	t1 = strrchr (*shell, '\\');
+	t2 = strrchr (*shell, '/');
 
+	t1 = chula_max_str (t1, t2);
+	if (t1 == NULL) return ret_error;
 
-int
-chula_open (const char *path, int oflag, int mode)
-{
-	int re;
+	*binary = &t1[1];
 
-	do {
-		re = open (path, oflag, mode);
-	} while ((re < 0) && (errno == EINTR));
-
-	return re;
+	return ret_ok;
 }
 
 
 ret_t
-chula_mkdir (const char *path, int mode)
+chula_tmp_dir_copy (chula_buffer_t *buffer)
 {
-	int re;
+	const char *p;
 
-	do {
-		re = mkdir (path, mode);
-	} while ((re < 0) && (errno == EINTR));
+	/* Read a custom Http2d variable
+	 */
+	p = getenv("CHULA_TMPDIR");
+	if (p != NULL) {
+		chula_buffer_add (buffer, p, strlen(p));
+		return ret_ok;
+	}
 
-	return re;
-}
-
-
-int
-chula_pipe (int fildes[2])
-{
-	int re;
-
-	do {
-		re = pipe (fildes);
-	} while ((re < 0) && (errno == EINTR));
-
-	return re;
-}
-
-
-/* void */
-/* chula_random_seed (void) */
-/* { */
-/* #ifdef HAVE_SRANDOMDEV */
-/* 	srandomdev(); */
-/* #else */
-/* 	int      fd; */
-/* 	ssize_t  re; */
-/* 	unsigned seed; */
-
-/* 	/\* Open device */
-/* 	 *\/ */
-/* 	fd = open("/dev/urandom", O_RDONLY); */
-/* 	if (fd == -1) { */
-/* 		fd = open("/dev/random", O_RDONLY); */
-/* 	} */
-
-/* 	/\* Read seed */
-/* 	 *\/ */
-/* 	if (fd != -1) { */
-/* 		do { */
-/* 			re = read (fd, &seed, sizeof(seed)); */
-/* 		} while ((re == -1) && (errno == EINTR)); */
-
-/* 		chula_fd_close(fd); */
-
-/* 		if (re == sizeof(seed)) */
-/* 			goto out; */
-/* 	} */
-
-/* 	/\* Home-made seed */
-/* 	 *\/ */
-/* 	chula_bogotime_update(); */
-
-/* 	seed = chula_bogonow_tv.tv_usec; */
-/* 	if (chula_bogonow_tv.tv_usec & 0xFF) */
-/* 		seed *= (chula_bogonow_tv.tv_usec & 0xFF); */
-
-/* out: */
-/* 	/\* Set the seed */
-/* 	 *\/ */
-/* # if HAVE_SRANDOM */
-/* 	srandom (seed); */
-/* # else */
-/* 	srand (seed); */
-/* # endif */
-/* #endif */
-/* } */
-
-
-long
-chula_random (void)
-{
-#ifdef HAVE_RANDOM
-	return random();
+	/* Read the system variable
+	 */
+#ifdef _WIN32
+	p = getenv("TEMP");
 #else
-	return rand();
+	p = getenv("TMPDIR");
 #endif
+#ifdef P_tmpdir
+    if (p == NULL) {
+        p = P_tmpdir;
+    }
+#endif
+#ifdef _PATH_TMP
+    if (p == NULL) {
+        p = _PATH_TMP;
+    }
+#endif
+	if (p != NULL) {
+		chula_buffer_add (buffer, p, strlen(p));
+		return ret_ok;
+	}
+
+	/* /tmp will be our safety-net
+	 */
+	chula_buffer_add_str (buffer, "/tmp");
+	return ret_ok;
 }
