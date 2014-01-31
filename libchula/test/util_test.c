@@ -136,6 +136,26 @@ START_TEST (_atob)
 }
 END_TEST
 
+START_TEST (is_ipv6)
+{
+    int            re;
+    chula_buffer_t ip;
+
+    chula_buffer_fake_str (&ip, "");
+    ck_assert (chula_string_is_ipv6 (&ip) == 0);
+
+    chula_buffer_fake_str (&ip, "127.0.0.1");
+    ck_assert (chula_string_is_ipv6 (&ip) == 0);
+
+    chula_buffer_fake_str (&ip, "::1");
+    ck_assert (chula_string_is_ipv6 (&ip));
+
+    chula_buffer_fake_str (&ip, "2001:0db8:0000:0000:0000:ff00:0042:8329");
+    ck_assert (chula_string_is_ipv6 (&ip));
+}
+END_TEST
+
+
 int
 util_tests (void)
 {
@@ -146,5 +166,6 @@ util_tests (void)
     check_add (s1, max_str);
     check_add (s1, _atoi);
     check_add (s1, _atob);
+    check_add (s1, is_ipv6);
     run_test (s1);
 }
