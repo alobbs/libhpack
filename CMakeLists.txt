@@ -44,6 +44,7 @@ find_package(PkgConfig)
 include(CheckTypeSize)
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
+include(CheckCSourceCompiles)
 
 # Includes
 include_directories(${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
@@ -111,7 +112,31 @@ CHECK_FUNCTION_EXISTS (strnstr HAVE_STRNSTR)
 CHECK_FUNCTION_EXISTS (strcasestr HAVE_STRCASESTR)
 CHECK_FUNCTION_EXISTS (strlcat HAVE_STRLCAT)
 CHECK_FUNCTION_EXISTS (rpl_malloc HAVE_MALLOC)
+CHECK_FUNCTION_EXISTS (readdir HAVE_READDIR)
+CHECK_FUNCTION_EXISTS (readdir_r HAVE_READDIR_R)
 SET(CMAKE_EXTRA_INCLUDE_FILES)
+
+# Code tests
+CHECK_C_SOURCE_COMPILES("
+#include <sys/types.h>
+#include <dirent.h>
+int main() {
+    struct dirent dir, *dirp;
+    DIR *mydir;
+    dirp = readdir_r(mydir, &dir);
+}
+" HAVE_READDIR_R_2)
+
+CHECK_C_SOURCE_COMPILES("
+#include <sys/types.h>
+#include <dirent.h>
+int main() {
+    struct dirent dir, *dirp;
+    DIR *mydir;
+    int rc;
+    rc = readdir_r(mydir, &dir, &dirp);
+}
+" HAVE_READDIR_R_3)
 
 # Libraries
 find_library(LIBM NAMES m)

@@ -35,6 +35,9 @@ functions_t = ''
 for f in re.findall (r'CHECK_FUNCTION_EXISTS *\(.+? *(\w+)\)', cont, re.IGNORECASE):
 	functions_t += '#cmakedefine %s\n' %(f)
 
+for f in re.findall (r'CHECK_C_SOURCE_COMPILES *\(.+?(HAVE_.+?)\)\n', cont, re.S):
+	functions_t += '#cmakedefine %s\n' %(f)
+
 sizes_t = ''
 for h in re.findall (r'CHECK_TYPE_SIZE *\(.+? *(\w+)\)', cont, re.IGNORECASE):
     sizes_t += '@%s_CODE@\n' %(h)
