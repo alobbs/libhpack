@@ -200,6 +200,10 @@ chula_atoi (const char *str, int *ret_value)
 {
 	int tmp;
 
+    if (str == NULL) {
+        return ret_error;
+    }
+
 	errno = 0;
 	tmp = strtol (str, NULL, 10);
 	if (errno != 0) {
@@ -215,6 +219,10 @@ chula_atob (const char *str, bool *ret_value)
 {
 	ret_t ret;
 	int   tmp;
+
+    if (str == NULL) {
+        return ret_error;
+    }
 
 	ret = chula_atoi (str, &tmp);
 	if (ret != ret_ok) {
