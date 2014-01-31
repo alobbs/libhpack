@@ -30,3 +30,6 @@ build
 GPATH
 GRTAGS
 GTAGS
+
+# GDB
+.gdb_history
