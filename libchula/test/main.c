@@ -33,6 +33,7 @@
 int avl_tests (void);
 int md5_tests (void);
 int list_tests (void);
+int util_tests (void);
 int buffer_tests (void);
 
 int
@@ -44,6 +45,7 @@ main (void)
     ret += buffer_tests();
     ret += list_tests();
     ret += avl_tests();
+    ret += util_tests();
 
     return ret;
 }
