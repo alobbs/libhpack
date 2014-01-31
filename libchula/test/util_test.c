@@ -112,25 +112,25 @@ START_TEST (_atob)
     bool  re;
     ret_t ret;
 
-    ret = chula_atoi (NULL, &re);
+    ret = chula_atob (NULL, &re);
     ck_assert (ret == ret_error);
 
-    ret = chula_atoi ("", &re);
+    ret = chula_atob ("", &re);
     ck_assert (ret == ret_error);
 
-    ret = chula_atoi ("123", &re);
+    ret = chula_atob ("123", &re);
     ck_assert (re == true);
     ck_assert (ret == ret_ok);
 
-    ret = chula_atoi ("0", &re);
+    ret = chula_atob ("0", &re);
     ck_assert (re == false);
     ck_assert (ret == ret_ok);
 
-    ret = chula_atoi ("-0", &re);
+    ret = chula_atob ("-0", &re);
     ck_assert (re == false);
     ck_assert (ret == ret_ok);
 
-    ret = chula_atoi ("-321", &re);
+    ret = chula_atob ("-321", &re);
     ck_assert (re == true);
     ck_assert (ret == ret_ok);
 }
@@ -138,7 +138,6 @@ END_TEST
 
 START_TEST (is_ipv6)
 {
-    int            re;
     chula_buffer_t ip;
 
     chula_buffer_fake_str (&ip, "");
@@ -155,6 +154,33 @@ START_TEST (is_ipv6)
 }
 END_TEST
 
+START_TEST (_dirs)
+{
+    int            re;
+    DIR           *d;
+    struct dirent  dentry;
+    struct dirent *dresult;
+
+    /* Open */
+    d = chula_opendir ("/most/likely/it/does/not/exists");
+    ck_assert (d == NULL);
+
+    d = chula_opendir ("/");
+    ck_assert (d != NULL);
+
+    /* Walk */
+    dresult = NULL;
+    re = chula_readdir (d, &dentry, &dresult);
+    printf ("re = %d\n", re);
+    ck_assert (re == 0);
+    ck_assert (dresult != NULL);
+    ck_assert (strlen(dresult->d_name) > 0);
+
+    /* Close */
+    chula_closedir (d);
+}
+END_TEST
+
 
 int
 util_tests (void)
@@ -167,5 +193,6 @@ util_tests (void)
     check_add (s1, _atoi);
     check_add (s1, _atob);
     check_add (s1, is_ipv6);
+    check_add (s1, _dirs);
     run_test (s1);
 }
