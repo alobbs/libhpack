@@ -75,7 +75,7 @@
  */
 #define ERROR_MIN_BUFSIZE	64	/* min. buffer size */
 #define ERROR_MAX_BUFSIZE	512	/* max. buffer size */
-#define chula_error            errno
+#define chula_error         errno
 
 /* Missing functions
  */
