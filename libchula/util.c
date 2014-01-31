@@ -198,17 +198,23 @@ chula_max_str (char *s1, char *s2)
 ret_t
 chula_atoi (const char *str, int *ret_value)
 {
-	int tmp;
+	int   tmp;
+    char *endptr = NULL;
 
     if (str == NULL) {
         return ret_error;
     }
 
 	errno = 0;
-	tmp = strtol (str, NULL, 10);
+	tmp = strtol (str, &endptr, 10);
 	if (errno != 0) {
 		return ret_error;
 	}
+
+    if (str == endptr) {
+        /* No digits were found */
+        return ret_error;
+    }
 
 	*ret_value = tmp;
 	return ret_ok;
@@ -758,14 +764,7 @@ chula_fd_close (int fd)
 		return ret_error;
 	}
 
-	do {
-#ifdef _WIN32
-		re = closesocket (fd);
-#else
-		re = close (fd);
-#endif
-	} while ((re == -1) && (errno == EINTR));
-
+    re = close (fd);
 	TRACE (ENTRIES",close_fd", "fd=%d re=%d\n", fd, re);
 	return (re == 0) ? ret_ok : ret_error;
 }
