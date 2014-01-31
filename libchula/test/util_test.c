@@ -317,13 +317,11 @@ START_TEST (_mkdir)
     chula_tmp_dir_copy (&path);
     chula_buffer_add_va (&path, "/mkdir_pid%d/mkdir/1/22/333/4444", getpid());
 
-    printf ("path1 %s\n", path.buf);
-
     /* Path does not exists */
     ck_assert (chula_stat (path.buf, &st) == -1);
 
     /* Create dir */
-    ret = chula_mkdir_p (&path, 0777);
+    ret = chula_mkdir_p_perm (&path, 0777, R_OK);
     ck_assert (ret == ret_ok);
 
     /* Path does exists */
