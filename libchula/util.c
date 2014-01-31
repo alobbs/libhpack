@@ -345,7 +345,8 @@ chula_closedir (DIR *dirstream)
 	return re;
 }
 
-int chula_stat (const char *path, struct stat *buf)
+int
+chula_stat (const char *path, struct stat *buf)
 {
 	int re;
 
@@ -563,14 +564,14 @@ chula_mkdir_p_perm (chula_buffer_t *dir_path,
 
 ret_t
 chula_rm_rf (chula_buffer_t *path,
-             uid_t              only_uid)
+             uid_t           only_uid)
 {
-	int               re;
-	DIR              *d;
-	struct dirent    *entry;
-	char              entry_buf[512];
-	struct stat       info;
-	chula_buffer_t tmp = CHULA_BUF_INIT;
+	int             re;
+	DIR            *d;
+	struct dirent  *entry;
+	char            entry_buf[512];
+	struct stat     info;
+	chula_buffer_t  tmp = CHULA_BUF_INIT;
 
 	/* Remove the directory contents
 	 */
@@ -592,20 +593,20 @@ chula_rm_rf (chula_buffer_t *path,
 		chula_buffer_add_char   (&tmp, '/');
 		chula_buffer_add        (&tmp, entry->d_name, strlen(entry->d_name));
 
-		if (only_uid != -1) {
-			re = chula_stat (tmp.buf, &info);
-			if (re != 0) continue;
+        re = chula_stat (tmp.buf, &info);
+        if (re != 0) continue;
 
+		if (only_uid != -1) {
 			if (info.st_uid != only_uid)
 				continue;
 		}
 
 		if (S_ISDIR (info.st_mode)) {
 			chula_rm_rf (&tmp, only_uid);
-			TRACE (ENTRIES, "Removing cache dir: %s\n", tmp.buf, re);
+			TRACE (ENTRIES, "Removing dir: %s\n", tmp.buf, re);
 		} else if (S_ISREG (info.st_mode)) {
 			re = unlink (tmp.buf);
-			TRACE (ENTRIES, "Removing cache file: %s, re=%d\n", tmp.buf, re);
+			TRACE (ENTRIES, "Removing file: %s, re=%d\n", tmp.buf, re);
 		}
 	}
 
@@ -614,7 +615,7 @@ chula_rm_rf (chula_buffer_t *path,
 	/* It should be empty by now
 	 */
 	re = rmdir (path->buf);
-	TRACE (ENTRIES, "Removing main vserver cache dir: %s, re=%d\n", path->buf, re);
+	TRACE (ENTRIES, "Removing top level directory: %s, re=%d\n", path->buf, re);
 
 	/* Clean up
 	 */
