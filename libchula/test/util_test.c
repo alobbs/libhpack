@@ -171,13 +171,173 @@ START_TEST (_dirs)
     /* Walk */
     dresult = NULL;
     re = chula_readdir (d, &dentry, &dresult);
-    printf ("re = %d\n", re);
     ck_assert (re == 0);
     ck_assert (dresult != NULL);
     ck_assert (strlen(dresult->d_name) > 0);
 
     /* Close */
     chula_closedir (d);
+}
+END_TEST
+
+START_TEST (_stat)
+{
+    int         re;
+    struct stat st;
+
+    re = chula_stat ("/it/does/not/exist", &st);
+    ck_assert (re == -1);
+
+    re = chula_stat ("/", &st);
+    ck_assert (re == 0);
+}
+END_TEST
+
+START_TEST (_lstat)
+{
+    int         re;
+    struct stat st;
+
+    re = chula_lstat ("/it/does/not/exist", &st);
+    ck_assert (re == -1);
+
+    re = chula_lstat ("/", &st);
+    ck_assert (re == 0);
+}
+END_TEST
+
+START_TEST (_fstat)
+{
+    int         re;
+    int         fd;
+    struct stat st;
+
+    re = chula_fstat (-1, &st);
+    ck_assert (re == -1);
+
+    re = chula_fstat (63333, &st);
+    ck_assert (re == -1);
+
+    fd = chula_open ("/", O_RDONLY, 0);
+    ck_assert (fd >= 0);
+
+    re = chula_fstat (fd, &st);
+    close(fd);
+    ck_assert (re == 0);
+}
+END_TEST
+
+START_TEST (_access)
+{
+    int re;
+
+    re = chula_access ("/it/does/not/exist", R_OK);
+    ck_assert (re == -1);
+
+    re = chula_access ("/", R_OK);
+    ck_assert (re == 0);
+}
+END_TEST
+
+START_TEST (_unlink)
+{
+    int            re;
+    int            fd;
+    struct stat    st;
+    chula_buffer_t path = CHULA_BUF_INIT;
+
+    chula_tmp_dir_copy (&path);
+    chula_buffer_add_str (&path, "/unlink.test.");
+    chula_buffer_add_long10 (&path, getpid());
+
+    /* It doesn't exist */
+    ck_assert (chula_stat (path.buf, &st) == -1);
+
+    /* Create file */
+    fd = chula_open (path.buf, O_WRONLY|O_CREAT|O_TRUNC|O_NOFOLLOW, S_IRUSR|S_IWUSR);
+    ck_assert (fd >= 0);
+    close (fd);
+
+    /* It exists */
+    ck_assert (chula_stat (path.buf, &st) == 0);
+
+    /* Unlink */
+    re = chula_unlink (path.buf);
+    ck_assert (re == 0);
+
+    /* It mustn't exist */
+    ck_assert (chula_stat (path.buf, &st) == -1);
+
+    chula_buffer_mrproper (&path);
+}
+END_TEST
+
+START_TEST (_pipe)
+{
+    int re;
+    int fds[2];
+
+    re = chula_pipe (fds);
+    ck_assert (re == 0);
+    ck_assert (fds[0] >= 0);
+    ck_assert (fds[1] >= 0);
+
+    close (fds[0]);
+    close (fds[1]);
+}
+END_TEST
+
+START_TEST (_mktemp)
+{
+    ret_t          ret;
+    int            fd       = -1;
+    chula_buffer_t filename = CHULA_BUF_INIT;
+
+    chula_buffer_add_str (&filename, "/tmp/temp.XXXXXX");
+    ret = chula_mkstemp (&filename, &fd);
+    ck_assert (ret == ret_ok);
+    ck_assert (fd >= 0);
+    close (fd);
+
+    chula_buffer_clean (&filename);
+    chula_buffer_add_str (&filename, "/tmp/temp.XXXXXX");
+    chula_mkdtemp (filename.buf);
+    ck_assert (ret == ret_ok);
+
+    chula_buffer_mrproper (&filename);
+}
+END_TEST
+
+START_TEST (_mkdir)
+{
+    ret_t          ret;
+    struct stat    st;
+    chula_buffer_t path = CHULA_BUF_INIT;
+
+    chula_tmp_dir_copy (&path);
+    chula_buffer_add_va (&path, "/mkdir_pid%d/mkdir/1/22/333/4444", getpid());
+
+    printf ("path1 %s\n", path.buf);
+
+    /* Path does not exists */
+    ck_assert (chula_stat (path.buf, &st) == -1);
+
+    /* Create dir */
+    ret = chula_mkdir_p (&path, 0777);
+    ck_assert (ret == ret_ok);
+
+    /* Path does exists */
+    ck_assert (chula_stat (path.buf, &st) == 0);
+
+    /* Clean up */
+    chula_buffer_mrproper (&path);
+
+    chula_buffer_clean (&path);
+    chula_tmp_dir_copy (&path);
+    chula_buffer_add_va (&path, "/mkdir_pid%d", getpid());
+
+    ret = chula_rm_rf (&path, -1);
+    ck_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -194,5 +354,13 @@ util_tests (void)
     check_add (s1, _atob);
     check_add (s1, is_ipv6);
     check_add (s1, _dirs);
+    check_add (s1, _stat);
+    check_add (s1, _lstat);
+    check_add (s1, _fstat);
+    check_add (s1, _access);
+    check_add (s1, _unlink);
+    check_add (s1, _pipe);
+    check_add (s1, _mktemp);
+    check_add (s1, _mkdir);
     run_test (s1);
 }
