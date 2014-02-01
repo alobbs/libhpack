@@ -404,8 +404,6 @@ START_TEST (_getgrnam)
     group_name = "root";
 #endif
 
-    printf ("group_name: %s\n", group_name);
-
     grp.gr_gid = -1;
     ret = chula_getgrnam (group_name, &grp, buffer, sizeof(buffer));
     ck_assert (ret == ret_ok);
@@ -432,6 +430,55 @@ START_TEST (_getgrgid)
     ret = chula_getgrgid (group_id, &grp, buffer, sizeof(buffer));
     ck_assert (ret == ret_ok);
     ck_assert (grp.gr_gid >= 0);
+}
+END_TEST
+
+START_TEST (_getgrnam_gid)
+{
+    ret_t         ret;
+    struct group  grp;
+    char          buffer[1024];
+    char         *group_name;
+
+#ifdef OSX
+    group_name = "staff";
+#else
+    group_name = "root";
+#endif
+
+    grp.gr_gid = -1;
+    ret = chula_getgrnam_gid (group_name, &grp, buffer, sizeof(buffer));
+    ck_assert (ret == ret_ok);
+    ck_assert (grp.gr_gid >= 0);
+    ck_assert_str_eq (grp.gr_name, group_name);
+}
+END_TEST
+
+START_TEST (_gmtime)
+{
+    time_t    t;
+    struct tm stm;
+
+    memset (&stm, 0, sizeof(struct tm));
+
+    t = time(NULL);
+    chula_gmtime (&t, &stm);
+    ck_assert (stm.tm_year + 1900 > 1900);
+    ck_assert (stm.tm_year + 1900 < 2100);
+}
+END_TEST
+
+START_TEST (_localtime)
+{
+    time_t    t;
+    struct tm stm;
+
+    memset (&stm, 0, sizeof(struct tm));
+
+    t = time(NULL);
+    chula_localtime (&t, &stm);
+    ck_assert (stm.tm_year + 1900 > 1900);
+    ck_assert (stm.tm_year + 1900 < 2100);
 }
 END_TEST
 
@@ -462,5 +509,8 @@ util_tests (void)
     check_add (s1, _getpwnam_uid);
     check_add (s1, _getgrnam);
     check_add (s1, _getgrgid);
+    check_add (s1, _getgrnam_gid);
+    check_add (s1, _gmtime);
+    check_add (s1, _localtime);
     run_test (s1);
 }
