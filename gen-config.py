@@ -12,9 +12,10 @@ ${{includes}}
 ${{functions}}
 /* Sizes */
 ${{sizes}}
-#endif /* CONFIG_H_ */
+/* Definitions */
+${{definitions}}
 
-#define PACKAGE_VERSION "@hpack_VERSION@"
+#endif /* CONFIG_H_ */
 """
 
 PATH_SRC = sys.argv[1]
@@ -38,6 +39,10 @@ for f in re.findall (r'CHECK_FUNCTION_EXISTS *\(.+? *(\w+)\)', cont, re.IGNORECA
 for f in re.findall (r'CHECK_C_SOURCE_COMPILES *\(.+?(HAVE_.+?)\)\n', cont, re.S):
 	functions_t += '#cmakedefine %s\n' %(f)
 
+definitions_t = ''
+for f in re.findall (r'DEF_INCLUDE *\((\w+)? +(.+?)\)', cont, re.IGNORECASE):
+	definitions_t += '#cmakedefine %s %s\n' %(f[0], f[1])
+
 sizes_t = ''
 for h in re.findall (r'CHECK_TYPE_SIZE *\(.+? *(\w+)\)', cont, re.IGNORECASE):
     sizes_t += '@%s_CODE@\n' %(h)
@@ -51,6 +56,7 @@ config_h = CONFIG_H
 config_h = config_h.replace ("${{includes}}", includes_t)
 config_h = config_h.replace ("${{functions}}", functions_t)
 config_h = config_h.replace ("${{sizes}}", sizes_t)
+config_h = config_h.replace ("${{definitions}}", definitions_t)
 
 # Write config.h
 with open(FILENAME_NEW, 'w+') as f:
