@@ -1764,7 +1764,7 @@ chula_buf_add_backtrace (chula_buffer_t *buf,
                          const char     *new_line,
                          const char     *line_pre)
 {
-#if HAVE_BACKTRACE
+#ifdef HAVE_BACKTRACE
 	void    *array[128];
 	size_t   size;
 	char   **strings;
