@@ -970,7 +970,7 @@ chula_getpwnam (const char *name, struct passwd *pwbuf, char *buf, size_t buflen
 
 	return ret_ok;
 
-#elif HAVE_GETPWNAM_R_4
+#elif defined(HAVE_GETPWNAM_R_4)
 	struct passwd * result;
 
 #ifdef _POSIX_PTHREAD_SEMANTICS
@@ -1024,7 +1024,7 @@ chula_getpwuid (uid_t uid, struct passwd *pwbuf, char *buf, size_t buflen)
 
 	return ret_ok;
 
-#elif HAVE_GETPWUID_R_4
+#elif defined(HAVE_GETPWUID_R_4)
 	struct passwd *result;
 
 	/* Solaris:
@@ -1155,7 +1155,7 @@ chula_getgrnam (const char *name, struct group *grbuf, char *buf, size_t buflen)
 
 	return ret_ok;
 
-#elif HAVE_GETGRNAM_R_5
+#elif defined(HAVE_GETGRNAM_R_5)
 	int           re;
 	struct group *tmp;
 
@@ -1168,7 +1168,7 @@ chula_getgrnam (const char *name, struct group *grbuf, char *buf, size_t buflen)
 
 	return ret_ok;
 
-#elif HAVE_GETGRNAM_R_4
+#elif defined(HAVE_GETGRNAM_R_4)
 	struct group  *result;
 
 #ifdef _POSIX_PTHREAD_SEMANTICS
@@ -1221,7 +1221,7 @@ chula_getgrgid (gid_t gid, struct group *grbuf, char *buf, size_t buflen)
 
 	return ret_ok;
 
-#elif HAVE_GETGRGID_R_4
+#elif defined(HAVE_GETGRGID_R_4)
 	struct group *result = NULL;
 
 	/* Solaris:
