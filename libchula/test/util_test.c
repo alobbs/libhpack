@@ -222,7 +222,7 @@ START_TEST (_fstat)
     ck_assert (fd >= 0);
 
     re = chula_fstat (fd, &st);
-    close(fd);
+    chula_fd_close(fd);
     ck_assert (re == 0);
 }
 END_TEST
@@ -256,7 +256,7 @@ START_TEST (_unlink)
     /* Create file */
     fd = chula_open (path.buf, O_WRONLY|O_CREAT|O_TRUNC|O_NOFOLLOW, S_IRUSR|S_IWUSR);
     ck_assert (fd >= 0);
-    close (fd);
+    chula_fd_close (fd);
 
     /* It exists */
     ck_assert (chula_stat (path.buf, &st) == 0);
@@ -282,8 +282,8 @@ START_TEST (_pipe)
     ck_assert (fds[0] >= 0);
     ck_assert (fds[1] >= 0);
 
-    close (fds[0]);
-    close (fds[1]);
+    chula_fd_close (fds[0]);
+    chula_fd_close (fds[1]);
 }
 END_TEST
 
@@ -297,7 +297,7 @@ START_TEST (_mktemp)
     ret = chula_mkstemp (&filename, &fd);
     ck_assert (ret == ret_ok);
     ck_assert (fd >= 0);
-    close (fd);
+    chula_fd_close (fd);
 
     chula_buffer_clean (&filename);
     chula_buffer_add_str (&filename, "/tmp/temp.XXXXXX");

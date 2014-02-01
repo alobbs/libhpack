@@ -741,7 +741,7 @@ chula_fd_set_reuseaddr (int fd)
 	return ret_ok;
 }
 
-ret_t
+ret_t inline
 chula_fd_close (int fd)
 {
 	int re;
@@ -956,9 +956,9 @@ chula_getpwnam (const char *name, struct passwd *pwbuf, char *buf, size_t buflen
 	 *
 	 * Linux:
 	 * int getpwnam_r (const char     *name,
-	 * 	           struct passwd  *pwbuf,
+     * 	               struct passwd  *pwbuf,
 	 *                 char           *buf,
-         *                 size_t          buflen,
+     *                 size_t          buflen,
 	 *                 struct passwd **pwbufp);
 	 */
 	do {
