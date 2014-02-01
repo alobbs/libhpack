@@ -506,6 +506,18 @@ START_TEST (_localtime)
 }
 END_TEST
 
+START_TEST (_timezone)
+{
+    const int  _12h1s = (12*60*60) + 1;
+    long      *tz     = NULL;
+
+    tz = chula_get_timezone_ref();
+    ck_assert (tz != NULL);
+    ck_assert (*tz > -_12h1s);
+    ck_assert (*tz <  _12h1s);
+}
+END_TEST
+
 
 int
 util_tests (void)
@@ -536,5 +548,6 @@ util_tests (void)
     check_add (s1, _getgrnam_gid);
     check_add (s1, _gmtime);
     check_add (s1, _localtime);
+    check_add (s1, _timezone);
     run_test (s1);
 }
