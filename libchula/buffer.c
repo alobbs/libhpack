@@ -342,10 +342,16 @@ chula_buffer_add_buffer_slice (chula_buffer_t *buf,
     if (unlikely (chula_buffer_is_empty (buf2)))
         return ret_ok;
 
-    if (unlikely ((end <= begin) &&
-                  (end   != CHULA_BUF_SLIDE_NONE) &&
-                  (begin != CHULA_BUF_SLIDE_NONE)))
-        return ret_ok;
+    if ((end   != CHULA_BUF_SLIDE_NONE) &&
+        (begin != CHULA_BUF_SLIDE_NONE))
+    {
+        pos_begin = (begin > 0) ? begin : buf2->len - abs(begin);
+        pos_end   = (end   > 0) ? end   : buf2->len - abs(end);
+
+        if (pos_end <= pos_begin) {
+            return ret_ok;
+        }
+    }
 
     /* Check the end
      */

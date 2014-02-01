@@ -186,6 +186,20 @@ START_TEST (slice)
     ck_assert (ret == ret_ok);
     ck_assert (b.len == 0);
 
+    /* [1:-1] */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_buffer_slice (&b, &a, 1, -1);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 8);
+    ck_assert_str_eq (b.buf, "12345678");
+
+    /* [-4:-2] */
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_buffer_slice (&b, &a, -4, -2);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 2);
+    ck_assert_str_eq (b.buf, "67");
+
     chula_buffer_mrproper(&a);
     chula_buffer_mrproper(&b);
 }
