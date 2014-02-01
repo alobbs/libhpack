@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "libchula/testing_macros.h"
 #include "libchula/util.h"
 
@@ -339,6 +340,101 @@ START_TEST (_mkdir)
 }
 END_TEST
 
+START_TEST (_fdlimit)
+{
+    ret_t        ret;
+    unsigned int limit = 0;
+
+    ret = chula_sys_fdlimit_get (&limit);
+    ck_assert (ret == ret_ok);
+    ck_assert (limit > 0);
+
+    /* Odds are it won't get away with it, so realisticly there is
+     * nothing to be tested after this call */
+    chula_sys_fdlimit_set (limit + 1);
+}
+END_TEST
+
+START_TEST (_getpwnam)
+{
+    ret_t         ret;
+    struct passwd pwd;
+    char          buffer[1024];
+
+    ret = chula_getpwnam ("root", &pwd, buffer, sizeof(buffer));
+    ck_assert (ret == ret_ok);
+    ck_assert (pwd.pw_dir != NULL);
+}
+END_TEST
+
+START_TEST (_getpwuid)
+{
+    ret_t         ret;
+    struct passwd pwd;
+    char          buffer[1024];
+
+    ret = chula_getpwuid (0, &pwd, buffer, sizeof(buffer));
+    ck_assert (ret == ret_ok);
+    ck_assert (pwd.pw_dir != NULL);
+}
+END_TEST
+
+START_TEST (_getpwnam_uid)
+{
+    ret_t         ret;
+    struct passwd pwd;
+    char          buffer[1024];
+
+    ret = chula_getpwnam_uid ("root", &pwd, buffer, sizeof(buffer));
+    ck_assert (ret == ret_ok);
+    ck_assert (pwd.pw_dir != NULL);
+}
+END_TEST
+
+START_TEST (_getgrnam)
+{
+    ret_t         ret;
+    struct group  grp;
+    char          buffer[1024];
+    char         *group_name;
+
+#ifdef OSX
+    group_name = "staff";
+#else
+    group_name = "root";
+#endif
+
+    printf ("group_name: %s\n", group_name);
+
+    grp.gr_gid = -1;
+    ret = chula_getgrnam (group_name, &grp, buffer, sizeof(buffer));
+    ck_assert (ret == ret_ok);
+    ck_assert (grp.gr_gid >= 0);
+    ck_assert_str_eq (grp.gr_name, group_name);
+}
+END_TEST
+
+START_TEST (_getgrgid)
+{
+    ret_t        ret;
+    struct group grp;
+    char         buffer[1024];
+    int          group_id;
+
+#ifdef OSX
+    /* staff */
+    group_id = 20;
+#else
+    group_id = 0;
+#endif
+
+    grp.gr_gid = -1;
+    ret = chula_getgrgid (group_id, &grp, buffer, sizeof(buffer));
+    ck_assert (ret == ret_ok);
+    ck_assert (grp.gr_gid >= 0);
+}
+END_TEST
+
 
 int
 util_tests (void)
@@ -360,5 +456,11 @@ util_tests (void)
     check_add (s1, _pipe);
     check_add (s1, _mktemp);
     check_add (s1, _mkdir);
+    check_add (s1, _fdlimit);
+    check_add (s1, _getpwnam);
+    check_add (s1, _getpwuid);
+    check_add (s1, _getpwnam_uid);
+    check_add (s1, _getgrnam);
+    check_add (s1, _getgrgid);
     run_test (s1);
 }
