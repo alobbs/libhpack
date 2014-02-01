@@ -440,17 +440,33 @@ START_TEST (_getgrnam_gid)
     char          buffer[1024];
     char         *group_name;
 
+    /* Feed it a name */
 #ifdef OSX
     group_name = "staff";
 #else
     group_name = "root";
 #endif
 
-    grp.gr_gid = -1;
+    grp.gr_gid  = -1;
+    grp.gr_name = NULL;
     ret = chula_getgrnam_gid (group_name, &grp, buffer, sizeof(buffer));
     ck_assert (ret == ret_ok);
     ck_assert (grp.gr_gid >= 0);
     ck_assert_str_eq (grp.gr_name, group_name);
+
+    /* Feed it an ID as string */
+#ifdef OSX
+    group_name = "20";
+#else
+    group_name = "0";
+#endif
+
+    grp.gr_gid  = -1;
+    grp.gr_name = NULL;
+    ret = chula_getgrnam_gid (group_name, &grp, buffer, sizeof(buffer));
+    ck_assert (ret == ret_ok);
+    ck_assert (grp.gr_gid >= 0);
+    ck_assert (grp.gr_name != NULL);
 }
 END_TEST
 
