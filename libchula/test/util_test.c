@@ -518,6 +518,84 @@ START_TEST (_timezone)
 }
 END_TEST
 
+START_TEST (path_short)
+{
+    ret_t          ret;
+    chula_buffer_t path = CHULA_BUF_INIT;
+
+    ret = chula_path_short (&path);
+    ck_assert (ret == ret_ok);
+    ck_assert (path.len == 0);
+
+    chula_buffer_clean (&path);
+    chula_buffer_add_str (&path, "/../");
+    ret = chula_path_short (&path);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (path.buf, "/");
+
+    chula_buffer_clean (&path);
+    chula_buffer_add_str (&path, "/dir/second/../file");
+    ret = chula_path_short (&path);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (path.buf, "/dir/file");
+
+    chula_buffer_clean (&path);
+    chula_buffer_add_str (&path, "/in/../1/2/../../a/b/c/../../d");
+    ret = chula_path_short (&path);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (path.buf, "/a/d");
+
+    chula_buffer_mrproper (&path);
+}
+END_TEST
+
+START_TEST (find_exec)
+{
+    ret_t          ret;
+    chula_buffer_t path = CHULA_BUF_INIT;
+
+    ret = chula_path_find_exec ("find", &path);
+    ck_assert (ret == ret_ok);
+    ck_assert (strstr(path.buf, "find") != NULL);
+
+    chula_buffer_clean (&path);
+    ret = chula_path_find_exec ("it_does_not_exist", &path);
+    ck_assert (ret == ret_not_found);
+
+    chula_buffer_mrproper (&path);
+}
+END_TEST
+
+START_TEST (_gethostbyname)
+{
+    ret_t            ret;
+    chula_buffer_t   host = CHULA_BUF_INIT;
+    struct addrinfo *addr = NULL;
+
+    ret = chula_gethostbyname (&host, &addr);
+    ck_assert (ret == ret_error);
+
+    chula_buffer_add_str (&host, "example.com");
+    ret = chula_gethostbyname (&host, &addr);
+    ck_assert (ret == ret_ok);
+    ck_assert (addr->ai_family == 2);
+
+    chula_buffer_mrproper (&host);
+}
+END_TEST
+
+START_TEST (_gethostname)
+{
+    ret_t          ret;
+    chula_buffer_t name = CHULA_BUF_INIT;
+
+    ret = chula_gethostname (&name);
+    ck_assert (ret == ret_ok);
+    ck_assert (! chula_buffer_is_empty (&name));
+}
+END_TEST
+
+
 
 int
 util_tests (void)
@@ -549,5 +627,9 @@ util_tests (void)
     check_add (s1, _gmtime);
     check_add (s1, _localtime);
     check_add (s1, _timezone);
+    check_add (s1, path_short);
+    check_add (s1, find_exec);
+    check_add (s1, _gethostbyname);
+    check_add (s1, _gethostname);
     run_test (s1);
 }
