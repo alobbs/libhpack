@@ -440,11 +440,7 @@ chula_mkstemp (chula_buffer_t *buffer, int *fd)
 {
 	int re;
 
-#ifdef _WIN32
-	re = chula_win32_mkstemp (buffer);
-#else
 	re = mkstemp (buffer->buf);
-#endif
 	if (re < 0) return ret_error;
 
 	*fd = re;
@@ -539,8 +535,8 @@ chula_mkdir_p (chula_buffer_t *path, int mode)
 
 ret_t
 chula_mkdir_p_perm (chula_buffer_t *dir_path,
-                    int                create_mode,
-                    int                ensure_perm)
+                    int             create_mode,
+                    int             ensure_perm)
 {
 	int         re;
 	ret_t       ret;
@@ -649,11 +645,7 @@ chula_fd_set_nodelay (int fd, bool enable)
      * poor utilization of the network.
 	 */
 
-#ifdef _WIN32
-	flags = enable;
-	re = ioctlsocket (fd, FIONBIO, (u_long) &flags);
-
-#elif defined(FIONBIO)
+#ifdef FIONBIO
 	/* Even though the right thing to do would be to use POSIX's
 	 * O_NONBLOCK, we are using FIONBIO here. It requires a single
 	 * syscall, while using O_NONBLOCK would require us to call
@@ -692,9 +684,6 @@ chula_fd_set_nonblocking (int fd, bool enable)
 	int re;
 	int flags = 0;
 
-#ifdef _WIN32
-	re = ioctlsocket (fd, FIONBIO, (u_long *) &enable);
-#else
 	flags = fcntl (fd, F_GETFL, 0);
 	if (flags < 0) {
 //		LOG_ERRNO (errno, chula_err_warning, CHULA_ERROR_UTIL_F_GETFL, fd);
@@ -707,7 +696,6 @@ chula_fd_set_nonblocking (int fd, bool enable)
 		BIT_UNSET (flags, O_NONBLOCK);
 
 	re = fcntl (fd, F_SETFL, flags);
-#endif
 	if (re < 0) {
 //		LOG_ERRNO (errno, chula_err_warning, CHULA_ERROR_UTIL_F_SETFL, fd, flags, "O_NONBLOCK");
 		return ret_error;
@@ -722,7 +710,6 @@ chula_fd_set_closexec (int fd)
 	int re;
 	int flags = 0;
 
-#ifndef _WIN32
 	flags = fcntl (fd, F_GETFD, 0);
 	if (flags < 0) {
 //		LOG_ERRNO (errno, chula_err_warning, CHULA_ERROR_UTIL_F_GETFD, fd);
@@ -736,7 +723,6 @@ chula_fd_set_closexec (int fd)
 //		LOG_ERRNO (errno, chula_err_warning, CHULA_ERROR_UTIL_F_SETFD, fd, flags, "FD_CLOEXEC");
 		return ret_error;
 	}
-#endif
 
 	return ret_ok;
 }
@@ -957,7 +943,7 @@ chula_getpwnam (const char *name, struct passwd *pwbuf, char *buf, size_t buflen
 	CHULA_MUTEX_UNLOCK (&__global_getpwnam_mutex);
 	return ret_ok;
 
-#elif HAVE_GETPWNAM_R_5
+#elif defined(HAVE_GETPWNAM_R_5)
 	int            re;
 	struct passwd *tmp = NULL;
 

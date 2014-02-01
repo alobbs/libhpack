@@ -81,7 +81,6 @@ HTTP2D_CHECK_INCLUDE (sys/isa_defs.h HAVE_SYS_ISA_DEFS_H)
 HTTP2D_CHECK_INCLUDE (sys/machine.h HAVE_SYS_MACHINE_H)
 HTTP2D_CHECK_INCLUDE (sys/resource.h HAVE_SYS_RESOURCE_H)
 HTTP2D_CHECK_INCLUDE (sys/socket.h HAVE_SYS_SOCKET_H)
-HTTP2D_CHECK_INCLUDE (sys/socket.h HAVE_SYS_SOCKET_H)
 HTTP2D_CHECK_INCLUDE (sys/time.h HAVE_SYS_TIME_H)
 HTTP2D_CHECK_INCLUDE (sys/types.h HAVE_SYS_TYPES_H)
 HTTP2D_CHECK_INCLUDE (sys/uio.h HAVE_SYS_UIO_H)
@@ -114,6 +113,9 @@ CHECK_FUNCTION_EXISTS (strlcat HAVE_STRLCAT)
 CHECK_FUNCTION_EXISTS (rpl_malloc HAVE_MALLOC)
 CHECK_FUNCTION_EXISTS (readdir HAVE_READDIR)
 CHECK_FUNCTION_EXISTS (readdir_r HAVE_READDIR_R)
+CHECK_FUNCTION_EXISTS (getrlimit HAVE_GETRLIMIT)
+CHECK_FUNCTION_EXISTS (getdtablesize HAVE_GETDTABLESIZE)
+CHECK_FUNCTION_EXISTS (getpwnam_r HAVE_GETPWNAM_R)
 SET(CMAKE_EXTRA_INCLUDE_FILES)
 
 # Code tests
@@ -137,6 +139,71 @@ int main() {
     rc = readdir_r(mydir, &dir, &dirp);
 }
 " HAVE_READDIR_R_3)
+
+CHECK_C_SOURCE_COMPILES("
+#include <pwd.h>
+#include <stdlib.h>
+int main() {
+    getpwnam_r(NULL,NULL,NULL,0,NULL);
+}
+" HAVE_GETPWNAM_R_5)
+
+CHECK_C_SOURCE_COMPILES("
+#include <pwd.h>
+#include <stdlib.h>
+int main() {
+    getpwnam_r(NULL,NULL,NULL,0);
+}
+" HAVE_GETPWNAM_R_4)
+
+CHECK_C_SOURCE_COMPILES("
+#include <pwd.h>
+#include <stdlib.h>
+int main() {
+    getpwuid_r(0,NULL,NULL,0,NULL);
+}
+" HAVE_GETPWUID_R_5)
+
+CHECK_C_SOURCE_COMPILES("
+#include <pwd.h>
+#include <stdlib.h>
+int main() {
+    getpwuid_r(0,NULL,NULL,0);
+}
+" HAVE_GETPWUID_R_4)
+
+CHECK_C_SOURCE_COMPILES("
+#include <grp.h>
+#include <stdlib.h>
+int main() {
+    getgrnam_r(NULL,NULL,NULL,0,NULL);
+}
+" HAVE_GETGRNAM_R_5)
+
+CHECK_C_SOURCE_COMPILES("
+#include <grp.h>
+#include <stdlib.h>
+int main() {
+    getgrnam_r(NULL,NULL,NULL,0);
+}
+" HAVE_GETGRNAM_R_4)
+
+CHECK_C_SOURCE_COMPILES("
+#include <grp.h>
+#include <stdlib.h>
+int main() {
+    getgrgid_r(0,NULL,NULL,0,NULL);
+}
+" HAVE_GETGRGID_R_5)
+
+CHECK_C_SOURCE_COMPILES("
+#include <grp.h>
+#include <stdlib.h>
+int main() {
+    getgrgid_r(0,NULL,NULL,0);
+}
+" HAVE_GETGRGID_R_4)
+
 
 # Libraries
 find_library(LIBM NAMES m)
