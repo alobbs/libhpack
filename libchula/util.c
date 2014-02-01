@@ -1278,11 +1278,9 @@ chula_getgrnam_gid (const char *name, struct group *grbuf, char *buf, size_t buf
 		return ret_ok;
 	}
 
-	errno   = 0;
-	tmp_gid = strtol (name, NULL, 10);
-	if (errno != 0) {
-		return ret_error;
-	}
+    ret = chula_atoi (name, &tmp_gid);
+    if (ret != ret_ok)
+        return ret;
 
 	ret = chula_getgrgid ((gid_t)tmp_gid, grbuf, buf, buflen);
 	if ((ret != ret_ok) || (grbuf->gr_name == NULL)) {
