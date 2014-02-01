@@ -123,6 +123,8 @@ CHECK_FUNCTION_EXISTS (getpwnam_r HAVE_GETPWNAM_R)
 CHECK_FUNCTION_EXISTS (getpwuid_r HAVE_GETPWUID_R)
 CHECK_FUNCTION_EXISTS (getgrnam_r HAVE_GETGRNAM_R)
 CHECK_FUNCTION_EXISTS (getgrgid_r HAVE_GETGRGID_R)
+CHECK_FUNCTION_EXISTS (gmtime_r HAVE_GMTIME_R)
+CHECK_FUNCTION_EXISTS (localtime_r HAVE_LOCALTIME_R)
 SET(CMAKE_EXTRA_INCLUDE_FILES)
 
 # Platform
@@ -227,6 +229,21 @@ int main() {
 }
 " HAVE_GETGRGID_R_4)
 
+CHECK_C_SOURCE_COMPILES("
+#include <time.h>
+int main() {
+    struct tm stm;
+    stm.tm_gmtoff = 0;
+}
+" HAVE_STRUCT_TM_GMTOFF)
+
+CHECK_C_SOURCE_COMPILES("
+#include <time.h>
+int main() {
+    int res;
+    res = timezone / 60;
+}
+" HAVE_INT_TIMEZONE)
 
 # Libraries
 find_library(LIBM NAMES m)
