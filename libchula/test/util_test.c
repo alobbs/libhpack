@@ -385,7 +385,15 @@ START_TEST (_getpwnam_uid)
     struct passwd pwd;
     char          buffer[1024];
 
+    /* Feed it a name */
+    memset (&pwd, 0, sizeof(pwd));
     ret = chula_getpwnam_uid ("root", &pwd, buffer, sizeof(buffer));
+    ck_assert (ret == ret_ok);
+    ck_assert (pwd.pw_dir != NULL);
+
+    /* Feed it an ID */
+    memset (&pwd, 0, sizeof(pwd));
+    ret = chula_getpwnam_uid ("0", &pwd, buffer, sizeof(buffer));
     ck_assert (ret == ret_ok);
     ck_assert (pwd.pw_dir != NULL);
 }
