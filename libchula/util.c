@@ -1442,28 +1442,6 @@ chula_path_short (chula_buffer_t *path)
 	return ret_ok;
 }
 
-
-ret_t
-chula_path_arg_eval (chula_buffer_t *path)
-{
-	ret_t  ret;
-	char  *d;
-	char   tmp[512];
-
-	if (path->buf[0] != '/') {
-		d = getcwd (tmp, sizeof(tmp));
-
-		chula_buffer_prepend (path, (char *)"/", 1);
-		chula_buffer_prepend (path, d, strlen(d));
-	}
-
-	ret = chula_path_short (path);
-	if (ret != ret_ok)
-		return ret_error;
-
-	return ret_ok;
-}
-
 ret_t
 chula_path_find_exec (const char     *bin_name,
                       chula_buffer_t *fullpath)
@@ -1518,6 +1496,10 @@ chula_gethostbyname (chula_buffer_t *hostname, struct addrinfo **addr)
 {
 	int              n;
 	struct addrinfo  hints;
+
+    /* Sanity check */
+    if (unlikely (chula_buffer_is_empty(hostname)))
+        return ret_error;
 
 	/* What we are trying to get
 	 */

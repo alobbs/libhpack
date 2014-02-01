@@ -145,7 +145,6 @@ long      *chula_get_timezone_ref (void);
 /* Path management
  */
 ret_t chula_path_short     (chula_buffer_t *path);
-ret_t chula_path_arg_eval  (chula_buffer_t *path);
 ret_t chula_path_find_exec (const char *bin_name, chula_buffer_t *fullpath);
 
 /* Network related utilities
