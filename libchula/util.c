@@ -1668,7 +1668,7 @@ chula_random_seed (void)
 out:
 	/* Set the seed
 	 */
-# if HAVE_SRANDOM
+# ifdef HAVE_SRANDOM
 	srandom (seed);
 # else
 	srand (seed);
