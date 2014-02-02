@@ -644,8 +644,8 @@ START_TEST (formated_time)
     ck_assert (chula_eval_formated_time(&s) == 15);
     chula_buffer_fake_str (&s, "15s");
     ck_assert (chula_eval_formated_time(&s) == 15);
-    chula_buffer_fake_str (&s, "15m");
-    ck_assert (chula_eval_formated_time(&s) == 15*60);
+    chula_buffer_fake_str (&s, "15h");
+    ck_assert (chula_eval_formated_time(&s) == 15*60*60);
     chula_buffer_fake_str (&s, "15w");
     ck_assert (chula_eval_formated_time(&s) == 15*60*60*24*7);
 
@@ -672,6 +672,40 @@ START_TEST (_backtrace)
     ck_assert (strstr(s.buf, "_backtrace") != NULL);
 
     chula_buffer_mrproper (&s);
+}
+END_TEST
+
+START_TEST (get_shell)
+{
+    ret_t  ret;
+    char  *shell = NULL;
+    char  *bin   = NULL;
+
+    ret = chula_get_shell (&shell, &bin);
+    ck_assert (ret == ret_ok);
+    ck_assert (shell != NULL);
+    ck_assert (bin != NULL);
+}
+END_TEST
+
+START_TEST (_wait_pid)
+{
+    ret_t  ret;
+    int    retcode;
+    pid_t  pid;
+
+    pid = fork();
+    ck_assert (pid >= 0);
+
+    if (pid == 0) {
+        chula_reset_signals();
+        sleep(2);
+        exit(123);
+    }
+
+    ret = chula_wait_pid (pid, &retcode);
+    ck_assert ((ret == ret_ok) || (ret == ret_not_found));
+    ck_assert (retcode == 123);
 }
 END_TEST
 
@@ -714,5 +748,7 @@ util_tests (void)
     check_add (s1, _random);
     check_add (s1, formated_time);
     check_add (s1, _backtrace);
+    check_add (s1, get_shell);
+    check_add (s1, _wait_pid);
     run_test (s1);
 }
