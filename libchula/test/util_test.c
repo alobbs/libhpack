@@ -595,6 +595,85 @@ START_TEST (_gethostname)
 }
 END_TEST
 
+START_TEST (_ntop)
+{
+    ret_t            ret;
+    const char      *ip  = "1.2.3.4";
+    struct sockaddr  s;
+    char             str[INET_ADDRSTRLEN];
+
+    /* Set address */
+    inet_pton (AF_INET, ip, &((struct sockaddr_in *)(&s))->sin_addr);
+
+    /* Read it */
+    ret = chula_ntop (AF_INET, &s, str, INET_ADDRSTRLEN);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (str, ip);
+}
+END_TEST
+
+START_TEST (_random)
+{
+    bool equal;
+
+    chula_random_seed();
+
+    equal = true;
+    for (int n=0; n<5; n++) {
+        equal &= (chula_random() == chula_random());
+    }
+
+    ck_assert (! equal);
+}
+END_TEST
+
+START_TEST (formated_time)
+{
+    chula_buffer_t s = CHULA_BUF_INIT;
+
+    ck_assert (chula_eval_formated_time(&s) == 0);
+
+    chula_buffer_fake_str (&s, "0");
+    ck_assert (chula_eval_formated_time(&s) == 0);
+    chula_buffer_fake_str (&s, "0s");
+    ck_assert (chula_eval_formated_time(&s) == 0);
+    chula_buffer_fake_str (&s, "0d");
+    ck_assert (chula_eval_formated_time(&s) == 0);
+
+    chula_buffer_fake_str (&s, "15");
+    ck_assert (chula_eval_formated_time(&s) == 15);
+    chula_buffer_fake_str (&s, "15s");
+    ck_assert (chula_eval_formated_time(&s) == 15);
+    chula_buffer_fake_str (&s, "15m");
+    ck_assert (chula_eval_formated_time(&s) == 15*60);
+    chula_buffer_fake_str (&s, "15w");
+    ck_assert (chula_eval_formated_time(&s) == 15*60*60*24*7);
+
+    chula_buffer_fake_str (&s, "111");
+    ck_assert (chula_eval_formated_time(&s) == 111);
+    chula_buffer_fake_str (&s, "111s");
+    ck_assert (chula_eval_formated_time(&s) == 111);
+    chula_buffer_fake_str (&s, "111m");
+    ck_assert (chula_eval_formated_time(&s) == 111*60);
+    chula_buffer_fake_str (&s, "111d");
+    ck_assert (chula_eval_formated_time(&s) == 111*60*60*24);
+}
+END_TEST
+
+START_TEST (_backtrace)
+{
+    ret_t          ret;
+    chula_buffer_t s    = CHULA_BUF_INIT;
+
+    ret = chula_buf_add_backtrace (&s, 0, "\n", "");
+    ck_assert (ret == ret_ok);
+    ck_assert (s.len > 0);
+    ck_assert (strstr(s.buf, "main") != NULL);
+    ck_assert (strstr(s.buf, "_backtrace") != NULL);
+
+    chula_buffer_mrproper (&s);
+}
+END_TEST
 
 
 int
@@ -631,5 +710,9 @@ util_tests (void)
     check_add (s1, find_exec);
     check_add (s1, _gethostbyname);
     check_add (s1, _gethostname);
+    check_add (s1, _ntop);
+    check_add (s1, _random);
+    check_add (s1, formated_time);
+    check_add (s1, _backtrace);
     run_test (s1);
 }
