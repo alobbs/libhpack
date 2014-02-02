@@ -723,6 +723,62 @@ START_TEST (_wait_pid)
 }
 END_TEST
 
+START_TEST (set_nodelay)
+{
+    ret_t ret;
+    int   fd;
+
+    fd = socket (AF_INET, SOCK_STREAM, 0);
+    ck_assert (fd >= 0);
+
+    ret = chula_fd_set_nodelay (fd, true);
+    ck_assert (ret == ret_ok);
+    ck_assert (fcntl(fd, F_GETFL, 0) & O_NDELAY);
+
+    ret = chula_fd_set_nodelay (fd, false);
+    ck_assert (ret == ret_ok);
+    ck_assert (fcntl(fd, F_GETFL, 0) & ~O_NDELAY);
+
+    chula_fd_close(fd);
+}
+END_TEST
+
+START_TEST (set_nonblocking)
+{
+    ret_t ret;
+    int   fd;
+
+    fd = socket (AF_INET, SOCK_STREAM, 0);
+    ck_assert (fd >= 0);
+
+    ret = chula_fd_set_nonblocking (fd, true);
+    ck_assert (ret == ret_ok);
+    ck_assert (fcntl(fd, F_GETFL, 0) & O_NONBLOCK);
+
+    ret = chula_fd_set_nonblocking (fd, false);
+    ck_assert (ret == ret_ok);
+    ck_assert (fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
+
+    chula_fd_close(fd);
+}
+END_TEST
+
+START_TEST (set_closexec)
+{
+    ret_t ret;
+    int   fd;
+
+    fd = socket (AF_INET, SOCK_STREAM, 0);
+    ck_assert (fd >= 0);
+
+    ret = chula_fd_set_closexec (fd);
+    ck_assert (ret == ret_ok);
+    ck_assert (fcntl(fd, F_GETFD, 0) & FD_CLOEXEC);
+
+    chula_fd_close(fd);
+}
+END_TEST
+
 
 int
 util_tests (void)
@@ -764,5 +820,8 @@ util_tests (void)
     check_add (s1, _backtrace);
     check_add (s1, get_shell);
     check_add (s1, _wait_pid);
+    check_add (s1, set_nodelay);
+    check_add (s1, set_nonblocking);
+    check_add (s1, set_closexec);
     run_test (s1);
 }
