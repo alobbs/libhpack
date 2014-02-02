@@ -42,24 +42,31 @@
 START_TEST (_strerror_r)
 {
     char *s;
-    int   re;
     char  tmp[256];
+
+    /* -1 */
+    memset (tmp, 0, sizeof(tmp));
+    s = chula_strerror_r (-1, tmp, sizeof(tmp));
+    ck_assert (s != NULL);
+    ck_assert (strstr(s, "Unknown error") != NULL);
+
+    /* 0 */
+    memset (tmp, 0, sizeof(tmp));
+    s = chula_strerror_r (0, tmp, sizeof(tmp));
+    ck_assert (s != NULL);
+    ck_assert (strstr(s, "Undefined") != NULL);
 
     /* 13: Permission denied */
     memset (tmp, 0, sizeof(tmp));
     s = chula_strerror_r (13, tmp, sizeof(tmp));
     ck_assert (s != NULL);
-
-    re = memcmp (s, "Permission denied", strlen(s));
-    ck_assert (re == 0);
+    ck_assert (strstr(s, "Permission denied") != NULL);
 
     /* 98765 */
     memset (tmp, 0, sizeof(tmp));
     s = chula_strerror_r (98765, tmp, sizeof(tmp));
     ck_assert (s != NULL);
-
-    re = memcmp (s, "Unknown error", 13);
-    ck_assert (re == 0);
+    ck_assert (strstr(s, "Unknown error") != NULL);
 }
 END_TEST
 
@@ -312,6 +319,7 @@ END_TEST
 START_TEST (_mkdir)
 {
     ret_t          ret;
+    int            fd;
     struct stat    st;
     chula_buffer_t path = CHULA_BUF_INIT;
 
@@ -328,15 +336,21 @@ START_TEST (_mkdir)
     /* Path does exists */
     ck_assert (chula_stat (path.buf, &st) == 0);
 
-    /* Clean up */
-    chula_buffer_mrproper (&path);
-
+    /* Create a file (for rm_rf) */
     chula_buffer_clean (&path);
     chula_tmp_dir_copy (&path);
-    chula_buffer_add_va (&path, "/mkdir_pid%d", getpid());
+    chula_buffer_add_va (&path, "/mkdir_pid%d/file", getpid());
 
+    fd = open (path.buf, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+    chula_fd_close (fd);
+
+    /* rm -rf */
+    chula_buffer_drop_ending (&path, 5);
     ret = chula_rm_rf (&path, -1);
     ck_assert (ret == ret_ok);
+
+    /* Clean up */
+    chula_buffer_mrproper (&path);
 }
 END_TEST
 
@@ -677,9 +691,9 @@ END_TEST
 
 START_TEST (get_shell)
 {
-    ret_t  ret;
-    char  *shell = NULL;
-    char  *bin   = NULL;
+    ret_t       ret;
+    const char *shell = NULL;
+    const char *bin   = NULL;
 
     ret = chula_get_shell (&shell, &bin);
     ck_assert (ret == ret_ok);
