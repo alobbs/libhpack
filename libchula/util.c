@@ -1700,7 +1700,7 @@ chula_eval_formated_time (chula_buffer_t *buf)
 	int  mul = 1;
 
 	if (unlikely (chula_buffer_is_empty (buf)))
-		return ret_ok;
+		return 0;
 
 	end = chula_buffer_end_char (buf);
 	switch (end) {
