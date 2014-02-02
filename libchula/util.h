@@ -164,7 +164,7 @@ long  chula_eval_formated_time (chula_buffer_t *buf);
 ret_t chula_buf_add_backtrace  (chula_buffer_t *buf, int n_skip, const char *new_line, const char *line_pre);
 
 ret_t chula_syslog          (int priority, chula_buffer_t *buf);
-ret_t chula_wait_pid        (int pid, int *retcode);
+ret_t chula_wait_pid        (pid_t pid, int *retcode);
 ret_t chula_reset_signals   (void);
 ret_t chula_get_shell       (const char **shell, const char **binary);
 ret_t chula_tmp_dir_copy    (chula_buffer_t *buffer);

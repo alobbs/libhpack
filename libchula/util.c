@@ -1795,7 +1795,7 @@ chula_buf_add_backtrace (chula_buffer_t *buf,
 
 
 ret_t
-chula_wait_pid (int pid, int *retcode)
+chula_wait_pid (pid_t pid, int *retcode)
 {
 	int re;
 	int exitcode;
