@@ -823,6 +823,7 @@ chula_sys_fdlimit_set (cuint_t limit)
 /* Users & Groups
  */
 
+#if !defined(HAVE_GETPWNAM_R) || !defined(HAVE_GETPWUID_R)
 static ret_t
 clone_struct_passwd (struct passwd *source, struct passwd *target, char *buf, size_t buflen)
 {
@@ -883,8 +884,9 @@ clone_struct_passwd (struct passwd *source, struct passwd *target, char *buf, si
 
 	return ret_ok;
 }
+#endif
 
-
+#ifndef HAVE_GETGRGID_R
 static ret_t
 clone_struct_group (struct group *source, struct group *target, char *buf, size_t buflen)
 {
@@ -922,7 +924,7 @@ clone_struct_group (struct group *source, struct group *target, char *buf, size_
 
 	return ret_ok;
 }
-
+#endif
 
 #if !defined(HAVE_GETPWNAM_R)
 static pthread_mutex_t __global_getpwnam_mutex = PTHREAD_MUTEX_INITIALIZER;
