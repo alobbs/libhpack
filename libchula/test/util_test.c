@@ -44,6 +44,13 @@ START_TEST (_strerror_r)
     char *s;
     char  tmp[256];
 
+    /* Buffer handling */
+    s = chula_strerror_r (13, NULL, sizeof(tmp));
+    ck_assert (s == NULL);
+
+    s = chula_strerror_r (13, tmp, 0);
+    ck_assert (s == NULL);
+
     /* -1 */
     memset (tmp, 0, sizeof(tmp));
     s = chula_strerror_r (-1, tmp, sizeof(tmp));
@@ -313,6 +320,19 @@ START_TEST (_mktemp)
     ck_assert (ret == ret_ok);
 
     chula_buffer_mrproper (&filename);
+}
+END_TEST
+
+START_TEST (_mkdir2)
+{
+    ret_t          ret;
+    chula_buffer_t path = CHULA_BUF_INIT;
+
+    ret = chula_mkdir_p_perm (NULL, 0777, R_OK);
+    ck_assert (ret == ret_error);
+
+    ret = chula_mkdir_p_perm (&path, 0777, R_OK);
+    ck_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -800,6 +820,7 @@ util_tests (void)
     check_add (s1, _pipe);
     check_add (s1, _mktemp);
     check_add (s1, _mkdir);
+    check_add (s1, _mkdir2);
     check_add (s1, _fdlimit);
     check_add (s1, _getpwnam);
     check_add (s1, _getpwuid);
