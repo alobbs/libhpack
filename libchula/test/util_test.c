@@ -621,7 +621,9 @@ START_TEST (_gethostbyname)
     chula_buffer_add_str (&host, "example.com");
     ret = chula_gethostbyname (&host, &addr);
     ck_assert (ret == ret_ok);
-    ck_assert (addr->ai_family == 2);
+    ck_assert (addr != NULL);
+    ck_assert ((addr->ai_family == AF_INET) ||
+               (addr->ai_family == AF_INET6));
 
     chula_buffer_mrproper (&host);
 }
@@ -835,9 +837,9 @@ START_TEST (set_reuseaddr)
 {
     ret_t     ret;
     int       re;
-    int       val;
-    socklen_t val_len;
     int       fd;
+    int       val     = 0;
+    socklen_t val_len = sizeof(val);
 
     /* Errors */
     ck_assert (chula_fd_set_reuseaddr(-1) == ret_error);
@@ -849,10 +851,10 @@ START_TEST (set_reuseaddr)
     ret = chula_fd_set_reuseaddr (fd);
     ck_assert (ret == ret_ok);
 
-    val = 0;
     re = getsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &val, &val_len);
     ck_assert (re == 0);
     ck_assert (val != 0);
+    ck_assert (val_len != 0);
 
     chula_fd_close(fd);
 }
