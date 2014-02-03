@@ -748,6 +748,10 @@ START_TEST (set_nodelay)
     ret_t ret;
     int   fd;
 
+    /* Errors */
+    ck_assert (chula_fd_set_nodelay (-1, true) == ret_error);
+
+    /* Regular case */
     fd = socket (AF_INET, SOCK_STREAM, 0);
     ck_assert (fd >= 0);
 
@@ -768,6 +772,10 @@ START_TEST (set_nonblocking)
     ret_t ret;
     int   fd;
 
+    /* Errors */
+    ck_assert (chula_fd_set_nonblocking(-1, true) == ret_error);
+
+    /* Regular case */
     fd = socket (AF_INET, SOCK_STREAM, 0);
     ck_assert (fd >= 0);
 
@@ -788,12 +796,42 @@ START_TEST (set_closexec)
     ret_t ret;
     int   fd;
 
+    /* Errors */
+    ck_assert (chula_fd_set_closexec(-1) == ret_error);
+
+    /* Regular case */
     fd = socket (AF_INET, SOCK_STREAM, 0);
     ck_assert (fd >= 0);
 
     ret = chula_fd_set_closexec (fd);
     ck_assert (ret == ret_ok);
     ck_assert (fcntl(fd, F_GETFD, 0) & FD_CLOEXEC);
+
+    chula_fd_close(fd);
+}
+END_TEST
+
+START_TEST (set_reuseaddr)
+{
+    ret_t     ret;
+    int       re;
+    int       val;
+    socklen_t val_len;
+    int       fd;
+
+    /* Errors */
+    ck_assert (chula_fd_set_reuseaddr(-1) == ret_error);
+
+    /* Regular case */
+    fd = socket (AF_INET, SOCK_STREAM, 0);
+    ck_assert (fd >= 0);
+
+    ret = chula_fd_set_reuseaddr (fd);
+    ck_assert (ret == ret_ok);
+
+    re = getsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &val, &val_len);
+    ck_assert (re == 0);
+    ck_assert (val & SO_REUSEADDR);
 
     chula_fd_close(fd);
 }
@@ -844,5 +882,6 @@ util_tests (void)
     check_add (s1, set_nodelay);
     check_add (s1, set_nonblocking);
     check_add (s1, set_closexec);
+    check_add (s1, set_reuseaddr);
     run_test (s1);
 }
