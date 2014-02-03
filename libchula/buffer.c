@@ -1355,7 +1355,7 @@ chula_buffer_print_cstr (chula_buffer_t *buf)
         unsigned char c = buf->buf[i];
         printf("\"\\x%02x\"", c);
     }
-    printf ("\n");
+    printf (CRLF);
 
     return ret_ok;
 }
