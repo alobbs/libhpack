@@ -1315,6 +1315,15 @@ START_TEST (sha1_digest)
     ck_assert (b.len == 40);
     ck_assert_str_eq (b.buf, "302c1f256c8e9ebb5edf0822b473d0cd3d2ce84c");
 
+    /* Large */
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "abc");
+    chula_buffer_multiply (&b, 64);
+    ret = chula_buffer_encode_sha1_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 40);
+    ck_assert_str_eq (b.buf, "c8d58115d6878bdade7e3f3ab1a202cd771a0ee4");
+
     chula_buffer_mrproper(&b);
 }
 END_TEST
