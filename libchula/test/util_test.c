@@ -69,7 +69,8 @@ START_TEST (_strerror_r)
     memset (tmp, 0, sizeof(tmp));
     s = chula_strerror_r (0, tmp, sizeof(tmp));
     ck_assert (s != NULL);
-    ck_assert (strstr(s, "Undefined") != NULL);
+    ck_assert ((strstr(s, "Success") != NULL) ||
+               (strstr(s, "Undefined") != NULL));
 
     /* 13: Permission denied */
     memset (tmp, 0, sizeof(tmp));
@@ -848,9 +849,10 @@ START_TEST (set_reuseaddr)
     ret = chula_fd_set_reuseaddr (fd);
     ck_assert (ret == ret_ok);
 
+    val = 0;
     re = getsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &val, &val_len);
     ck_assert (re == 0);
-    ck_assert (val & SO_REUSEADDR);
+    ck_assert (val != 0);
 
     chula_fd_close(fd);
 }
