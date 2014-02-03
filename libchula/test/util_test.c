@@ -30,14 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "config.h"
+#ifdef HAVE_SYSLOG_H
+# include <syslog.h>
+#endif
+
 #include "libchula/testing_macros.h"
 #include "libchula/util.h"
 
+#ifndef LOG_INFO
+# define LOG_INFO 6
+#endif
 
 START_TEST (_strerror_r)
 {
@@ -743,6 +751,17 @@ START_TEST (_wait_pid)
 }
 END_TEST
 
+START_TEST (_wait_pid2)
+{
+    ret_t ret;
+    int   retcode = 22;
+
+    ret = chula_wait_pid (-11, &retcode);
+    ck_assert (ret == ret_not_found);
+    ck_assert (retcode == 22);
+}
+END_TEST
+
 START_TEST (set_nodelay)
 {
     ret_t ret;
@@ -837,6 +856,30 @@ START_TEST (set_reuseaddr)
 }
 END_TEST
 
+START_TEST (_syslog)
+{
+    ret_t          ret;
+    chula_buffer_t info = CHULA_BUF_INIT;
+
+    /* Empty */
+    ret = chula_syslog (LOG_INFO, &info);
+    ck_assert (ret == ret_ok);
+
+    /* One liner */
+    chula_buffer_add_str (&info, "one liner");
+    ret = chula_syslog (LOG_INFO, &info);
+    ck_assert (ret == ret_ok);
+
+    /* Multiple lines */
+    chula_buffer_clean (&info);
+    chula_buffer_add_str (&info, "first line\nsecond one");
+    ret = chula_syslog (LOG_INFO, &info);
+    ck_assert (ret == ret_ok);
+
+    chula_buffer_mrproper (&info);
+}
+END_TEST
+
 
 int
 util_tests (void)
@@ -879,9 +922,11 @@ util_tests (void)
     check_add (s1, _backtrace);
     check_add (s1, get_shell);
     check_add (s1, _wait_pid);
+    check_add (s1, _wait_pid2);
     check_add (s1, set_nodelay);
     check_add (s1, set_nonblocking);
     check_add (s1, set_closexec);
     check_add (s1, set_reuseaddr);
+    check_add (s1, _syslog);
     run_test (s1);
 }
