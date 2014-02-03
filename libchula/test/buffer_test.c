@@ -457,6 +457,11 @@ START_TEST (add_va)
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (b.buf, "1 - 2.1 - foo");
 
+    chula_buffer_clean (&b);
+    ret = chula_buffer_add_va (&b, "%d %lu %llu %c %o %f %p %x", -99, 123, 456, 'z', 8, 0.123456, (void*)0x4040, 0xff);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (b.buf, "-99 123 456 z 10 0.123456 0x4040 ff");
+
     chula_buffer_mrproper(&b);
 }
 END_TEST
@@ -1709,6 +1714,66 @@ START_TEST (swap_buffers)
 }
 END_TEST
 
+START_TEST (cnt_spn)
+{
+    size_t         re;
+    chula_buffer_t buf = CHULA_BUF_INIT;
+
+    chula_buffer_fake_str (&buf, "aaaaaiiiiizooo");
+    re = chula_buffer_cnt_spn (&buf, 0, "aeiou");
+    ck_assert (re == 10);
+
+    chula_buffer_fake_str (&buf, "aaaaaiiiiizooo");
+    re = chula_buffer_cnt_spn (&buf, 11, "aeiou");
+    ck_assert (re == 3);
+
+    chula_buffer_fake_str (&buf, "0aaaaaiiiiizooo");
+    re = chula_buffer_cnt_spn (&buf, 0, "aeiou");
+    ck_assert (re == 0);
+}
+END_TEST
+
+START_TEST (cnt_cspn)
+{
+    size_t         re;
+    chula_buffer_t buf = CHULA_BUF_INIT;
+
+    chula_buffer_fake_str (&buf, "xxxxxyyyyyazzz");
+    re = chula_buffer_cnt_cspn (&buf, 0, "aeiou");
+    ck_assert (re == 10);
+
+    chula_buffer_fake_str (&buf, "xxxxxyyyyyazzz");
+    re = chula_buffer_cnt_cspn (&buf, 11, "aeiou");
+    ck_assert (re == 3);
+
+    chula_buffer_fake_str (&buf, "uxxxxxyyyyyazzz");
+    re = chula_buffer_cnt_cspn (&buf, 0, "aeiou");
+    ck_assert (re == 0);
+}
+END_TEST
+
+START_TEST (print_debug)
+{
+    ret_t          ret;
+    chula_buffer_t buf  = CHULA_BUF_INIT;
+
+    chula_buffer_fake_str (&buf, "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz");
+    ret = chula_buffer_print_debug (&buf, 80);
+    ck_assert (ret == ret_ok);
+}
+END_TEST
+
+START_TEST (print_cstr)
+{
+    ret_t          ret;
+    chula_buffer_t buf  = CHULA_BUF_INIT;
+
+    chula_buffer_fake_str (&buf, "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz");
+    ret = chula_buffer_print_cstr (&buf);
+    ck_assert (ret == ret_ok);
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -1768,5 +1833,9 @@ buffer_tests (void)
     check_add (s1, insert_buffer);
     check_add (s1, split_lines);
     check_add (s1, swap_buffers);
+    check_add (s1, cnt_spn);
+    check_add (s1, cnt_cspn);
+    check_add (s1, print_debug);
+    check_add (s1, print_cstr);
     run_test (s1);
 }
