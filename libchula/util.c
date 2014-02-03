@@ -110,28 +110,28 @@ const char *chula_version    = PACKAGE_VERSION;
 
 
 const char hex2dec_tab[256] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 00-0F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 10-1F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 20-2F */
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0,  /* 30-3F */
-	0,10,11,12,13,14,15, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 40-4F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 50-5F */
-	0,10,11,12,13,14,15, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 60-6F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 70-7F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 80-8F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 90-9F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* A0-AF */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* B0-BF */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* C0-CF */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* D0-DF */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* E0-EF */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   /* F0-FF */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 00-0F */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 10-1F */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 20-2F */
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0,  /* 30-3F */
+    0,10,11,12,13,14,15, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 40-4F */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 50-5F */
+    0,10,11,12,13,14,15, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 60-6F */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 70-7F */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 80-8F */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 90-9F */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* A0-AF */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* B0-BF */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* C0-CF */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* D0-DF */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* E0-EF */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   /* F0-FF */
 };
 
 const char *month[13] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-	NULL
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    NULL
 };
 
 
@@ -144,116 +144,116 @@ const char *month[13] = {
 char *
 chula_strerror_r (int err, char *buf, size_t bufsize)
 {
-	char *p;
+    char *p;
 
-	if (buf == NULL)
-		return NULL;
+    if (buf == NULL)
+        return NULL;
 
-	if (bufsize < ERROR_MIN_BUFSIZE)
-		return NULL;
+    if (bufsize < ERROR_MIN_BUFSIZE)
+        return NULL;
 
-	p = strerror(err);
-	if (p == NULL) {
-		buf[0] = '\0';
-		snprintf (buf, bufsize, "Unknown error %d (errno)", err);
-		buf[bufsize-1] = '\0';
-		return buf;
-	}
+    p = strerror(err);
+    if (p == NULL) {
+        buf[0] = '\0';
+        snprintf (buf, bufsize, "Unknown error %d (errno)", err);
+        buf[bufsize-1] = '\0';
+        return buf;
+    }
 
-	return p;
+    return p;
 }
 
 
 char *
 chula_min_str (char *s1, char *s2)
 {
-	if ((s1 == NULL) &&
-	    (s2 == NULL)) return NULL;
+    if ((s1 == NULL) &&
+        (s2 == NULL)) return NULL;
 
-	if ((s1 != NULL) &&
-	    (s2 == NULL)) return s1;
+    if ((s1 != NULL) &&
+        (s2 == NULL)) return s1;
 
-	if ((s2 != NULL) &&
-	    (s1 == NULL)) return s2;
+    if ((s2 != NULL) &&
+        (s1 == NULL)) return s2;
 
-	return (s1<s2) ? s1 : s2;
+    return (s1<s2) ? s1 : s2;
 }
 
 
 char *
 chula_max_str (char *s1, char *s2)
 {
-	if ((s1 == NULL) &&
-	    (s2 == NULL)) return NULL;
+    if ((s1 == NULL) &&
+        (s2 == NULL)) return NULL;
 
-	if ((s1 != NULL) &&
-	    (s2 == NULL)) return s1;
+    if ((s1 != NULL) &&
+        (s2 == NULL)) return s1;
 
-	if ((s2 != NULL) &&
-	    (s1 == NULL)) return s2;
+    if ((s2 != NULL) &&
+        (s1 == NULL)) return s2;
 
-	return (s1>s2) ? s1 : s2;
+    return (s1>s2) ? s1 : s2;
 }
 
 ret_t
 chula_atoi (const char *str, int *ret_value)
 {
-	int   tmp;
+    int   tmp;
     char *endptr = NULL;
 
     if (str == NULL) {
         return ret_error;
     }
 
-	errno = 0;
-	tmp = strtol (str, &endptr, 10);
-	if (errno != 0) {
-		return ret_error;
-	}
+    errno = 0;
+    tmp = strtol (str, &endptr, 10);
+    if (errno != 0) {
+        return ret_error;
+    }
 
     if (str == endptr) {
         /* No digits were found */
         return ret_error;
     }
 
-	*ret_value = tmp;
-	return ret_ok;
+    *ret_value = tmp;
+    return ret_ok;
 }
 
 ret_t
 chula_atob (const char *str, bool *ret_value)
 {
-	ret_t ret;
-	int   tmp;
+    ret_t ret;
+    int   tmp;
 
     if (str == NULL) {
         return ret_error;
     }
 
-	ret = chula_atoi (str, &tmp);
-	if (ret != ret_ok) {
-		return ret;
-	}
+    ret = chula_atoi (str, &tmp);
+    if (ret != ret_ok) {
+        return ret;
+    }
 
-	*ret_value = !!tmp;
-	return ret_ok;
+    *ret_value = !!tmp;
+    return ret_ok;
 }
 
 int
 chula_string_is_ipv6 (chula_buffer_t *ip)
 {
-	cuint_t i;
-	cuint_t colons = 0;
+    cuint_t i;
+    cuint_t colons = 0;
 
-	for (i=0; i<ip->len; i++) {
-		if (ip->buf[i] == ':') {
-			colons += 1;
-			if (colons == 2)
-				return 1;
-		}
-	}
+    for (i=0; i<ip->len; i++) {
+        if (ip->buf[i] == ':') {
+            colons += 1;
+            if (colons == 2)
+                return 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 
@@ -264,13 +264,13 @@ chula_string_is_ipv6 (chula_buffer_t *ip)
 DIR *
 chula_opendir (const char *dirname)
 {
-	DIR *re;
+    DIR *re;
 
-	do {
-		re = opendir (dirname);
-	} while ((re == NULL) && (errno == EINTR));
+    do {
+        re = opendir (dirname);
+    } while ((re == NULL) && (errno == EINTR));
 
-	return re;
+    return re;
 }
 
 #if !defined(HAVE_READDIR_R)
@@ -288,7 +288,7 @@ chula_readdir (DIR *dirstream, struct dirent *entry, struct dirent **result)
 {
 #ifndef HAVE_READDIR
 # warning "readdir() unimplemented"
-	return ENOSYS;
+    return ENOSYS;
 #else
 # ifdef HAVE_READDIR_R_2
     /* We cannot rely on the return value of readdir_r as it
@@ -297,43 +297,43 @@ chula_readdir (DIR *dirstream, struct dirent *entry, struct dirent **result)
      */
     entry->d_name[0] = '\0';
 
-	do {
-		errno = 0;
-		readdir_r (dirstream, entry);
-	} while (errno == EINTR);
+    do {
+        errno = 0;
+        readdir_r (dirstream, entry);
+    } while (errno == EINTR);
 
-	if (entry->d_name[0] != '\0') {
+    if (entry->d_name[0] != '\0') {
         *result = entry;
-		return 0;
-	}
+        return 0;
+    }
 
-	*result = NULL;
-	return errno;
+    *result = NULL;
+    return errno;
 
 # elif defined(HAVE_READDIR_R_3)
-	return readdir_r (dirstream, entry, result);
+    return readdir_r (dirstream, entry, result);
 # else
-	struct dirent *ptr;
-	int            ret = 0;
+    struct dirent *ptr;
+    int            ret = 0;
 
-	CHULA_MUTEX_LOCK (&readdir_mutex);
+    CHULA_MUTEX_LOCK (&readdir_mutex);
 
-	do {
-		errno = 0;
-		ptr = readdir (dirstream);
-	} while ((ptr == NULL) && (errno == EINTR));
+    do {
+        errno = 0;
+        ptr = readdir (dirstream);
+    } while ((ptr == NULL) && (errno == EINTR));
 
-	if ((ptr == NULL) && (errno != 0))
-		ret = errno;
+    if ((ptr == NULL) && (errno != 0))
+        ret = errno;
 
-	if (ptr)
-		memcpy(entry, ptr, sizeof(*ptr));
+    if (ptr)
+        memcpy(entry, ptr, sizeof(*ptr));
 
-	*result = ptr;
+    *result = ptr;
 
-	CHULA_MUTEX_UNLOCK (&readdir_mutex);
+    CHULA_MUTEX_UNLOCK (&readdir_mutex);
 
-	return ret;
+    return ret;
 
 # endif
 #endif
@@ -342,132 +342,132 @@ chula_readdir (DIR *dirstream, struct dirent *entry, struct dirent **result)
 int
 chula_closedir (DIR *dirstream)
 {
-	int re;
+    int re;
 
-	do {
-		re = closedir (dirstream);
-	} while ((re < 0) && (errno == EINTR));
+    do {
+        re = closedir (dirstream);
+    } while ((re < 0) && (errno == EINTR));
 
-	return re;
+    return re;
 }
 
 int
 chula_stat (const char *path, struct stat *buf)
 {
-	int re;
+    int re;
 
-	do {
-		re = stat (path, buf);
-	} while ((re == -1) && (errno == EINTR));
+    do {
+        re = stat (path, buf);
+    } while ((re == -1) && (errno == EINTR));
 
-	return re;
+    return re;
 }
 
 int
 chula_lstat (const char *path, struct stat *buf)
 {
-	int re;
+    int re;
 
-	do {
-		re = lstat (path, buf);
-	} while ((re == -1) && (errno == EINTR));
+    do {
+        re = lstat (path, buf);
+    } while ((re == -1) && (errno == EINTR));
 
-	return re;
+    return re;
 }
 
 int
 chula_fstat (int filedes, struct stat *buf)
 {
-	int re;
+    int re;
 
-	do {
-		re = fstat (filedes, buf);
-	} while ((re == -1) && (errno == EINTR));
+    do {
+        re = fstat (filedes, buf);
+    } while ((re == -1) && (errno == EINTR));
 
-	return re;
+    return re;
 }
 
 int
 chula_access (const char *pathname, int mode)
 {
-	int re;
+    int re;
 
-	do {
-		re = access (pathname, mode);
-	} while ((re == -1) && (errno == EINTR));
+    do {
+        re = access (pathname, mode);
+    } while ((re == -1) && (errno == EINTR));
 
-	return re;
+    return re;
 }
 
 int
 chula_open (const char *path, int oflag, int mode)
 {
-	int re;
+    int re;
 
-	do {
-		re = open (path, oflag, mode);
-	} while ((re < 0) && (errno == EINTR));
+    do {
+        re = open (path, oflag, mode);
+    } while ((re < 0) && (errno == EINTR));
 
-	return re;
+    return re;
 }
 
 int
 chula_unlink (const char *path)
 {
-	int re;
+    int re;
 
-	do {
-		re = unlink (path);
-	} while ((re < 0) && (errno == EINTR));
+    do {
+        re = unlink (path);
+    } while ((re < 0) && (errno == EINTR));
 
-	return re;
+    return re;
 }
 
 int
 chula_pipe (int fildes[2])
 {
-	int re;
+    int re;
 
-	do {
-		re = pipe (fildes);
-	} while ((re < 0) && (errno == EINTR));
+    do {
+        re = pipe (fildes);
+    } while ((re < 0) && (errno == EINTR));
 
-	return re;
+    return re;
 }
 
 ret_t
 chula_mkstemp (chula_buffer_t *buffer, int *fd)
 {
-	int re;
+    int re;
 
-	re = mkstemp (buffer->buf);
-	if (re < 0) return ret_error;
+    re = mkstemp (buffer->buf);
+    if (re < 0) return ret_error;
 
-	*fd = re;
-	return ret_ok;
+    *fd = re;
+    return ret_ok;
 }
 
 ret_t
 chula_mkdtemp (char *template)
 {
-	char *re;
+    char *re;
 
-	re = mkdtemp (template);
-	if (unlikely (re == NULL)) {
-		return ret_error;
-	}
+    re = mkdtemp (template);
+    if (unlikely (re == NULL)) {
+        return ret_error;
+    }
 
-	return ret_ok;
+    return ret_ok;
 }
 
 ret_t
 chula_mkdir (const char *path, int mode)
 {
-	int re;
+    int re;
 
-	do {
-		re = mkdir (path, mode);
-	} while ((re < 0) && (errno == EINTR));
+    do {
+        re = mkdir (path, mode);
+    } while ((re < 0) && (errno == EINTR));
 
 	return re;
 }
@@ -475,14 +475,17 @@ chula_mkdir (const char *path, int mode)
 ret_t
 chula_mkdir_p (chula_buffer_t *path, int mode)
 {
-	int          re;
+    int          re;
     char        *p;
-	int          err;
-	struct stat  foo;
+    int          err;
+    struct stat  foo;
 
 	/* There is no directory
 	 */
-	if (chula_buffer_is_empty (path)) {
+    if (unlikely (path == NULL)) {
+        return ret_error;
+    }
+	if (unlikely (chula_buffer_is_empty (path))) {
 		return ret_ok;
 	}
 
@@ -541,6 +544,15 @@ chula_mkdir_p_perm (chula_buffer_t *dir_path,
 	int         re;
 	ret_t       ret;
 	struct stat foo;
+
+    /* Sanity checks
+     */
+    if (unlikely (dir_path == NULL)) {
+        return ret_error;
+    }
+	if (unlikely (chula_buffer_is_empty (dir_path))) {
+		return ret_ok;
+	}
 
 	/* Does it exist?
 	 */
