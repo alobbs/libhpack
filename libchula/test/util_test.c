@@ -783,7 +783,7 @@ END_TEST
 int
 util_tests (void)
 {
-    Suite *s1 = suite_create("AVL");
+    Suite *s1 = suite_create("Utility Functions");
 
     check_add (s1, _strerror_r);
     check_add (s1, min_str);
