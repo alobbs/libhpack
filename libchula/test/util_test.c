@@ -637,6 +637,8 @@ START_TEST (_gethostname)
     ret = chula_gethostname (&name);
     ck_assert (ret == ret_ok);
     ck_assert (! chula_buffer_is_empty (&name));
+
+    chula_buffer_mrproper (&name);
 }
 END_TEST
 
