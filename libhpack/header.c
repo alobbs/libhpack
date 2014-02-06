@@ -127,6 +127,7 @@ static hpack_header_entry_static_t static_table[] = {
     /* 3C */ HDR_NIL("www-authenticate"),
 };
 
+
 /** Length of the Static Table
  */
 static const size_t static_table_len = sizeof(static_table) / sizeof(static_table[0]);
@@ -184,60 +185,45 @@ test (chula_buffer_t *header_name)
 }
 
 
+static ret_t
+parse_string (chula_buffer_t       *buf,
+              unsigned int          offset,
+              chula_buffer_t       *string,
+              unsigned int         *consumed)
+{
+    ret_t          ret;
+    int            n         = offset;
+    int            con       = 0;
+    int            len       = 0;
+
 /*
      0   1   2   3   4   5   6   7
-   +---+---+---+---+---+---+---+---+
-   | 0 | 1 |      Index (6+)       |
-   +---+---+---+-------------------+
-   |       Value Length (8+)       |
    +-------------------------------+
-   | Value String (Length octets)  |
-   +-------------------------------+
-
-           Literal Header Field without Indexing - Indexed Name
-
-
-     0   1   2   3   4   5   6   7
-   +---+---+---+---+---+---+---+---+
-   | 0 | 1 |           0           |
-   +---+---+---+-------------------+
    |       Name Length (8+)        |
    +-------------------------------+
    |  Name String (Length octets)  |
    +-------------------------------+
-   |       Value Length (8+)       |
-   +-------------------------------+
-   | Value String (Length octets)  |
-   +-------------------------------+
-
-             Literal Header Field without Indexing - New Name
-
-   00                                      | == Literal indexed ==
-   0a                                      |   Literal name (len = 10)
-   6375 7374 6f6d 2d6b 6579                | custom-key
-   0d                                      |   Literal value (len = 13)
-   6375 7374 6f6d 2d68 6561 6465 72        | custom-header
-                                           | -> custom-key: custom-header
-
-------------------
-
-   44                                      | == Literal not indexed ==
-                                           |   Indexed name (idx = 4) :path
-   0c                                      |   Literal value (len = 12)
-   2f73 616d 706c 652f 7061 7468           | /sample/path
-                                           | -> :path: /sample/path
-
-   Header table (after decoding): empty.
-
-------------------
-
 */
+    /* Name */
+    ret = integer_decode (8, buf->buf + n, buf->len - n, &len, &con);
+    if (unlikely (ret != ret_ok)) return ret_error;
+    n += con;
+
+    ret = chula_buffer_add (string, buf->buf + n, len);
+    if (unlikely (ret != ret_ok)) return ret_error;
+    n += len;
+
+    /* Return */
+    *consumed = (n - offset);
+    return ret_ok;
+}
+
 
 static inline ret_t
-parse_indexed (chula_buffer_t *buf,
-               unsigned int    offset,
-               unsigned int   *consumed)
-
+parse_indexed (chula_buffer_t       *buf,
+               unsigned int          offset,
+               hpack_header_field_t *field,
+               unsigned int         *consumed)
 {
     ret_t ret;
     int   num;
@@ -245,144 +231,112 @@ parse_indexed (chula_buffer_t *buf,
     int   n    = offset;
 
 /*
+   Indexed Header Field
      0   1   2   3   4   5   6   7
    +---+---+---+---+---+---+---+---+
    | 1 |        Index (7+)         |
    +---+---------------------------+
 */
-
     ret = integer_decode (7, buf->buf + n, buf->len - n, &num, &con);
     if (ret != ret_ok) return ret_error;
 
     hpack_header_entry_static_t *entry = &static_table[num-1];
+    chula_buffer_add_buffer (&field->name, &entry->name);
+    chula_buffer_add_buffer (&field->value, &entry->value);
 
-    printf ("parse_indexed: num %d -> %s : %s\n", num, entry->name.buf, entry->value.buf);
-
-    *consumed = offset + con;
+    *consumed = con;
     return ret_ok;
 }
 
 static inline ret_t
-parse_literal_new (chula_buffer_t *buf,
-                   unsigned int    offset,
-                   unsigned int   *consumed)
+parse_header_pair (chula_buffer_t       *buf,
+                   unsigned int          offset,
+                   bool                  indexing,
+                   hpack_header_field_t *field,
+                   unsigned int         *consumed)
 {
-    ret_t          ret;
-    int            n         = offset;
-    int            con       = 0;
-    int            len_name  = 0;
-    int            len_value = 0;
-    chula_buffer_t name      = CHULA_BUF_INIT;
-    chula_buffer_t value     = CHULA_BUF_INIT;
+    ret_t ret;
+    int   n    = offset;
+    int   con  = 0;
+    int   len  = 0;
 
 /*
-   Literal Header Field with Incremental Indexing - New Name
+             With Indexing                       Without Indexing
+     0   1   2   3   4   5   6   7        0   1   2   3   4   5   6   7
+   +---+---+---+---+---+---+---+---+    +---+---+---+---+---+---+---+---+
+   | 0 | 0 |           0           |    | 0 | 1 |           0           |
+   +---+---+---+-------------------+    +---+---+---+-------------------+
+   |       Name Length (8+)        |    |       Name Length (8+)        |
+   +-------------------------------+    +-------------------------------+
+   |  Name String (Length octets)  |    |  Name String (Length octets)  |
+   +-------------------------------+    +-------------------------------+
+   |       Value Length (8+)       |    |       Value Length (8+)       |
+   +-------------------------------+    +-------------------------------+
+   | Value String (Length octets)  |    | Value String (Length octets)  |
+   +-------------------------------+    +-------------------------------+
 
-     0   1   2   3   4   5   6   7
-   +---+---+---+---+---+---+---+---+
-   | 0 | 0 |           0           |
-   +---+---+---+-------------------+
-   |       Name Length (8+)        |
-   +-------------------------------+
-   |  Name String (Length octets)  |
-   +-------------------------------+
-   |       Value Length (8+)       |
-   +-------------------------------+
-   | Value String (Length octets)  |
-   +-------------------------------+
+     0   1   2   3   4   5   6   7        0   1   2   3   4   5   6   7
+   +---+---+---+---+---+---+---+---+    +---+---+---+---+---+---+---+---+
+   | 0 | 0 |      Index (6+)       |    | 0 | 1 |      Index (6+)       |
+   +---+---+---+-------------------+    +---+---+---+-------------------+
+   |       Value Length (8+)       |    |       Value Length (8+)       |
+   +-------------------------------+    +-------------------------------+
+   | Value String (Length octets)  |    | Value String (Length octets)  |
+   +-------------------------------+    +-------------------------------+
 */
-
-    n += 1;
-
     /* Name
      */
-    ret = integer_decode (8, buf->buf + n, buf->len-n, &len_name, &con);
-    if (ret != ret_ok) return ret_error;
+    if (buf->buf[n] & 0x3Fu) {
+        ret = integer_decode (6, buf->buf+n, buf->len-n, &len, &con);
+        if (unlikely (ret != ret_ok)) return ret_error;
+        n += con;
 
-    n += con;
-    ret = chula_buffer_add (&name, buf->buf + n, len_name);
-    if (ret != ret_ok) return ret_error;
+        hpack_header_entry_static_t *entry = &static_table[len-1];
+        chula_buffer_add_buffer (&field->name, &entry->name);
+
+        printf ("parse_indexed: num %d -> %s : %s\n", len, entry->name.buf, entry->value.buf);
+    }
+    else {
+        n += 1;
+
+        ret = parse_string (buf, n, &field->name, &con);
+        if (ret != ret_ok) return ret;
+        n += con;
+
+        printf ("Header name: %s\n", field->name.buf);
+    }
 
     /* Value
      */
-    n+= len_name;
-    ret = integer_decode (8, buf->buf + n, buf->len-n, &len_value, &con);
-    if (ret != ret_ok) return ret_error;
-
+    ret = parse_string (buf, n, &field->value, &con);
+    if (ret != ret_ok) return ret;
     n += con;
-    ret = chula_buffer_add (&value, buf->buf + n, len_value);
-    if (ret != ret_ok) return ret_error;
 
-    *consumed = n + len_value;
+    printf ("       value: %s\n", field->value.buf);
+
+    if (indexing) {
+        printf ("INDEX += ('%s':'%s')\n", field->name.buf, field->value.buf);
+    }
+
+    /* Return */
+    *consumed = n - offset;
     return ret_ok;
 }
-
-static inline ret_t
-parse_literal_indexed (chula_buffer_t *buf,
-                       unsigned int    offset,
-                       unsigned int   *consumed)
-{
-    ret_t          ret;
-    int            num;
-    int            n         = offset;
-    int            con       = 0;
-    int            len_value = 0;
-    chula_buffer_t value     = CHULA_BUF_INIT;
-
-/*
-  Literal Header Field without Indexing - Indexed Name
-
-     0   1   2   3   4   5   6   7
-   +---+---+---+---+---+---+---+---+
-   | 0 | 1 |      Index (6+)       |
-   +---+---+---+-------------------+
-   |       Value Length (8+)       |
-   +-------------------------------+
-   | Value String (Length octets)  |
-   +-------------------------------+
-*/
-
-    /* Name
-     */
-    ret = integer_decode (6, buf->buf + n, buf->len - n, &num, &con);
-    if (ret != ret_ok) return ret_error;
-
-    hpack_header_entry_static_t *entry = &static_table[num];
-
-    /* Value
-     */
-    n = con;
-    ret = integer_decode (8, buf->buf + n, buf->len-n, &len_value, &con);
-    if (ret != ret_ok) return ret_error;
-
-    n += con;
-    ret = chula_buffer_add (&value, buf->buf + n, len_value);
-    if (ret != ret_ok) return ret_error;
-
-    printf ("%s => %s\n", entry->name.buf, value.buf);
-
-    *consumed = n +len_value;
-    return ret_ok;
-}
-
 
 ret_t
-hpack_header_parse (chula_buffer_t *buf,
-                    unsigned int    offset,
-                    unsigned int   *consumed)
+hpack_header_field_parse (chula_buffer_t       *buf,
+                          unsigned int          offset,
+                          hpack_header_field_t *field,
+                          unsigned int         *consumed)
 {
-    char c = buf->buf[0];
+    char c = buf->buf[offset];
 
-    /* Indexed Header Repr */
+    /* Indexed header field */
     if (c & 0x80u) {
-        return parse_indexed (buf, offset, consumed);
+        /* 1st bit set */
+        return parse_indexed (buf, offset, field, consumed);
     }
 
-    /* Literal Header Repr - New Name */
-    if ((c == 0x40u) || (c == 0)) {
-        return parse_literal_new (buf, offset, consumed);
-    }
-
-    /* Literal Header Repr - Indexed Name */
-    return parse_literal_indexed (buf, offset, consumed);
+    bool skip_indexing = ((c & 0xc0) == 0x40u);
+    return parse_header_pair (buf, offset, !skip_indexing, field, consumed);
 }

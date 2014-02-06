@@ -34,9 +34,12 @@
 #define LIBHPACK_HEADER_H
 
 #include <libchula/buffer.h>
+#include <libhpack/header_field.h>
 
-ret_t hpack_header_parse (chula_buffer_t *buf,
-                          unsigned int    offset,
-                          unsigned int   *consumed);
+
+ret_t hpack_header_field_parse (chula_buffer_t       *buf,
+                                unsigned int          offset,
+                                hpack_header_field_t *field,
+                                unsigned int         *consumed);
 
 #endif /* LIBHPACK_HEADER_H */
