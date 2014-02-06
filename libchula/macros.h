@@ -181,9 +181,13 @@
 
 /* Macros
  */
-#define CHULA_MK_TYPE(type)         chula_ ## type ## _t
-#define CHULA_MK_NEW(obj,type)      chula_ ## type ## _new (&obj)
-#define CHULA_DCL_POINTER(obj,type) chula_ ## type ## _t *obj
+#define CHULA_GEN_MK_TYPE(pre,type)         pre ## _ ## type ## _t
+#define CHULA_GEN_MK_NEW(pre,obj,type)      pre ## _ ## type ## _new (&obj)
+#define CHULA_GEN_DCL_POINTER(pre,obj,type) pre ## _ ## type ## _t *obj
+
+#define CHULA_MK_TYPE(type)         CHULA_GEN_MK_TYPE(chula,type)
+#define CHULA_MK_NEW(obj,type)      CHULA_GEN_MK_NEW(chula,obj,type)
+#define CHULA_DCL_POINTER(obj,type) CHULA_GEN_DCL_POINTER(chula,obj,type)
 
 #define RETURN_IF_FAIL(expr,ret)					\
 	do {								\
@@ -228,48 +232,55 @@
 
 /* Declare and allocate a new struct.
  */
-#define CHULA_NEW_STRUCT(obj,type)				 \
-	CHULA_DCL_POINTER(obj,type) = (CHULA_MK_TYPE(type) *)	 \
-		malloc (sizeof(CHULA_MK_TYPE(type)));		 \
+#define CHULA_GEN_NEW_STRUCT(pre,obj,type)                              \
+	CHULA_GEN_DCL_POINTER(pre,obj,type) = (CHULA_GEN_MK_TYPE(pre,type) *) \
+		malloc (sizeof(CHULA_GEN_MK_TYPE(pre,type)));                   \
 	RETURN_IF_FAIL (obj != NULL, ret_nomem)
+
+#define CHULA_NEW_STRUCT(obj,type) CHULA_GEN_NEW_STRUCT(chula,obj,type)
 
 /* Declare and initialize a new object.
  */
-#define CHULA_NEW(obj,type)                   \
-	CHULA_DCL_POINTER(obj,type) = NULL;   \
-	CHULA_MK_NEW(obj,type);               \
+#define CHULA_GEN_NEW(pre,obj,type)             \
+	CHULA_GEN_DCL_POINTER(pre,obj,type) = NULL; \
+	CHULA_GEN_MK_NEW(pre,obj,type);             \
 	RETURN_IF_FAIL (obj != NULL, ret_nomem)
+
+#define CHULA_NEW(obj,type) CHULA_GEN_NEW(chula,obj,type)
 
 /* Automatic functions:
  * These macros implement _new/_free by using _init/_mrproper.
  */
-#define CHULA_ADD_FUNC_NEW(klass)  \
-	ret_t                                                         \
-	chula_ ## klass ## _new (chula_ ## klass ## _t **obj) {     \
-		ret_t ret;                                            \
-		CHULA_NEW_STRUCT (n, klass);			      \
-								      \
-		ret = chula_ ## klass ## _init (n);		      \
-		if (unlikely (ret != ret_ok)) {			      \
-			free (n);				      \
-			return ret;				      \
-		}						      \
-		                                                      \
-		*obj = n;                                             \
-		return ret_ok;                                        \
+#define CHULA_GEN_ADD_FUNC_NEW(pre,klass)                           \
+	ret_t                                                           \
+	pre ## _ ## klass ## _new (pre ## _ ## klass ## _t **obj) {     \
+		ret_t ret;                                                  \
+		CHULA_GEN_NEW_STRUCT (pre,n,klass);                         \
+		                                                            \
+		ret = pre ## _ ## klass ## _init (n);                       \
+            if (unlikely (ret != ret_ok)) {                         \
+                free (n);                                           \
+                return ret;                                         \
+            }                                                       \
+                                                                    \
+            *obj = n;                                               \
+            return ret_ok;                                          \
 	}
 
-#define CHULA_ADD_FUNC_FREE(klass)  \
-	ret_t                                                         \
-	chula_ ## klass ## _free (chula_ ## klass ## _t *obj) {     \
-		if ((obj) == NULL)				      \
-			return ret_ok;				      \
-								      \
-		chula_ ## klass ## _mrproper (obj);		      \
-		                                                      \
-		free (obj);                                           \
-		return ret_ok;                                        \
+#define CHULA_GEN_ADD_FUNC_FREE(pre,klass)                          \
+	ret_t                                                           \
+	pre ## _ ## klass ## _free (pre ## _ ## klass ## _t *obj) {     \
+		if ((obj) == NULL)                                          \
+			return ret_ok;                                          \
+                                                                    \
+		pre ## _ ## klass ## _mrproper (obj);                       \
+		                                                            \
+            free (obj);                                             \
+            return ret_ok;                                          \
 	}
+
+#define CHULA_ADD_FUNC_NEW(klass)  CHULA_GEN_ADD_FUNC_NEW(chula,klass)
+#define CHULA_ADD_FUNC_FREE(klass) CHULA_GEN_ADD_FUNC_FREE(chula,klass)
 
 
 /* Printing macros
