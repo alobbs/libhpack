@@ -33,27 +33,79 @@
 #include <libhpack/macros.h>
 #include <libhpack/header_table.h>
 
+/* Entry
+ */
+
 ret_t
-hpack_header_table_entry_new  (hpack_header_table_entry_t **entry)
+hpack_header_table_entry_new (hpack_header_table_entry_t **entry)
 {
+    HPACK_NEW_STRUCT (n, header_table_entry);
+
+    INIT_LIST_HEAD (&n->entry);
+    hpack_header_field_init (&n->field);
+
+    *entry = n;
     return ret_ok;
 }
 
 ret_t
 hpack_header_table_entry_free (hpack_header_table_entry_t *entry)
 {
+    chula_list_del (&entry->entry);
+    hpack_header_field_mrproper (&entry->field);
+
+    free(entry);
     return ret_ok;
 }
 
 
+/* Table
+ */
+
 ret_t
 hpack_header_table_init (hpack_header_table_t *table)
 {
+    INIT_LIST_HEAD (&table->dynamic);
+    table->dynamic_len = 0;
+    table->dynamic_max = 50;
     return ret_ok;
 }
 
 ret_t
 hpack_header_table_mrproper (hpack_header_table_t *table)
 {
+    chula_list_t *i, *tmp;
+
+    list_for_each_safe (i, tmp, &table->dynamic) {
+        hpack_header_table_entry_free (HDR_TABLE_ENTRY(i));
+    }
+
+    return ret_ok;
+}
+
+ret_t
+hpack_header_table_add (hpack_header_table_t *table,
+                        hpack_header_field_t *field)
+{
+    HPACK_NEW_STRUCT (te, header_table_entry);
+
+    /* Copy the header_field to a table_entry */
+    memcpy (&te->field, field, sizeof(hpack_header_field_t));
+
+    /* Add it to the list */
+    chula_list_add (&te->entry, &table->dynamic);
+
+    return ret_ok;
+}
+
+ret_t
+hpack_header_table_set_size (hpack_header_table_t *table,
+                             size_t                size)
+{
+    if (size < table->dynamic_max) {
+        ;
+    }
+
+    table->dynamic_max = size;
     return ret_ok;
 }
