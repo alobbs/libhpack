@@ -35,10 +35,11 @@
 
 #include <libchula/buffer.h>
 #include <libhpack/header_field.h>
-
+#include <libhpack/header_table.h>
 
 ret_t hpack_header_field_parse (chula_buffer_t       *buf,
                                 unsigned int          offset,
+                                hpack_header_table_t *table,
                                 hpack_header_field_t *field,
                                 unsigned int         *consumed);
 

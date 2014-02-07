@@ -46,25 +46,29 @@ START_TEST (literal_w_index) {
 */
     ret_t                ret;
     chula_buffer_t       header;
+    hpack_header_table_t table;
     hpack_header_field_t field;
     unsigned int         consumed = 0;
 
+    hpack_header_table_init (&table);
     hpack_header_field_init (&field);
     chula_buffer_fake_str (&header, "\x00\x0a\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\x0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72");
 
-    ret = hpack_header_field_parse (&header, 0, &field, &consumed);
+    ret = hpack_header_field_parse (&header, 0, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == header.len);
     ck_assert_str_eq (field.name.buf, "custom-key");
     ck_assert_str_eq (field.value.buf, "custom-header");
 
     hpack_header_field_mrproper (&field);
+    hpack_header_table_mrproper (&table);
 }
 END_TEST
 
 START_TEST (literal_wo_index) {
     ret_t                ret;
     chula_buffer_t       header;
+    hpack_header_table_t table;
     hpack_header_field_t field;
     unsigned int         consumed = 0;
 /*
@@ -74,41 +78,47 @@ START_TEST (literal_wo_index) {
    2f73 616d 706c 652f 7061 7468           |   /sample/path
 */
 
+    hpack_header_table_init (&table);
     hpack_header_field_init (&field);
     chula_buffer_fake_str (&header, "\x44\x0c\x2f\x73\x61\x6d\x70\x6c\x65\x2f\x70\x61\x74\x68");
 
-    ret = hpack_header_field_parse (&header, 0, &field, &consumed);
+    ret = hpack_header_field_parse (&header, 0, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == header.len);
     ck_assert_str_eq (field.name.buf, ":path");
     ck_assert_str_eq (field.value.buf, "/sample/path");
 
     hpack_header_field_mrproper (&field);
+    hpack_header_table_mrproper (&table);
 }
 END_TEST
 
 START_TEST (indexed) {
     ret_t                ret;
     chula_buffer_t       header;
+    hpack_header_table_t table;
     hpack_header_field_t field;
     unsigned int         consumed = 0;
 
+    hpack_header_table_init (&table);
     hpack_header_field_init (&field);
     chula_buffer_fake_str (&header, "\x82");
 
-    ret = hpack_header_field_parse (&header, 0, &field, &consumed);
+    ret = hpack_header_field_parse (&header, 0, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == header.len);
     ck_assert_str_eq (field.name.buf, ":method");
     ck_assert_str_eq (field.value.buf, "GET");
 
     hpack_header_field_mrproper (&field);
+    hpack_header_table_mrproper (&table);
 }
 END_TEST
 
 START_TEST (request1) {
     ret_t                ret;
     chula_buffer_t       header;
+    hpack_header_table_t table;
     hpack_header_field_t field;
     unsigned int         offset   = 0;
     unsigned int         consumed = 0;
@@ -133,9 +143,10 @@ START_TEST (request1) {
 
     chula_buffer_fake_str (&header, "\x82\x87\x86\x04\x0f\x77\x77\x77\x2e\x65\x78\x61\x6d\x70\x6c\x65\x2e\x63\x6f\x6d");
     hpack_header_field_init (&field);
+    hpack_header_table_init (&table);
 
     /* 82 - :method: GET */
-    ret = hpack_header_field_parse (&header, offset, &field, &consumed);
+    ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == 1);
 //    ck_assert_str_eq (field.name.buf, ":method");
@@ -146,7 +157,7 @@ START_TEST (request1) {
     hpack_header_field_clean (&field);
 
     /* 87 - :scheme: http */
-    ret = hpack_header_field_parse (&header, offset, &field, &consumed);
+    ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == 1);
 //    ck_assert_str_eq (field.name.buf, ":scheme");
@@ -157,7 +168,7 @@ START_TEST (request1) {
     hpack_header_field_clean (&field);
 
     /* 86 - :path: / */
-    ret = hpack_header_field_parse (&header, offset, &field, &consumed);
+    ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == 1);
 //    ck_assert_str_eq (field.name.buf, ":path");
@@ -168,13 +179,16 @@ START_TEST (request1) {
     hpack_header_field_clean (&field);
 
     /* 04 - :authority: www.example.com */
-    ret = hpack_header_field_parse (&header, offset, &field, &consumed);
+    ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
 //    ck_assert (consumed == 1);
 
 
     printf ("consumed %d\n", consumed);
 //  ck_assert (consumed_now == 20);
+
+    hpack_header_field_mrproper (&field);
+    hpack_header_table_mrproper (&table);
 }
 END_TEST
 
