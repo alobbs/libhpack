@@ -37,29 +37,31 @@
 #include <libchula/buffer.h>
 #include "libhpack/header_field.h"
 
-typedef struct {
-    chula_list_t         entry;
-    hpack_header_field_t field;
-} hpack_header_table_entry_t;
-
-#define HDR_TABLE_ENTRY(e) ((hpack_header_table_entry_t*)(e))
-
-ret_t hpack_header_table_entry_new  (hpack_header_table_entry_t **entry);
-ret_t hpack_header_table_entry_free (hpack_header_table_entry_t  *entry);
-
 
 typedef struct {
-    chula_list_t dynamic;
-    uint32_t     dynamic_len;
-    uint32_t     dynamic_max;
+    hpack_header_field_t **headers;
+    uint32_t               len;
+    uint32_t               size;
+    uint32_t               max;
+} hpack_header_block_t;
+
+ret_t hpack_header_block_init     (hpack_header_block_t *block);
+ret_t hpack_header_block_mrproper (hpack_header_block_t *block);
+ret_t hpack_header_block_set_max  (hpack_header_block_t *block, uint32_t max);
+ret_t hpack_header_block_add      (hpack_header_block_t *block, hpack_header_field_t *e);
+ret_t hpack_header_block_get      (hpack_header_block_t *block, uint32_t n, hpack_header_field_t **e);
+
+
+typedef struct {
+    hpack_header_block_t dynamic;
+    hpack_header_block_t statics;
 } hpack_header_table_t;
 
 #define HDR_TABLE(t) ((hpack_header_table_t*)(t))
 
 ret_t hpack_header_table_init     (hpack_header_table_t *table);
 ret_t hpack_header_table_mrproper (hpack_header_table_t *table);
-
-ret_t hpack_header_table_set_size (hpack_header_table_t *table, size_t size);
 ret_t hpack_header_table_add      (hpack_header_table_t *table, hpack_header_field_t *field);
+ret_t hpack_header_table_get      (hpack_header_table_t *table, uint32_t n, hpack_header_field_t **field);
 
 #endif /* LIBHPACK_HEADER_TABLE_H */
