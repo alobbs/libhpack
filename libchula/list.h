@@ -53,14 +53,19 @@ typedef struct list_entry chula_list_entry_t;
 
 #define LIST_HEAD_INIT(ptr) { &(ptr), &(ptr) }
 
+#define list_entry(ptr, type, member)                               \
+	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
+
 #define list_for_each(pos, head)                                \
 	for (pos = (head)->next; pos != (head); pos = pos->next)
 
 #define list_for_each_safe(pos, n, head)                                \
 	for (pos = (head)->next, n = pos->next; pos != (head); pos = n, n = pos->next)
 
-#define list_entry(ptr, type, member)                               \
-	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
+#define list_for_each_entry(pos, head, member)                          \
+    for (pos = list_entry((head)->next, typeof(*pos), member);          \
+         &pos->member != (head);                                        \
+         pos = list_entry(pos->member.next, typeof(*pos), member))
 
 #define list_next_circular(list,item)                           \
 	(((item)->next == (list)) ? (list)->next : (item)->next)
