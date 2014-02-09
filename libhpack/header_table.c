@@ -117,9 +117,12 @@ static hpack_header_field_t static_table[] = {
     /* 3C */ HDR_NIL("www-authenticate"),
 };
 
-/** Length of the Static Table
- */
-static const size_t static_table_len = sizeof(static_table) / sizeof(static_table[0]);
+static hpack_header_block_t static_block = {
+    .size    = 0,
+    .headers = (hpack_header_field_t **)&static_table,
+    .len     = (sizeof(static_table) / sizeof(static_table[0])),
+    .max     = (sizeof(static_table) / sizeof(static_table[0])) + 1,
+};
 
 /* Block
  */
@@ -204,17 +207,12 @@ hpack_header_table_init (hpack_header_table_t *table)
 {
     ret_t ret;
 
-    /* Init bloks */
+    /* Dynamic block */
     ret = hpack_header_block_init (&table->dynamic);
     if (unlikely (ret != ret_ok)) return ret;
 
-    ret = hpack_header_block_init (&table->statics);
-    if (unlikely (ret != ret_ok)) return ret;
-
-    /* Add static entries */
-    for (int n=0; n<static_table_len; n++) {
-        hpack_header_block_add (&table->statics, &static_table[n]);
-    }
+    /* Static block */
+    memcpy (&table->statics, &static_block, sizeof(hpack_header_block_t));
 
     return ret_ok;
 }
