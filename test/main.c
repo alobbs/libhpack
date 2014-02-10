@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+int header_table_tests (void);
 int integer_tests (void);
 int huffman_tests (void);
 int header_tests (void);
@@ -41,6 +42,7 @@ main (void)
 
     ret  = integer_tests();
     ret += huffman_tests();
+    ret += header_table_tests();
     ret += header_tests();
 
     return ret;
