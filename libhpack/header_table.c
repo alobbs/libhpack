@@ -32,6 +32,7 @@
 
 #include <libhpack/macros.h>
 #include <libhpack/header_table.h>
+#include <libhpack/header_field.h>
 
 /** Static Table Entry without a value
  */
@@ -55,73 +56,73 @@
  * represented by the index len(header table)+len(static table).
  */
 static hpack_header_field_t static_table[] = {
-    /* 01 */ HDR_NIL(":authority"),
-    /* 02 */ HDR_VAL(":method", "GET"),
-    /* 03 */ HDR_VAL(":method", "POST"),
-    /* 04 */ HDR_VAL(":path", "/"),
-    /* 05 */ HDR_VAL(":path", "/index.html"),
-    /* 06 */ HDR_VAL(":scheme", "http"),
-    /* 07 */ HDR_VAL(":scheme", "https"),
-    /* 08 */ HDR_VAL(":status", "200"),
-    /* 09 */ HDR_VAL(":status", "500"),
-    /* 0A */ HDR_VAL(":status", "404"),
-    /* 0B */ HDR_VAL(":status", "403"),
-    /* 0C */ HDR_VAL(":status", "400"),
-    /* 0D */ HDR_VAL(":status", "401"),
-    /* 0E */ HDR_NIL("accept-charset"),
-    /* 0F */ HDR_NIL("accept-encoding"),
-    /* 10 */ HDR_NIL("accept-language"),
-    /* 11 */ HDR_NIL("accept-ranges"),
-    /* 12 */ HDR_NIL("accept"),
-    /* 13 */ HDR_NIL("access-control-allow-origin"),
-    /* 14 */ HDR_NIL("age"),
-    /* 15 */ HDR_NIL("allow"),
-    /* 16 */ HDR_NIL("authorization"),
-    /* 17 */ HDR_NIL("cache-control"),
-    /* 18 */ HDR_NIL("content-disposition"),
-    /* 19 */ HDR_NIL("content-encoding"),
-    /* 1A */ HDR_NIL("content-language"),
-    /* 1B */ HDR_NIL("content-length"),
-    /* 1C */ HDR_NIL("content-location"),
-    /* 1D */ HDR_NIL("content-range"),
-    /* 1E */ HDR_NIL("content-type"),
-    /* 1F */ HDR_NIL("cookie"),
-    /* 20 */ HDR_NIL("date"),
-    /* 21 */ HDR_NIL("etag"),
-    /* 22 */ HDR_NIL("expect"),
-    /* 23 */ HDR_NIL("expires"),
-    /* 24 */ HDR_NIL("from"),
-    /* 25 */ HDR_NIL("host"),
-    /* 26 */ HDR_NIL("if-match"),
-    /* 27 */ HDR_NIL("if-modified-since"),
-    /* 28 */ HDR_NIL("if-none-match"),
-    /* 29 */ HDR_NIL("if-range"),
-    /* 2A */ HDR_NIL("if-unmodified-since"),
-    /* 2B */ HDR_NIL("last-modified"),
-    /* 2C */ HDR_NIL("link"),
-    /* 2D */ HDR_NIL("location"),
-    /* 2E */ HDR_NIL("max-forwards"),
-    /* 2F */ HDR_NIL("proxy-authenticate"),
-    /* 30 */ HDR_NIL("proxy-authorization"),
-    /* 31 */ HDR_NIL("range"),
-    /* 32 */ HDR_NIL("referer"),
-    /* 33 */ HDR_NIL("refresh"),
-    /* 34 */ HDR_NIL("retry-after"),
-    /* 35 */ HDR_NIL("server"),
-    /* 36 */ HDR_NIL("set-cookie"),
-    /* 37 */ HDR_NIL("strict-transport-security"),
-    /* 38 */ HDR_NIL("transfer-encoding"),
-    /* 39 */ HDR_NIL("user-agent"),
-    /* 3A */ HDR_NIL("vary"),
-    /* 3B */ HDR_NIL("via"),
     /* 3C */ HDR_NIL("www-authenticate"),
+    /* 3B */ HDR_NIL("via"),
+    /* 3A */ HDR_NIL("vary"),
+    /* 39 */ HDR_NIL("user-agent"),
+    /* 38 */ HDR_NIL("transfer-encoding"),
+    /* 37 */ HDR_NIL("strict-transport-security"),
+    /* 36 */ HDR_NIL("set-cookie"),
+    /* 35 */ HDR_NIL("server"),
+    /* 34 */ HDR_NIL("retry-after"),
+    /* 33 */ HDR_NIL("refresh"),
+    /* 32 */ HDR_NIL("referer"),
+    /* 31 */ HDR_NIL("range"),
+    /* 30 */ HDR_NIL("proxy-authorization"),
+    /* 2F */ HDR_NIL("proxy-authenticate"),
+    /* 2E */ HDR_NIL("max-forwards"),
+    /* 2D */ HDR_NIL("location"),
+    /* 2C */ HDR_NIL("link"),
+    /* 2B */ HDR_NIL("last-modified"),
+    /* 2A */ HDR_NIL("if-unmodified-since"),
+    /* 29 */ HDR_NIL("if-range"),
+    /* 28 */ HDR_NIL("if-none-match"),
+    /* 27 */ HDR_NIL("if-modified-since"),
+    /* 26 */ HDR_NIL("if-match"),
+    /* 25 */ HDR_NIL("host"),
+    /* 24 */ HDR_NIL("from"),
+    /* 23 */ HDR_NIL("expires"),
+    /* 22 */ HDR_NIL("expect"),
+    /* 21 */ HDR_NIL("etag"),
+    /* 20 */ HDR_NIL("date"),
+    /* 1F */ HDR_NIL("cookie"),
+    /* 1E */ HDR_NIL("content-type"),
+    /* 1D */ HDR_NIL("content-range"),
+    /* 1C */ HDR_NIL("content-location"),
+    /* 1B */ HDR_NIL("content-length"),
+    /* 1A */ HDR_NIL("content-language"),
+    /* 19 */ HDR_NIL("content-encoding"),
+    /* 18 */ HDR_NIL("content-disposition"),
+    /* 17 */ HDR_NIL("cache-control"),
+    /* 16 */ HDR_NIL("authorization"),
+    /* 15 */ HDR_NIL("allow"),
+    /* 14 */ HDR_NIL("age"),
+    /* 13 */ HDR_NIL("access-control-allow-origin"),
+    /* 12 */ HDR_NIL("accept"),
+    /* 11 */ HDR_NIL("accept-ranges"),
+    /* 10 */ HDR_NIL("accept-language"),
+    /* 0F */ HDR_NIL("accept-encoding"),
+    /* 0E */ HDR_NIL("accept-charset"),
+    /* 0D */ HDR_VAL(":status", "401"),
+    /* 0C */ HDR_VAL(":status", "400"),
+    /* 0B */ HDR_VAL(":status", "403"),
+    /* 0A */ HDR_VAL(":status", "404"),
+    /* 09 */ HDR_VAL(":status", "500"),
+    /* 08 */ HDR_VAL(":status", "200"),
+    /* 07 */ HDR_VAL(":scheme", "https"),
+    /* 06 */ HDR_VAL(":scheme", "http"),
+    /* 05 */ HDR_VAL(":path", "/index.html"),
+    /* 04 */ HDR_VAL(":path", "/"),
+    /* 03 */ HDR_VAL(":method", "POST"),
+    /* 02 */ HDR_VAL(":method", "GET"),
+    /* 01 */ HDR_NIL(":authority"),
 };
 
 static hpack_header_block_t static_block = {
     .size    = 0,
-    .headers = (hpack_header_field_t **)&static_table,
+    .headers = static_table,
     .len     = (sizeof(static_table) / sizeof(static_table[0])),
-    .max     = (sizeof(static_table) / sizeof(static_table[0])) + 1,
+    .max     = (sizeof(static_table) / sizeof(static_table[0])),
 };
 
 /* Block
@@ -154,12 +155,34 @@ hpack_header_block_mrproper (hpack_header_block_t *block)
     return ret_ok;
 }
 
+static inline void
+block_remove_n_headers (hpack_header_block_t *block, uint32_t to_remove)
+{
+    if (to_remove <= 0)
+        return;
+
+    memmove (block->headers, &block->headers[to_remove],
+             (block->len - to_remove) * sizeof(hpack_header_field_t));
+
+    block->len -= to_remove;
+}
+
+
 ret_t
 hpack_header_block_set_max (hpack_header_block_t *block,
                             uint32_t              max)
 {
-    if (max < block->len) {
-        /* TODO */
+    /* Increase */
+    if (max > block->size) {
+        block->headers = realloc (block->headers,
+                                  (block->size + BLOCK_PTRS_INCREASE) * sizeof(hpack_header_field_t));
+        if (unlikely (block->headers == NULL)) return ret_nomem;
+        block->size +=  BLOCK_PTRS_INCREASE;
+    }
+
+    /* Decrease */
+    else if (block->len > max) {
+        block_remove_n_headers (block, block->len - max);
     }
 
     block->max = max;
@@ -170,13 +193,12 @@ ret_t
 hpack_header_block_add (hpack_header_block_t *block,
                         hpack_header_field_t *e)
 {
-    if (block->size - block->len <= 0) {
-        block->headers = realloc (block->headers, sizeof(void *) * (block->size +  BLOCK_PTRS_INCREASE));
-        if (unlikely (block->headers == NULL)) return ret_nomem;
-        block->size +=  BLOCK_PTRS_INCREASE;
+    if (block->len >= block->max) {
+        /* This is clearly suboptimal. [TODO]: Round FIFO */
+        block_remove_n_headers (block, 1);
     }
 
-    block->headers[block->len] = e;
+    memcpy (&block->headers[block->len], e, sizeof(hpack_header_field_t));
     block->len++;
 
     return ret_ok;
@@ -187,12 +209,12 @@ hpack_header_block_get (hpack_header_block_t  *block,
                         uint32_t               n,
                         hpack_header_field_t **e)
 {
-    if (n <= block->len) {
+    if (n >= block->len) {
         return ret_not_found;
     }
 
     if (e != NULL) {
-        *e = block->headers[n-1];
+        *e = &block->headers[block->len - (n+1)];
     }
 
     return ret_ok;
@@ -237,10 +259,11 @@ hpack_header_table_get (hpack_header_table_t  *table,
                         uint32_t               n,
                         hpack_header_field_t **field)
 {
-    if (n < table->dynamic.len) {
-        return hpack_header_block_get (&table->dynamic, n, field);
+    if (n <= table->dynamic.len) {
+        /* n:1 == pos:0 */
+        return hpack_header_block_get (&table->dynamic, n-1, field);
     }
 
-    uint32_t n_static = n - table->dynamic.len;
+    uint32_t n_static = n - (table->dynamic.len + 1);
     return hpack_header_block_get (&table->statics, n_static, field);
 }

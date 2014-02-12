@@ -73,7 +73,7 @@ START_TEST (_add1) {
 
     for (int i=0; i<6; i++) {
         hpack_header_field_init (&field[i]);
-        chula_buffer_add_va  (&field[i].name, "%d", i);
+        chula_buffer_add_va  (&field[i].name, "%c", 'a'+i);
         chula_buffer_add_str (&field[i].value, "foobar");
     }
 
@@ -84,26 +84,25 @@ START_TEST (_add1) {
     }
     ck_assert (block.len == 5);
 
-    /* Add field #6, #1 is evicted */
-    /* ret = hpack_header_block_add (&block, &field[5]); */
-    /* ck_assert (ret == ret_ok); */
-    /* ck_assert (block.len == 5); */
+    /*    |4  3  2  1  0| */
+    /*    |             | */
+    /* [a][b][c][d][e][f] */
 
     /* Get pos=0 */
     fi  = NULL;
     ret = hpack_header_block_get (&block, 0, &fi);
     ck_assert (ret == ret_ok);
     ck_assert (fi != NULL);
-    ck_assert_str_eq (fi->name.buf, "5");
+    ck_assert_str_eq (fi->name.buf, "f");
 
     /* Get pos=1 */
     fi = NULL;
     ret = hpack_header_block_get (&block, 1, &fi);
-    ck_assert_str_eq (fi->name.buf, "4");
+    ck_assert_str_eq (fi->name.buf, "e");
 
     /* Get pos=5 */
     ret = hpack_header_block_get (&block, 4, &fi);
-    ck_assert_str_eq (fi->name.buf, "1");
+    ck_assert_str_eq (fi->name.buf, "b");
 
     /* Clean up */
     ret = hpack_header_block_mrproper (&block);

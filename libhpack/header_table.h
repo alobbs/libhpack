@@ -35,14 +35,14 @@
 
 #include <libchula/list.h>
 #include <libchula/buffer.h>
-#include "libhpack/header_field.h"
+#include <libhpack/header_field.h>
 
 
 typedef struct {
-    hpack_header_field_t **headers;
-    uint32_t               len;
-    uint32_t               size;
-    uint32_t               max;
+    hpack_header_field_t *headers;
+    uint32_t              len;
+    uint32_t              size;
+    uint32_t              max;
 } hpack_header_block_t;
 
 ret_t hpack_header_block_init     (hpack_header_block_t *block);

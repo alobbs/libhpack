@@ -71,10 +71,10 @@ parse_string (chula_buffer_t       *buf,
               chula_buffer_t       *string,
               unsigned int         *consumed)
 {
-    ret_t          ret;
-    int            n         = offset;
-    int            con       = 0;
-    int            len       = 0;
+    ret_t ret;
+    int   n    = offset;
+    int   con  = 0;
+    int   len  = 0;
 
 /*
      0   1   2   3   4   5   6   7
