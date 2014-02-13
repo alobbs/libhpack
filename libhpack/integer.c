@@ -95,7 +95,7 @@ integer_encode (int            N,
 }
 
 static inline bool
-isnt_final_byte (char *s, int N)
+isnt_final_byte (const unsigned char *s, int N)
 {
     return (*s & limits[N]) & (1 << (N-1));
 }
@@ -124,7 +124,7 @@ integer_decode (int            N,
                 unsigned char *mem,
                 unsigned char  mem_len,
                 int           *ret,
-                int           *consumed)
+                unsigned int  *consumed)
 {
     const unsigned char limit = limits[N];
 

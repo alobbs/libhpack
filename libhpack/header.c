@@ -71,10 +71,10 @@ parse_string (chula_buffer_t       *buf,
               chula_buffer_t       *string,
               unsigned int         *consumed)
 {
-    ret_t ret;
-    int   n    = offset;
-    int   con  = 0;
-    int   len  = 0;
+    ret_t        ret;
+    int          n    = offset;
+    unsigned int con  = 0;
+    int          len  = 0;
 
 /*
      0   1   2   3   4   5   6   7
@@ -85,7 +85,7 @@ parse_string (chula_buffer_t       *buf,
    +-------------------------------+
 */
     /* Name */
-    ret = integer_decode (8, buf->buf + n, buf->len - n, &len, &con);
+    ret = integer_decode (8, (unsigned char*)buf->buf + n, buf->len - n, &len, &con);
     if (unlikely (ret != ret_ok)) return ret_error;
     n += con;
 
@@ -109,7 +109,7 @@ parse_indexed (chula_buffer_t       *buf,
     ret_t                 ret;
     int                   num;
     hpack_header_field_t *entry = NULL;
-    int                   con   = 0;
+    unsigned int          con   = 0;
     int                   n     = offset;
 /*
    Indexed Header Field
@@ -119,7 +119,7 @@ parse_indexed (chula_buffer_t       *buf,
    +---+---------------------------+
 */
     /* Read number */
-    ret = integer_decode (7, buf->buf + n, buf->len - n, &num, &con);
+    ret = integer_decode (7, (unsigned char *)buf->buf + n, buf->len - n, &num, &con);
     if (ret != ret_ok) return ret_error;
 
     /* Retrieve header table entry */
@@ -141,10 +141,10 @@ parse_header_pair (chula_buffer_t       *buf,
                    hpack_header_field_t *field,
                    unsigned int         *consumed)
 {
-    ret_t ret;
-    int   n    = offset;
-    int   con  = 0;
-    int   len  = 0;
+    ret_t          ret;
+    int            n    = offset;
+    unsigned int   con  = 0;
+    int            len  = 0;
 
 /*
              With Indexing                       Without Indexing
@@ -175,7 +175,7 @@ parse_header_pair (chula_buffer_t       *buf,
     if (buf->buf[n] & 0x3Fu) {
         hpack_header_field_t *entry;
 
-        ret = integer_decode (6, buf->buf+n, buf->len-n, &len, &con);
+        ret = integer_decode (6, (unsigned char *)buf->buf+n, buf->len-n, &len, &con);
         if (unlikely (ret != ret_ok)) return ret_error;
         n += con;
 
@@ -237,4 +237,6 @@ hpack_header_field_parse (chula_buffer_t       *buf,
         ret = hpack_header_table_add (table, field);
         if (ret != ret_ok) return ret;
     }
+
+    return ret_ok;
 }
