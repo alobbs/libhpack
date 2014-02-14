@@ -151,38 +151,36 @@ START_TEST (request1) {
 
     offset += consumed;
     ck_assert (offset == 1);
-    hpack_header_field_clean (&field);
+    memset (&field, 0, sizeof(field));
 
     /* 87 - :scheme: http */
     ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == 1);
-//    ck_assert_str_eq (field.name.buf, ":scheme");
-//    ck_assert_str_eq (field.value.buf, "http");
+    ck_assert_str_eq (field.name.buf, ":scheme");
+    ck_assert_str_eq (field.value.buf, "http");
 
     offset += consumed;
     ck_assert (offset == 2);
-    hpack_header_field_clean (&field);
+    memset (&field, 0, sizeof(field));
 
     /* 86 - :path: / */
     ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == 1);
-//    ck_assert_str_eq (field.name.buf, ":path");
-//    ck_assert_str_eq (field.value.buf, "/");
+    ck_assert_str_eq (field.name.buf, ":path");
+    ck_assert_str_eq (field.value.buf, "/");
 
     offset += consumed;
     ck_assert (offset == 3);
-    hpack_header_field_clean (&field);
+    memset (&field, 0, sizeof(field));
 
     /* 04 - :authority: www.example.com */
     ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
-//    ck_assert (consumed == 1);
-
-
-    printf ("consumed %d\n", consumed);
-//  ck_assert (consumed_now == 20);
+    ck_assert (consumed == 17);
+    ck_assert_str_eq (field.name.buf, ":authority");
+    ck_assert_str_eq (field.value.buf, "www.example.com");
 
     hpack_header_table_mrproper (&table);
 }
