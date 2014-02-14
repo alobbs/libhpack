@@ -223,14 +223,14 @@ hpack_header_field_parse (chula_buffer_t       *buf,
     /* Indexed header field */
     if (c & 0x80u) {
         /* 1st bit set */
-        return parse_indexed (buf, offset, table, field, consumed);
+        ret = parse_indexed (buf, offset, table, field, consumed);
+        if (ret != ret_ok) return ret;
     }
-
-    ret = parse_header_pair (buf, offset, table, field, consumed);
-    if (ret != ret_ok)
-        return ret;
-
-    printf ("%s: %s\n", field->name.buf, field->value.buf);
+    else {
+        ret = parse_header_pair (buf, offset, table, field, consumed);
+        if (ret != ret_ok)
+            return ret;
+    }
 
     bool skip_indexing = ((c & 0xc0) == 0x40u);
     if (!skip_indexing) {
