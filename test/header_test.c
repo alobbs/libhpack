@@ -60,7 +60,6 @@ START_TEST (literal_w_index) {
     ck_assert_str_eq (field.name.buf, "custom-key");
     ck_assert_str_eq (field.value.buf, "custom-header");
 
-    hpack_header_field_mrproper (&field);
     hpack_header_table_mrproper (&table);
 }
 END_TEST
@@ -88,7 +87,6 @@ START_TEST (literal_wo_index) {
     ck_assert_str_eq (field.name.buf, ":path");
     ck_assert_str_eq (field.value.buf, "/sample/path");
 
-    hpack_header_field_mrproper (&field);
     hpack_header_table_mrproper (&table);
 }
 END_TEST
@@ -110,7 +108,6 @@ START_TEST (indexed) {
     ck_assert_str_eq (field.name.buf, ":method");
     ck_assert_str_eq (field.value.buf, "GET");
 
-    hpack_header_field_mrproper (&field);
     hpack_header_table_mrproper (&table);
 }
 END_TEST
@@ -149,8 +146,8 @@ START_TEST (request1) {
     ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == 1);
-//    ck_assert_str_eq (field.name.buf, ":method");
-//    ck_assert_str_eq (field.value.buf, "GET");
+    ck_assert_str_eq (field.name.buf, ":method");
+    ck_assert_str_eq (field.value.buf, "GET");
 
     offset += consumed;
     ck_assert (offset == 1);
@@ -187,7 +184,6 @@ START_TEST (request1) {
     printf ("consumed %d\n", consumed);
 //  ck_assert (consumed_now == 20);
 
-    hpack_header_field_mrproper (&field);
     hpack_header_table_mrproper (&table);
 }
 END_TEST

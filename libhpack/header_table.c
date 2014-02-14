@@ -145,13 +145,15 @@ ret_t
 hpack_header_block_mrproper (hpack_header_block_t *block)
 {
     if (block->headers != NULL) {
+        for (int n=0; n<block->len; n++) {
+            hpack_header_field_mrproper (&block->headers[n]);
+        }
         free (block->headers);
         block->headers = NULL;
     }
 
     block->size = 0;
     block->len  = 0;
-
     return ret_ok;
 }
 
@@ -233,6 +235,9 @@ hpack_header_table_init (hpack_header_table_t *table)
     ret = hpack_header_block_init (&table->dynamic);
     if (unlikely (ret != ret_ok)) return ret;
 
+    ret = hpack_header_block_set_max (&table->dynamic, BLOCK_PTRS_INCREASE);
+    if (unlikely (ret != ret_ok)) return ret;
+
     /* Static block */
     memcpy (&table->statics, &static_block, sizeof(hpack_header_block_t));
 
@@ -243,7 +248,6 @@ ret_t
 hpack_header_table_mrproper (hpack_header_table_t *table)
 {
     hpack_header_block_mrproper (&table->dynamic);
-    hpack_header_block_mrproper (&table->statics);
     return ret_ok;
 }
 
