@@ -89,6 +89,11 @@ parse_string (chula_buffer_t       *buf,
     if (unlikely (ret != ret_ok)) return ret_error;
     n += con;
 
+    /* Copy information */
+    if (buf->len < n + len) {
+        return ret_eagain;
+    }
+
     ret = chula_buffer_add (string, buf->buf + n, len);
     if (unlikely (ret != ret_ok)) return ret_error;
     n += len;
