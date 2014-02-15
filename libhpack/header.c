@@ -188,9 +188,6 @@ parse_header_pair (chula_buffer_t       *buf,
         if (ret != ret_ok) return ret;
 
         chula_buffer_add_buffer (&field->name, &entry->name);
-
-//        hpack_header_table_entry_t *entry = &static_table[len-1];
-//        printf ("parse_indexed: num %d -> %s : %s\n", len, entry->name.buf, entry->value.buf);
     }
     else {
         n += 1;
@@ -198,8 +195,6 @@ parse_header_pair (chula_buffer_t       *buf,
         ret = parse_string (buf, n, &field->name, &con);
         if (ret != ret_ok) return ret;
         n += con;
-
-//        printf ("Header name: %s\n", field->name.buf);
     }
 
     /* Value
@@ -207,8 +202,6 @@ parse_header_pair (chula_buffer_t       *buf,
     ret = parse_string (buf, n, &field->value, &con);
     if (ret != ret_ok) return ret;
     n += con;
-
-//    printf ("       value: %s\n", field->value.buf);
 
     /* Return */
     *consumed = n - offset;
@@ -223,7 +216,8 @@ hpack_header_field_parse (chula_buffer_t       *buf,
                           unsigned int         *consumed)
 {
     ret_t ret;
-    char  c    = buf->buf[offset];
+    bool  skip_indexing;
+    char  c              = buf->buf[offset];
 
     /* Indexed header field */
     if (c & 0x80u) {
@@ -233,11 +227,10 @@ hpack_header_field_parse (chula_buffer_t       *buf,
     }
     else {
         ret = parse_header_pair (buf, offset, table, field, consumed);
-        if (ret != ret_ok)
-            return ret;
+        if (ret != ret_ok) return ret;
     }
 
-    bool skip_indexing = ((c & 0xc0) == 0x40u);
+    skip_indexing = ((c & 0xc0) == 0x40u);
     if (!skip_indexing) {
         ret = hpack_header_table_add (table, field);
         if (ret != ret_ok) return ret;
