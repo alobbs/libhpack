@@ -188,9 +188,9 @@ END_TEST
 
 
 int
-literal_headers (void)
+header_fields (void)
 {
-    Suite *s1 = suite_create("Literal Headers");
+    Suite *s1 = suite_create("Header fields parsing");
     check_add (s1, literal_w_index);
     check_add (s1, literal_wo_index);
     check_add (s1, indexed);
@@ -203,7 +203,7 @@ header_tests (void)
 {
     int ret;
 
-    ret = literal_headers();
+    ret = header_fields();
 
     return ret;
 }
