@@ -40,6 +40,10 @@ typedef struct {
     chula_buffer_t value;
 } hpack_header_field_t;
 
+#define HPACK_HDR_FLD_INIT     \
+    { .name  = CHULA_BUF_INIT, \
+      .value = CHULA_BUF_INIT }
+
 ret_t hpack_header_field_init     (hpack_header_field_t *header);
 ret_t hpack_header_field_clean    (hpack_header_field_t *header);
 ret_t hpack_header_field_mrproper (hpack_header_field_t *header);
