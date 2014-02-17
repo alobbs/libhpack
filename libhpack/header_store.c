@@ -30,25 +30,77 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LIBHPACK_HEADER_FIELD_H
-#define LIBHPACK_HEADER_FIELD_H
+#include "header_store.h"
 
-#include <libchula/buffer.h>
+typedef hpack_header_store_entry_t entry_t;
 
-typedef struct {
-    chula_buffer_t name;
-    chula_buffer_t value;
-} hpack_header_field_t;
+static ret_t
+entry_new (entry_t **e)
+{
+    entry_t *obj;
 
-#define HPACK_HDR_FLD(h) ((hpack_header_field_t *)(h))
+    obj = (entry_t *) malloc (sizeof(entry_t));
+    if (unlikely (obj == NULL)) return ret_nomem;
 
-#define HPACK_HDR_FLD_INIT     \
-    { .name  = CHULA_BUF_INIT, \
-      .value = CHULA_BUF_INIT }
+    INIT_LIST_HEAD (&obj->entry);
+    hpack_header_field_init (&obj->field);
 
-ret_t hpack_header_field_init     (hpack_header_field_t *header);
-ret_t hpack_header_field_clean    (hpack_header_field_t *header);
-ret_t hpack_header_field_mrproper (hpack_header_field_t *header);
-ret_t hpack_header_field_copy     (hpack_header_field_t *header, hpack_header_field_t *tocopy);
+    *e = obj;
+    return ret_ok;
+}
 
-#endif /* LIBHPACK_HEADER_FIELD_H */
+static void
+entry_free (entry_t *e)
+{
+    hpack_header_field_mrproper (&e->field);
+    free (e);
+}
+
+
+static ret_t
+emit (hpack_header_store_t *store,
+      hpack_header_field_t *field)
+{
+    ret_t    ret;
+    entry_t *e;
+
+    ret = entry_new (&e);
+    if (unlikely (ret != ret_ok)) return ret;
+
+    hpack_header_field_init (&e->field);
+    hpack_header_field_copy (&e->field, field);
+
+    chula_list_add_tail (&e->entry, &store->headers);
+    return ret_ok;
+}
+
+
+ret_t
+hpack_header_store_emit (hpack_header_store_t *store,
+                         hpack_header_field_t *field)
+{
+    return store->emit (store, field);
+}
+
+
+ret_t
+hpack_header_store_init (hpack_header_store_t *store)
+{
+    INIT_LIST_HEAD (&store->headers);
+    store->emit = emit;
+    return ret_ok;
+}
+
+
+ret_t
+hpack_header_store_mrproper (hpack_header_store_t *store)
+{
+    chula_list_t *i, *tmp;
+
+    list_for_each_safe (i, tmp, &store->headers) {
+        entry_t *e = list_entry(i, entry_t, entry);
+        entry_free(e);
+    }
+
+    return ret_ok;
+}

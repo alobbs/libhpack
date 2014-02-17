@@ -32,6 +32,7 @@
 
 #include "libchula/testing_macros.h"
 #include "libhpack/header.h"
+#include "libhpack/header_parser.h"
 
 /* Literal Headers
  */
@@ -44,32 +45,32 @@ START_TEST (literal_w_index) {
    0d                                      |   Literal value (len = 13)
    6375 7374 6f6d 2d68 6561 6465 72        | custom-header
 */
-    ret_t                ret;
-    chula_buffer_t       header;
-    hpack_header_table_t table;
-    hpack_header_field_t field;
-    unsigned int         consumed = 0;
+    ret_t                 ret;
+    chula_buffer_t        header;
+    hpack_header_parser_t parser;
+    hpack_header_field_t  field;
+    unsigned int          consumed = 0;
 
-    hpack_header_table_init (&table);
-    hpack_header_field_init (&field);
+    hpack_header_parser_init (&parser);
+    hpack_header_field_init  (&field);
     chula_buffer_fake_str (&header, "\x00\x0a\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\x0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72");
 
-    ret = hpack_header_field_parse (&header, 0, &table, &field, &consumed);
+    ret = hpack_header_parser_field (&parser, &header, 0, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == header.len);
     ck_assert_str_eq (field.name.buf, "custom-key");
     ck_assert_str_eq (field.value.buf, "custom-header");
 
-    hpack_header_table_mrproper (&table);
+    hpack_header_parser_mrproper (&parser);
 }
 END_TEST
 
 START_TEST (literal_wo_index) {
-    ret_t                ret;
-    chula_buffer_t       header;
-    hpack_header_table_t table;
-    hpack_header_field_t field;
-    unsigned int         consumed = 0;
+    ret_t                 ret;
+    chula_buffer_t        header;
+    hpack_header_parser_t parser;
+    hpack_header_field_t  field;
+    unsigned int          consumed = 0;
 /*
    44                                      | == Literal not indexed ==
                                            |   Indexed name (idx = 4) :path
@@ -77,48 +78,48 @@ START_TEST (literal_wo_index) {
    2f73 616d 706c 652f 7061 7468           |   /sample/path
 */
 
-    hpack_header_table_init (&table);
-    hpack_header_field_init (&field);
+    hpack_header_parser_init (&parser);
+    hpack_header_field_init  (&field);
     chula_buffer_fake_str (&header, "\x44\x0c\x2f\x73\x61\x6d\x70\x6c\x65\x2f\x70\x61\x74\x68");
 
-    ret = hpack_header_field_parse (&header, 0, &table, &field, &consumed);
+    ret = hpack_header_parser_field (&parser, &header, 0, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == header.len);
     ck_assert_str_eq (field.name.buf, ":path");
     ck_assert_str_eq (field.value.buf, "/sample/path");
 
-    hpack_header_table_mrproper (&table);
+    hpack_header_parser_mrproper (&parser);
 }
 END_TEST
 
 START_TEST (indexed) {
-    ret_t                ret;
-    chula_buffer_t       header;
-    hpack_header_table_t table;
-    hpack_header_field_t field;
-    unsigned int         consumed = 0;
+    ret_t                 ret;
+    chula_buffer_t        header;
+    hpack_header_parser_t parser;
+    hpack_header_field_t  field;
+    unsigned int          consumed = 0;
 
-    hpack_header_table_init (&table);
+    hpack_header_parser_init (&parser);
     hpack_header_field_init (&field);
     chula_buffer_fake_str (&header, "\x82");
 
-    ret = hpack_header_field_parse (&header, 0, &table, &field, &consumed);
+    ret = hpack_header_parser_field (&parser, &header, 0, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == header.len);
     ck_assert_str_eq (field.name.buf, ":method");
     ck_assert_str_eq (field.value.buf, "GET");
 
-    hpack_header_table_mrproper (&table);
+    hpack_header_parser_mrproper (&parser);
 }
 END_TEST
 
 START_TEST (request1) {
-    ret_t                ret;
-    chula_buffer_t       header;
-    hpack_header_table_t table;
-    hpack_header_field_t field;
-    unsigned int         offset   = 0;
-    unsigned int         consumed = 0;
+    ret_t                 ret;
+    chula_buffer_t        header;
+    hpack_header_parser_t parser;
+    hpack_header_field_t  field;
+    unsigned int          offset   = 0;
+    unsigned int          consumed = 0;
 
 /*
    82                                      | == Indexed - Add ==
@@ -140,10 +141,10 @@ START_TEST (request1) {
 
     chula_buffer_fake_str (&header, "\x82\x87\x86\x04\x0f\x77\x77\x77\x2e\x65\x78\x61\x6d\x70\x6c\x65\x2e\x63\x6f\x6d");
     hpack_header_field_init (&field);
-    hpack_header_table_init (&table);
+    hpack_header_parser_init (&parser);
 
     /* 82 - :method: GET */
-    ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
+    ret = hpack_header_parser_field (&parser, &header, offset, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == 1);
     ck_assert_str_eq (field.name.buf, ":method");
@@ -154,7 +155,7 @@ START_TEST (request1) {
     memset (&field, 0, sizeof(field));
 
     /* 87 - :scheme: http */
-    ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
+    ret = hpack_header_parser_field (&parser, &header, offset, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == 1);
     ck_assert_str_eq (field.name.buf, ":scheme");
@@ -165,7 +166,7 @@ START_TEST (request1) {
     memset (&field, 0, sizeof(field));
 
     /* 86 - :path: / */
-    ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
+    ret = hpack_header_parser_field (&parser, &header, offset, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == 1);
     ck_assert_str_eq (field.name.buf, ":path");
@@ -176,13 +177,55 @@ START_TEST (request1) {
     memset (&field, 0, sizeof(field));
 
     /* 04 - :authority: www.example.com */
-    ret = hpack_header_field_parse (&header, offset, &table, &field, &consumed);
+    ret = hpack_header_parser_field (&parser, &header, offset, &field, &consumed);
     ck_assert (ret == ret_ok);
     ck_assert (consumed == 17);
     ck_assert_str_eq (field.name.buf, ":authority");
     ck_assert_str_eq (field.value.buf, "www.example.com");
 
-    hpack_header_table_mrproper (&table);
+    hpack_header_parser_mrproper (&parser);
+}
+END_TEST
+
+START_TEST (request1_full) {
+    ret_t                       ret;
+    chula_buffer_t              raw;
+    hpack_header_store_t        store;
+    hpack_header_parser_t       parser;
+    hpack_header_store_entry_t *se;
+    unsigned int                offset   = 0;
+    unsigned int                consumed = 0;
+
+    chula_buffer_fake_str (&raw, "\x82\x87\x86\x04\x0f\x77\x77\x77\x2e\x65\x78\x61\x6d\x70\x6c\x65\x2e\x63\x6f\x6d");
+
+    hpack_header_store_init (&store);
+    hpack_header_parser_init (&parser);
+    hpack_header_parser_reg_store (&parser, &store);
+
+    /* Full header parse */
+    ret = hpack_header_parser_all (&parser, &raw, offset, &consumed);
+    ck_assert (ret == ret_ok);
+    ck_assert (consumed == raw.len);
+
+    /* Check headers */
+    se = list_entry (store.headers.next, hpack_header_store_entry_t, entry);
+    ck_assert_str_eq (se->field.name.buf, ":method");
+    ck_assert_str_eq (se->field.value.buf, "GET");
+
+    se = list_entry (store.headers.next->next, hpack_header_store_entry_t, entry);
+    ck_assert_str_eq (se->field.name.buf, ":scheme");
+    ck_assert_str_eq (se->field.value.buf, "http");
+
+    se = list_entry (store.headers.next->next->next, hpack_header_store_entry_t, entry);
+    ck_assert_str_eq (se->field.name.buf, ":path");
+    ck_assert_str_eq (se->field.value.buf, "/");
+
+    se = list_entry (store.headers.next->next->next->next, hpack_header_store_entry_t, entry);
+    ck_assert_str_eq (se->field.name.buf, ":authority");
+    ck_assert_str_eq (se->field.value.buf, "www.example.com");
+
+    hpack_header_store_mrproper (&store);
+    hpack_header_parser_mrproper (&parser);
 }
 END_TEST
 
@@ -199,11 +242,21 @@ header_fields (void)
 }
 
 int
+header_full (void)
+{
+    Suite *s1 = suite_create("Header fields parsing");
+    check_add (s1, request1_full);
+    run_test (s1);
+}
+
+
+int
 header_tests (void)
 {
-    int ret;
+    int re;
 
-    ret = header_fields();
+    re  = header_fields();
+    re += header_full();
 
-    return ret;
+    return re;
 }

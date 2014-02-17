@@ -40,6 +40,7 @@ hpack_header_field_init (hpack_header_field_t *header)
     return ret_ok;
 }
 
+
 ret_t
 hpack_header_field_clean (hpack_header_field_t *header)
 {
@@ -56,10 +57,21 @@ hpack_header_field_clean (hpack_header_field_t *header)
     return ret_ok;
 }
 
+
 ret_t
 hpack_header_field_mrproper (hpack_header_field_t *header)
 {
     chula_buffer_mrproper (&header->name);
     chula_buffer_mrproper (&header->value);
+    return ret_ok;
+}
+
+
+ret_t
+hpack_header_field_copy (hpack_header_field_t *header,
+                         hpack_header_field_t *tocopy)
+{
+    chula_buffer_add_buffer (&header->name, &tocopy->name);
+    chula_buffer_add_buffer (&header->value, &tocopy->value);
     return ret_ok;
 }

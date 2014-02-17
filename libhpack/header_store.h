@@ -30,25 +30,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LIBHPACK_HEADER_FIELD_H
-#define LIBHPACK_HEADER_FIELD_H
+#ifndef LIBHPACK_HEADER_STORE_H
+#define LIBHPACK_HEADER_STORE_H
 
-#include <libchula/buffer.h>
+#include <libchula/list.h>
+#include <libhpack/header_field.h>
+#include <libhpack/header_store.h>
+
+/* Forward declaration */
+typedef struct hpack_header_store hpack_header_store_t;
+
+/* Callback prototypes */
+typedef ret_t (*hpack_header_store_emit_f) (hpack_header_store_t *store, hpack_header_field_t *field);
+
+/* Classes */
+struct hpack_header_store {
+    chula_list_t              headers;
+    hpack_header_store_emit_f emit;
+};
 
 typedef struct {
-    chula_buffer_t name;
-    chula_buffer_t value;
-} hpack_header_field_t;
+    hpack_header_field_t field;
+    chula_list_t         entry;
+} hpack_header_store_entry_t;
 
-#define HPACK_HDR_FLD(h) ((hpack_header_field_t *)(h))
+ret_t hpack_header_store_init     (hpack_header_store_t *store);
+ret_t hpack_header_store_mrproper (hpack_header_store_t *store);
 
-#define HPACK_HDR_FLD_INIT     \
-    { .name  = CHULA_BUF_INIT, \
-      .value = CHULA_BUF_INIT }
+ret_t hpack_header_store_emit     (hpack_header_store_t *store,
+                                   hpack_header_field_t *field);
 
-ret_t hpack_header_field_init     (hpack_header_field_t *header);
-ret_t hpack_header_field_clean    (hpack_header_field_t *header);
-ret_t hpack_header_field_mrproper (hpack_header_field_t *header);
-ret_t hpack_header_field_copy     (hpack_header_field_t *header, hpack_header_field_t *tocopy);
-
-#endif /* LIBHPACK_HEADER_FIELD_H */
+#endif /* LIBHPACK_HEADER_STORE_H */
