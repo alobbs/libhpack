@@ -188,13 +188,13 @@ START_TEST (request1) {
 END_TEST
 
 START_TEST (request1_full) {
-    ret_t                       ret;
-    chula_buffer_t              raw;
-    hpack_header_store_t        store;
-    hpack_header_parser_t       parser;
-    hpack_header_store_entry_t *se;
-    unsigned int                offset   = 0;
-    unsigned int                consumed = 0;
+    ret_t                  ret;
+    chula_buffer_t         raw;
+    hpack_header_store_t   store;
+    hpack_header_parser_t  parser;
+    hpack_header_field_t  *field;
+    unsigned int           offset   = 0;
+    unsigned int           consumed = 0;
 
     chula_buffer_fake_str (&raw, "\x82\x87\x86\x04\x0f\x77\x77\x77\x2e\x65\x78\x61\x6d\x70\x6c\x65\x2e\x63\x6f\x6d");
 
@@ -208,22 +208,27 @@ START_TEST (request1_full) {
     ck_assert (consumed == raw.len);
 
     /* Check headers */
-    se = list_entry (store.headers.next, hpack_header_store_entry_t, entry);
-    ck_assert_str_eq (se->field.name.buf, ":method");
-    ck_assert_str_eq (se->field.value.buf, "GET");
+    ret = hpack_header_store_get_n (&store, 1, &field);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (field->name.buf, ":method");
+    ck_assert_str_eq (field->value.buf, "GET");
 
-    se = list_entry (store.headers.next->next, hpack_header_store_entry_t, entry);
-    ck_assert_str_eq (se->field.name.buf, ":scheme");
-    ck_assert_str_eq (se->field.value.buf, "http");
+    ret = hpack_header_store_get_n (&store, 2, &field);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (field->name.buf, ":scheme");
+    ck_assert_str_eq (field->value.buf, "http");
 
-    se = list_entry (store.headers.next->next->next, hpack_header_store_entry_t, entry);
-    ck_assert_str_eq (se->field.name.buf, ":path");
-    ck_assert_str_eq (se->field.value.buf, "/");
+    ret = hpack_header_store_get_n (&store, 3, &field);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (field->name.buf, ":path");
+    ck_assert_str_eq (field->value.buf, "/");
 
-    se = list_entry (store.headers.next->next->next->next, hpack_header_store_entry_t, entry);
-    ck_assert_str_eq (se->field.name.buf, ":authority");
-    ck_assert_str_eq (se->field.value.buf, "www.example.com");
+    ret = hpack_header_store_get_n (&store, 4, &field);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (field->name.buf, ":authority");
+    ck_assert_str_eq (field->value.buf, "www.example.com");
 
+    /* Clean up */
     hpack_header_store_mrproper (&store);
     hpack_header_parser_mrproper (&parser);
 }
