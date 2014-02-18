@@ -104,3 +104,20 @@ hpack_header_store_mrproper (hpack_header_store_t *store)
 
     return ret_ok;
 }
+
+
+ret_t
+hpack_header_store_get_n (hpack_header_store_t  *store,
+                          uint32_t               num,
+                          hpack_header_field_t **field)
+{
+    hpack_header_store_entry_t *i;
+
+    list_for_each_entry (i, &store->headers, entry) {
+        if (!--num) {
+            *field = &i->field;
+            return ret_ok;
+        }
+    }
+    return ret_not_found;
+}

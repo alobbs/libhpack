@@ -60,4 +60,8 @@ ret_t hpack_header_store_mrproper (hpack_header_store_t *store);
 ret_t hpack_header_store_emit     (hpack_header_store_t *store,
                                    hpack_header_field_t *field);
 
+ret_t hpack_header_store_get_n    (hpack_header_store_t  *store,
+                                   uint32_t               num,
+                                   hpack_header_field_t **field);
+
 #endif /* LIBHPACK_HEADER_STORE_H */
