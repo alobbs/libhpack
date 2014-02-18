@@ -209,6 +209,7 @@ START_TEST (request1_full) {
 
     chula_print_repr (chula, buffer, &raw);
     chula_print_repr (hpack, header_store, &store);
+    chula_print_repr (hpack, header_table, &parser.table);
 
     /* Check headers */
     ret = hpack_header_store_get_n (&store, 1, &field);

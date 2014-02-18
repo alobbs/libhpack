@@ -130,6 +130,10 @@ hpack_header_store_repr (hpack_header_store_t *store,
     hpack_header_store_entry_t *i;
     uint32_t                    max_len = 0;
 
+    chula_buffer_add_str (buf, "hpack_header_store at ");
+    chula_buffer_add_va  (buf, "0x%x", store);
+    chula_buffer_add_str (buf, ":\n");
+
     /* Find max header name length */
     list_for_each_entry (i, &store->headers, entry) {
         max_len = MAX(i->field.name.len, max_len);
@@ -137,10 +141,11 @@ hpack_header_store_repr (hpack_header_store_t *store,
 
     /* Build representation */
     list_for_each_entry (i, &store->headers, entry) {
+        chula_buffer_add_str    (buf, "  ");
         chula_buffer_add_buffer (buf, &i->field.name);
-        chula_buffer_add_str (buf, ": ");
+        chula_buffer_add_str    (buf, ": ");
         chula_buffer_add_char_n (buf, ' ', max_len - i->field.name.len);
         chula_buffer_add_buffer (buf, &i->field.value);
-        chula_buffer_add_str (buf, "\n");
+        chula_buffer_add_str    (buf, CRLF);
     }
 }

@@ -1333,7 +1333,6 @@ chula_buffer_repr (chula_buffer_t *buf,
         ascii_text += 1;
     }
 
-
     chula_buffer_add (output, text, strlen(text));
     chula_buffer_add_str (output, CRLF);
 }
