@@ -3,7 +3,7 @@
 /* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
- *     * Alvaro Lopez Ortega <alvaro@gnu.org>
+ *     * Alvaro Lopez Ortega <alvaro@alobbs.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,23 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LIBCHULA_TESTING_MACROS
-#define LIBCHULA_TESTING_MACROS
+#ifndef CHULA_DEBUG_H
+#define CHULA_DEBUG_H
 
-#include <check.h>
-#include <libchula/debug.h>
+#include <unistd.h>
+#include "buffer.h"
 
-#define check_add(suit,func)                             \
-    TCase *testcase_ ## func = tcase_create(#func);      \
-    suite_add_tcase (suit, testcase_ ## func);           \
-    tcase_add_test (testcase_ ##func, func);
+#define chula_print_repr(scope,type,obj)				\
+	   do {										\
+			 chula_buffer_t tmp = CHULA_BUF_INIT;		\
+			 scope ## _ ## type ## _repr (obj, &tmp);	\
+			 write (1, tmp.buf, tmp.len);		          \
+			 chula_buffer_mrproper (&tmp);			\
+	   } while(false)
 
-#define run_test(suit)                          \
-    SRunner *sr = srunner_create (suit);        \
-    srunner_set_fork_status (sr, CK_NOFORK);    \
-    srunner_run_all (sr, CK_VERBOSE);           \
-    int test_ret =  srunner_ntests_failed(sr);  \
-    srunner_free(sr);                           \
-    return test_ret;
-
-#endif /* LIBCHULA_TESTING_MACROS */
+#endif /* CHULA_DEBUG_H */

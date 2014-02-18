@@ -1296,29 +1296,22 @@ chula_buffer_multiply (chula_buffer_t *buf, int num)
 }
 
 
-ret_t
-chula_buffer_print_debug (chula_buffer_t *buf, int len)
+void
+chula_buffer_repr (chula_buffer_t *buf,
+                   chula_buffer_t *output)
 {
-    int            i, length;
+    int            i;
     char           text[67];
     unsigned char  tmp;
     char          *hex_text   = NULL;
     char          *ascii_text = NULL;
 
-    if ((len == -1) || (buf->len <= (cuint_t)len)) {
-        length = buf->len;
-    } else {
-        length = len;
-    }
-
-    if (length <= 0)
-        return ret_ok;
-
     memset(text, 0, 67);
-    for (i=0; i < length; i++) {
+    for (i=0; i < buf->len; i++) {
         if (i%16 == 0) {
             if (text[0] != 0){
-                printf ("%s%s", text, CRLF);
+                chula_buffer_add (output, text, strlen(text));
+                chula_buffer_add_str (output, CRLF);
             }
             sprintf (text, "%08x%57c", i*2, ' ');
             hex_text = text + 9;
@@ -1339,10 +1332,10 @@ chula_buffer_print_debug (chula_buffer_t *buf, int len)
             *ascii_text = '.';
         ascii_text += 1;
     }
-    printf ("%s"CRLF, text);
-    fflush(stdout);
 
-    return ret_ok;
+
+    chula_buffer_add (output, text, strlen(text));
+    chula_buffer_add_str (output, CRLF);
 }
 
 
