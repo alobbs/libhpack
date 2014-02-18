@@ -50,6 +50,7 @@ ret_t hpack_header_block_mrproper (hpack_header_block_t *block);
 ret_t hpack_header_block_set_max  (hpack_header_block_t *block, uint32_t max);
 ret_t hpack_header_block_add      (hpack_header_block_t *block, hpack_header_field_t *e);
 ret_t hpack_header_block_get      (hpack_header_block_t *block, uint32_t n, hpack_header_field_t **e);
+void  hpack_header_block_repr     (hpack_header_block_t *block, chula_buffer_t *output);
 
 
 typedef struct {
@@ -63,5 +64,6 @@ ret_t hpack_header_table_init     (hpack_header_table_t *table);
 ret_t hpack_header_table_mrproper (hpack_header_table_t *table);
 ret_t hpack_header_table_add      (hpack_header_table_t *table, hpack_header_field_t *field);
 ret_t hpack_header_table_get      (hpack_header_table_t *table, uint32_t n, hpack_header_field_t **field);
+void  hpack_header_table_repr     (hpack_header_table_t *table, chula_buffer_t *output);
 
 #endif /* LIBHPACK_HEADER_TABLE_H */

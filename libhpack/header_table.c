@@ -222,6 +222,30 @@ hpack_header_block_get (hpack_header_block_t  *block,
     return ret_ok;
 }
 
+void
+hpack_header_block_repr (hpack_header_block_t *block,
+                         chula_buffer_t       *output)
+{
+    uint32_t max_len = 0;
+
+    chula_buffer_add_str (output, "hpack_header_block at ");
+    chula_buffer_add_va  (output, "0x%x", block);
+    chula_buffer_add_str (output, ":\n");
+
+    for (int i=0; i < block->len; i++) {
+        max_len = MAX(block->headers[i].name.len, max_len);
+    }
+
+    for (int i=block->len-1; i >= 0 ; i--) {
+        chula_buffer_add_va     (output, "  [%02d] ", block->len - i);
+        chula_buffer_add_buffer (output, &block->headers[i].name);
+        chula_buffer_add_str    (output, " ");
+        chula_buffer_add_char_n (output, ' ', max_len - block->headers[i].name.len);
+        chula_buffer_add_buffer (output, &block->headers[i].value);
+        chula_buffer_add_str    (output, CRLF);
+    }
+}
+
 
 /* Table
  */
@@ -270,4 +294,12 @@ hpack_header_table_get (hpack_header_table_t  *table,
 
     uint32_t n_static = n - (table->dynamic.len + 1);
     return hpack_header_block_get (&table->statics, n_static, field);
+}
+
+
+void
+hpack_header_table_repr (hpack_header_table_t *table,
+                         chula_buffer_t       *output)
+{
+    hpack_header_block_repr (&table->dynamic, output);
 }
