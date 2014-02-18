@@ -37,7 +37,7 @@
 
 #include "libchula/testing_macros.h"
 #include "libchula/buffer.h"
-
+#include "libchula/debug.h"
 
 START_TEST (init_heap)
 {
@@ -1763,12 +1763,10 @@ END_TEST
 
 START_TEST (print_debug)
 {
-    ret_t          ret;
-    chula_buffer_t buf  = CHULA_BUF_INIT;
+    chula_buffer_t buf = CHULA_BUF_INIT;
 
     chula_buffer_fake_str (&buf, "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz");
-    ret = chula_buffer_print_debug (&buf, 80);
-    ck_assert (ret == ret_ok);
+    chula_print_repr (chula, buffer, &buf);
 }
 END_TEST
 

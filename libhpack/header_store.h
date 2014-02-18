@@ -64,4 +64,7 @@ ret_t hpack_header_store_get_n    (hpack_header_store_t  *store,
                                    uint32_t               num,
                                    hpack_header_field_t **field);
 
+void  hpack_header_store_repr     (hpack_header_store_t  *store,
+                                   chula_buffer_t        *buf);
+
 #endif /* LIBHPACK_HEADER_STORE_H */

@@ -121,3 +121,26 @@ hpack_header_store_get_n (hpack_header_store_t  *store,
     }
     return ret_not_found;
 }
+
+
+void
+hpack_header_store_repr (hpack_header_store_t *store,
+                         chula_buffer_t       *buf)
+{
+    hpack_header_store_entry_t *i;
+    uint32_t                    max_len = 0;
+
+    /* Find max header name length */
+    list_for_each_entry (i, &store->headers, entry) {
+        max_len = MAX(i->field.name.len, max_len);
+    }
+
+    /* Build representation */
+    list_for_each_entry (i, &store->headers, entry) {
+        chula_buffer_add_buffer (buf, &i->field.name);
+        chula_buffer_add_str (buf, ": ");
+        chula_buffer_add_char_n (buf, ' ', max_len - i->field.name.len);
+        chula_buffer_add_buffer (buf, &i->field.value);
+        chula_buffer_add_str (buf, "\n");
+    }
+}

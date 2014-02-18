@@ -207,6 +207,9 @@ START_TEST (request1_full) {
     ck_assert (ret == ret_ok);
     ck_assert (consumed == raw.len);
 
+    chula_print_repr (chula, buffer, &raw);
+    chula_print_repr (hpack, header_store, &store);
+
     /* Check headers */
     ret = hpack_header_store_get_n (&store, 1, &field);
     ck_assert (ret == ret_ok);
