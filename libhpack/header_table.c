@@ -228,9 +228,7 @@ hpack_header_block_repr (hpack_header_block_t *block,
 {
     uint32_t max_len = 0;
 
-    chula_buffer_add_str (output, "hpack_header_block at ");
-    chula_buffer_add_va  (output, "0x%x", block);
-    chula_buffer_add_str (output, ":\n");
+    chula_buffer_add_va  (output, "hpack_header_block@%x\n", POINTER_TO_INT(block));
 
     for (int i=0; i < block->len; i++) {
         max_len = MAX(block->headers[i].name.len, max_len);

@@ -130,9 +130,7 @@ hpack_header_store_repr (hpack_header_store_t *store,
     hpack_header_store_entry_t *i;
     uint32_t                    max_len = 0;
 
-    chula_buffer_add_str (buf, "hpack_header_store at ");
-    chula_buffer_add_va  (buf, "0x%x", store);
-    chula_buffer_add_str (buf, ":\n");
+    chula_buffer_add_va (buf, "hpack_header_store@%x\n", POINTER_TO_INT(store));
 
     /* Find max header name length */
     list_for_each_entry (i, &store->headers, entry) {
