@@ -75,3 +75,17 @@ hpack_header_field_copy (hpack_header_field_t *header,
     chula_buffer_add_buffer (&header->value, &tocopy->value);
     return ret_ok;
 }
+
+
+ret_t
+hpack_header_field_repr (hpack_header_field_t *header,
+                         chula_buffer_t       *output)
+{
+    chula_buffer_add_va     (output, "hpack_header_field@%x - ", POINTER_TO_INT(header));
+    chula_buffer_add_buffer (output, &header->name);
+    chula_buffer_add_str    (output, ": ");
+    chula_buffer_add_buffer (output, &header->value);
+    chula_buffer_add_str    (output, "\n");
+
+    return ret_ok;
+}

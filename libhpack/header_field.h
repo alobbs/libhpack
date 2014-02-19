@@ -50,5 +50,6 @@ ret_t hpack_header_field_init     (hpack_header_field_t *header);
 ret_t hpack_header_field_clean    (hpack_header_field_t *header);
 ret_t hpack_header_field_mrproper (hpack_header_field_t *header);
 ret_t hpack_header_field_copy     (hpack_header_field_t *header, hpack_header_field_t *tocopy);
+ret_t hpack_header_field_repr     (hpack_header_field_t *header, chula_buffer_t *output);
 
 #endif /* LIBHPACK_HEADER_FIELD_H */
