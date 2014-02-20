@@ -56,10 +56,14 @@ def highlight_ctest_run (f_in, f_out):
 		ok_d   = decolor(ok)
 		fail   = e[1][2]
 		fail_d = decolor(fail)
+		fail_c = (red,blue)[int(fail_d) <= 0](fail_d)
+		per    = e[1][0]
+		per_d  = int(decolor(per))
+		per_c  = (red,green)[per_d == 100]("% 4d"%(per_d))
 
-		print e[0], " "*(mlen-len(e[0])), '%s%%'%(e[1][0]), \
+		print e[0], " "*(mlen-len(e[0])), '%s%%'%(per_c), \
 			" "*(3-len(ok_d)), ok, \
-			" "*(3-len(fail_d)), fail
+			" "*(3-len(fail_d)), fail_c
 
 def main():
 	highlight_ctest_run (sys.stdin, sys.stdout)
