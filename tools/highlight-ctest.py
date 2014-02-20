@@ -10,10 +10,17 @@ def green (s):
     return ESC + '0;32m' + s + RESET
 def red (s):
     return ESC + '0;31m' + s + RESET
+def red_ (s):
+    return ESC + '4;31m' + s + RESET
+def _red (s):
+    return ESC + '0;41m' + s + RESET
 def blue (s):
     return ESC + '0;34m' + s + RESET
+def invert (s):
+    return ESC + '7m' + s + RESET
 def decolor (s):
 	return s[7:-4]
+
 
 def highlight_ctest_run (f_in, f_out):
 	summary = []
@@ -26,9 +33,15 @@ def highlight_ctest_run (f_in, f_out):
 		val = re.findall (r'Running suite\(s\): (.+)', line)
 		if val:
 			last_title = val[0]
+			f_out.write ('\n' + invert(line.strip())+'\n')
+			f_out.flush()
+			continue
 
 		val = re.findall (r'(\d+)\%: Checks: (\d+), Failures: (\d+), Errors: (\d+)', line)
 		if not val:
+			val = re.findall (r'.+ failed', line)
+			if val:
+				line = line.replace ('failed', red_('failed'))
 			f_out.write (line)
 			f_out.flush()
 			continue
