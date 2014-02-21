@@ -17,5 +17,4 @@ doc:
 	$(MAKE) -C build docs docs2
 
 test: all
-	./build/test/test_libhpack
-	./build/libchula/test/chula_test
+	$(MAKE) -C build test ARGS="-V" | tools/highlight-ctest.py
