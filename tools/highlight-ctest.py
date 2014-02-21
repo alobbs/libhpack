@@ -39,7 +39,7 @@ def highlight_ctest_run (f_in, f_out):
 
 		val = re.findall (r'(\d+)\%: Checks: (\d+), Failures: (\d+), Errors: (\d+)', line)
 		if not val:
-			val = re.findall (r'.+ failed', line)
+			val = re.findall (r'.+ failed$', line)
 			if val:
 				line = line.replace ('failed', red_('failed'))
 			f_out.write (line)
