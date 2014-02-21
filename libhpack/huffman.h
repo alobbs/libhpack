@@ -38,24 +38,38 @@
 /** Entry of the Huffman code table
  */
 typedef struct {
-	   char     bits;
-	   uint32_t code;
+    char     bits;
+    uint32_t code;
 } hpack_huffman_code_t;
 
-/** Huffman decoding table
+/** Huffman decoding
  */
-typedef int16_t hpack_huffman_decode_table_t[][256];
+typedef enum {
+    HPACK_HUFFMAN_ACCEPTED = 1,
+    HPACK_HUFFMAN_SYMBOL   = 1 << 1,
+} hpack_huffman_decode_flag;
+
+typedef struct {
+    uint8_t state;
+    uint8_t accept;
+} hpack_huffman_decode_context_t;
+
+#define HUFFMAN_DEC_CTX_INIT {.state = 0, .accept = 1}
+
+typedef struct {
+    int16_t state;
+    uint8_t flags;
+    uint8_t sym;
+} hpack_huffman_decode_t;
+
+typedef hpack_huffman_decode_t hpack_huffman_decode_table_t[256][16];
 
 
-ret_t
-hpack_huffman_encode (chula_buffer_t             *in,
-                      chula_buffer_t             *out,
-                      const hpack_huffman_code_t *table);
+ret_t hpack_huffman_encode (chula_buffer_t *in,
+                            chula_buffer_t *out);
 
-ret_t
-hpack_huffman_decode (chula_buffer_t                     *in,
-                      chula_buffer_t                     *out,
-                      const hpack_huffman_code_t         *table_codes,
-                      const hpack_huffman_decode_table_t  table_decode);
+ret_t hpack_huffman_decode (chula_buffer_t                 *in,
+                            chula_buffer_t                 *out,
+                            hpack_huffman_decode_context_t *context);
 
 #endif /* LIBHPACK_HUFFMAN_H */
