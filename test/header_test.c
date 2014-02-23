@@ -193,14 +193,41 @@ START_TEST (request1) {
 }
 END_TEST
 
-START_TEST (request1_full) {
+
+static void
+request1_full_TEST (hpack_header_store_t *store)
+{
     ret_t                  ret;
-    chula_buffer_t         raw;
-    hpack_header_store_t   store;
-    hpack_header_parser_t  parser;
     hpack_header_field_t  *field;
-    unsigned int           offset   = 0;
-    unsigned int           consumed = 0;
+
+    ret = hpack_header_store_get_n (store, 1, &field);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (field->name.buf, ":method");
+    ck_assert_str_eq (field->value.buf, "GET");
+
+    ret = hpack_header_store_get_n (store, 2, &field);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (field->name.buf, ":scheme");
+    ck_assert_str_eq (field->value.buf, "http");
+
+    ret = hpack_header_store_get_n (store, 3, &field);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (field->name.buf, ":path");
+    ck_assert_str_eq (field->value.buf, "/");
+
+    ret = hpack_header_store_get_n (store, 4, &field);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (field->name.buf, ":authority");
+    ck_assert_str_eq (field->value.buf, "www.example.com");
+}
+
+START_TEST (request1_full) {
+    ret_t                 ret;
+    chula_buffer_t        raw;
+    hpack_header_store_t  store;
+    hpack_header_parser_t parser;
+    unsigned int          offset   = 0;
+    unsigned int          consumed = 0;
 
     chula_buffer_fake_str (&raw, "\x82\x87\x86\x04\x0f\x77\x77\x77\x2e\x65\x78\x61\x6d\x70\x6c\x65\x2e\x63\x6f\x6d");
 
@@ -218,25 +245,39 @@ START_TEST (request1_full) {
     chula_print_repr (hpack, header_table, &parser.table);
 
     /* Check headers */
-    ret = hpack_header_store_get_n (&store, 1, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, ":method");
-    ck_assert_str_eq (field->value.buf, "GET");
+    request1_full_TEST (&store);
 
-    ret = hpack_header_store_get_n (&store, 2, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, ":scheme");
-    ck_assert_str_eq (field->value.buf, "http");
+    /* Clean up */
+    hpack_header_store_mrproper (&store);
+    hpack_header_parser_mrproper (&parser);
+}
+END_TEST
 
-    ret = hpack_header_store_get_n (&store, 3, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, ":path");
-    ck_assert_str_eq (field->value.buf, "/");
+START_TEST (request1_full_huffman) {
+    ret_t                 ret;
+    chula_buffer_t        raw;
+    hpack_header_store_t  store;
+    hpack_header_parser_t parser;
+    unsigned int          offset   = 0;
+    unsigned int          consumed = 0;
 
-    ret = hpack_header_store_get_n (&store, 4, &field);
+    chula_buffer_fake_str (&raw, "\x82\x87\x86\x04\x8b\xdb\x6d\x88\x3e\x68\xd1\xcb\x12\x25\xba\x7f");
+
+    hpack_header_store_init (&store);
+    hpack_header_parser_init (&parser);
+    hpack_header_parser_reg_store (&parser, &store);
+
+    /* Full header parse */
+    ret = hpack_header_parser_all (&parser, &raw, offset, &consumed);
     ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, ":authority");
-    ck_assert_str_eq (field->value.buf, "www.example.com");
+    ck_assert (consumed == raw.len);
+
+    chula_print_repr (chula, buffer, &raw);
+    chula_print_repr (hpack, header_store, &store);
+    chula_print_repr (hpack, header_table, &parser.table);
+
+    /* Check headers */
+    request1_full_TEST (&store);
 
     /* Clean up */
     hpack_header_store_mrproper (&store);
@@ -261,6 +302,7 @@ header_full (void)
 {
     Suite *s1 = suite_create("Header fields parsing");
     check_add (s1, request1_full);
+    check_add (s1, request1_full_huffman);
     run_test (s1);
 }
 
