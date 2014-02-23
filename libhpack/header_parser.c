@@ -32,7 +32,7 @@
 
 #include "header_parser.h"
 #include "integer.h"
-
+#include "huffman.h"
 
 ret_t
 hpack_header_parser_init (hpack_header_parser_t *parser)
@@ -79,17 +79,24 @@ parse_string (chula_buffer_t       *buf,
     int          n    = offset;
     unsigned int con  = 0;
     int          len  = 0;
+    bool         huffman;
 
 /*
-     0   1   2   3   4   5   6   7
-   +-------------------------------+
-   |       Name Length (8+)        |
-   +-------------------------------+
-   |  Name String (Length octets)  |
-   +-------------------------------+
+    0   1   2   3   4   5   6   7        0   1   2   3   4   5   6   7
+  +---+---+---+---+---+---+---+---+    +---+---+---+---+---+---+---+---+
+  | 1 |  Value Length Prefix (7)  |    | 0 |  Value Length Prefix (7)  |
+  +---+---+---+---+---+---+---+---+    +---+---+---+---+---+---+---+---+
+  |   Value Length (0-N octets)   |    |   Value Length (0-N octets)   |
+  +---+---+---+---+---+---+---+---+    +---+---+---+---+---+---+---+---+
+  | Huffman Encoded Data  |Padding|    |  Field Bytes without Encoding |
+  +---+---+---+---+---+---+---+---+    +---+---+---+---+---+---+---+---+
+            Huffman encoded                    No-Huffman encoded
 */
+
+    huffman = ((uint8_t)buf->buf[n]) & 0x80;
+
     /* Name */
-    ret = integer_decode (8, (unsigned char*)buf->buf + n, buf->len - n, &len, &con);
+    ret = integer_decode (7, (unsigned char*)buf->buf + n, buf->len - n, &len, &con);
     if (unlikely (ret != ret_ok)) return ret_error;
     n += con;
 
@@ -98,9 +105,19 @@ parse_string (chula_buffer_t       *buf,
         return ret_eagain;
     }
 
-    ret = chula_buffer_add (string, buf->buf + n, len);
-    if (unlikely (ret != ret_ok)) return ret_error;
-    n += len;
+    if (huffman) {
+        hpack_huffman_decode_context_t context = HUFFMAN_DEC_CTX_INIT;
+        chula_buffer_t                 in      = CHULA_BUF_INIT_FAKE_LEN (buf->buf+n, len);
+
+        ret = hpack_huffman_decode (&in, string, &context);
+        if (unlikely (ret != ret_ok)) return ret_error;
+        n += len;
+    }
+    else{
+        ret = chula_buffer_add (string, buf->buf + n, len);
+        if (unlikely (ret != ret_ok)) return ret_error;
+        n += len;
+    }
 
     /* Return */
     *consumed = (n - offset);
@@ -157,31 +174,32 @@ parse_header_pair (chula_buffer_t       *buf,
 
 /*
              With Indexing                       Without Indexing
+
      0   1   2   3   4   5   6   7        0   1   2   3   4   5   6   7
    +---+---+---+---+---+---+---+---+    +---+---+---+---+---+---+---+---+
-   | 0 | 0 |           0           |    | 0 | 1 |           0           |
+   | 0 | 0 |      Index (6+)       |    | 0 | 1 |      Index (6+)       |
    +---+---+---+-------------------+    +---+---+---+-------------------+
-   |       Name Length (8+)        |    |       Name Length (8+)        |
-   +-------------------------------+    +-------------------------------+
-   |  Name String (Length octets)  |    |  Name String (Length octets)  |
-   +-------------------------------+    +-------------------------------+
-   |       Value Length (8+)       |    |       Value Length (8+)       |
+   | H |     Value Length (7+)     |    | H |     Value Length (7+)     |
    +-------------------------------+    +-------------------------------+
    | Value String (Length octets)  |    | Value String (Length octets)  |
    +-------------------------------+    +-------------------------------+
 
      0   1   2   3   4   5   6   7        0   1   2   3   4   5   6   7
    +---+---+---+---+---+---+---+---+    +---+---+---+---+---+---+---+---+
-   | 0 | 0 |      Index (6+)       |    | 0 | 1 |      Index (6+)       |
+   | 0 | 0 |           0           |    | 0 | 1 |           0           |
    +---+---+---+-------------------+    +---+---+---+-------------------+
-   |       Value Length (8+)       |    |       Value Length (8+)       |
+   | H |     Value Length (7+)     |    | H |     Value Length (7+)     |
+   +-------------------------------+    +-------------------------------+
+   |  Name String (Length octets)  |    |  Name String (Length octets)  |
+   +-------------------------------+    +-------------------------------+
+   | H |     Value Length (7+)     |    | H |     Value Length (7+)     |
    +-------------------------------+    +-------------------------------+
    | Value String (Length octets)  |    | Value String (Length octets)  |
    +-------------------------------+    +-------------------------------+
 */
     /* Name
      */
-    if (buf->buf[n] & 0x3Fu) {
+    if (buf->buf[n] & 0x3F) {
         hpack_header_field_t *entry;
 
         ret = integer_decode (6, (unsigned char *)buf->buf+n, buf->len-n, &len, &con);
