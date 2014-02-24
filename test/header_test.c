@@ -285,6 +285,71 @@ START_TEST (request1_full_huffman) {
 }
 END_TEST
 
+START_TEST (request2_full_huffman) {
+    ret_t                 ret;
+    chula_buffer_t        raw;
+    hpack_header_store_t  store;
+    hpack_header_parser_t parser;
+    unsigned int          offset   = 0;
+    unsigned int          consumed = 0;
+
+/*
+   08                                      | == Literal indexed ==
+                                           |   Indexed name (idx = 8)
+                                           |     :status
+   82                                      |   Literal value (len = 3)
+                                           |     Huffman encoded:
+   98a7                                    | ..
+                                           |     Decoded:
+                                           | 302
+                                           | -> :status: 302
+   18                                      | == Literal indexed ==
+                                           |   Indexed name (idx = 24)
+                                           |     cache-control
+   85                                      |   Literal value (len = 7)
+                                           |     Huffman encoded:
+   73d5 cd11 1f                            | s....
+                                           |     Decoded:
+                                           | private
+                                           | -> cache-control: private
+   22                                      | == Literal indexed ==
+                                           |   Indexed name (idx = 34)
+                                           |     date
+   98                                      |   Literal value (len = 29)
+                                           |     Huffman encoded:
+   ef6b 3a7a 0e6e 8fa2 63d0 729a 6e83 97d8 | .k:z.n..c.r.n...
+   69bd 8737 47bb bfc7                     | i..7G...
+                                           |     Decoded:
+                                           | Mon, 21 Oct 2013 20:13:21 GMT
+                                           | -> date: Mon, 21 Oct 2013 20:13:21 GMT
+   30                                      | == Literal indexed ==
+                                           |   Indexed name (idx = 48)
+                                           |     location
+   90                                      |   Literal value (len = 23)
+                                           |     Huffman encoded:
+   ce31 743d 801b 6db1 07cd 1a39 6244 b74f | .1t=..m....9bD.O
+                                           |     Decoded:
+                                           | https://www.example.com
+                                           | -> location: https://www.example.com
+*/
+
+    chula_buffer_fake_str (&raw, "\x08\x82\x98\xa7\x18\x85\x73\xd5\xcd\x11\x1f\x22\x98\xef\x6b\x3a\x7a\x0e\x6e\x8f\xa2\x63\xd0\x72\x9a\x6e\x83\x97\xd8\x69\xbd\x87\x37\x47\xbb\xbf\xc7\x30\x90\xce\x31\x74\x3d\x80\x1b\x6d\xb1\x07\xcd\x1a\x39\x62\x44\xb7\x4f");
+
+    hpack_header_store_init (&store);
+    hpack_header_parser_init (&parser);
+    hpack_header_parser_reg_store (&parser, &store);
+
+    /* Full header parse */
+    ret = hpack_header_parser_all (&parser, &raw, offset, &consumed);
+    ck_assert (ret == ret_ok);
+    ck_assert (consumed == raw.len);
+
+    chula_print_repr (chula, buffer, &raw);
+    chula_print_repr (hpack, header_store, &store);
+    chula_print_repr (hpack, header_table, &parser.table);
+}
+END_TEST
+
 
 int
 header_fields (void)
@@ -303,6 +368,7 @@ header_full (void)
     Suite *s1 = suite_create("Header fields parsing");
     check_add (s1, request1_full);
     check_add (s1, request1_full_huffman);
+    check_add (s1, request2_full_huffman);
     run_test (s1);
 }
 
