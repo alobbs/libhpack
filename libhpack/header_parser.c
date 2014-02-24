@@ -294,7 +294,7 @@ hpack_header_parser_all (hpack_header_parser_t *parser,
         }
 
         /* Exit */
-        if (offset + *consumed > buf->len)
+        if (offset >= buf->len)
             break;
     }
 
