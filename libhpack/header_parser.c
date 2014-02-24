@@ -237,9 +237,9 @@ hpack_header_parser_field (hpack_header_parser_t *parser,
                            hpack_header_field_t  *field,
                            unsigned int          *consumed)
 {
-    ret_t                ret;
-    bool                 skip_indexing;
-    char                 c              = buf->buf[offset];
+    ret_t ret;
+    bool  skip_indexing;
+    char  c              = buf->buf[offset];
 
     /* Parse field
      */
