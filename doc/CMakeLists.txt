@@ -35,5 +35,4 @@ add_custom_target(html_docs
     COMMENT "Building HTML documentation with Sphinx"
 )
 
-add_custom_target(docs)
-add_dependencies(docs DEPENDS html_docs)
+add_dependencies(doc DEPENDS html_docs)

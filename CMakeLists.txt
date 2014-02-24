@@ -264,6 +264,16 @@ if (CMAKE_COMPILER_IS_GNUCC)
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 # Library source code
+if(BUILD_DOCS)
+  add_custom_target (doc ALL)
+  add_subdirectory(doc)
+  if(BUILD_TESTS)
+    add_test(doxy-coverage ${CMAKE_CURRENT_SOURCE_DIR}/doc/external/doxy-coverage/doxy-coverage.py ${CMAKE_CURRENT_BINARY_DIR}/doc/xml --noerror)
+  endif(BUILD_TESTS)
+else()
+  add_custom_target (doc)
+endif(BUILD_DOCS)
+
 add_subdirectory(libchula)
 add_subdirectory(libhpack)
 
@@ -280,13 +290,6 @@ if(BUILD_TESTS)
     add_test(chula libchula/test/chula_test)
   endif()
 endif(BUILD_TESTS)
-
-if(BUILD_DOCS)
-  add_subdirectory(doc)
-  if(BUILD_TESTS)
-    add_test(doxy-coverage ${CMAKE_CURRENT_SOURCE_DIR}/doc/external/doxy-coverage/doxy-coverage.py ${CMAKE_CURRENT_BINARY_DIR}/doc/xml --noerror)
-  endif(BUILD_TESTS)
-endif(BUILD_DOCS)
 
 # config.h
 execute_process (COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gen-config.py ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})

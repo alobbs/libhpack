@@ -35,5 +35,4 @@ add_custom_target(html_docs_chula
     COMMENT "Building HTML documentation with Sphinx"
 )
 
-add_custom_target(docs2)
-add_dependencies(docs2 DEPENDS html_docs_chula)
+add_dependencies(doc DEPENDS html_docs_chula)
