@@ -126,6 +126,26 @@ START_TEST (decode_19_6bits)
 }
 END_TEST
 
+START_TEST (decode_34_6bits)
+{
+    ret_t         ret;
+    int           num   = 0;
+    unsigned int  con   = 0;
+    unsigned char tmp[] = {34,1};
+
+    /* 34 = 00[100010]
+     *
+     * This test checks that even if the first bit of the significant
+     * no subsequent bytes are tried to be read (for that, that part
+     * should be filled with 1s).
+     */
+    ret = integer_decode (6, tmp, 1, &num, &con);
+    ck_assert (ret == ret_ok);
+    ck_assert (con == 1);
+    ck_assert (num == 34);
+}
+END_TEST
+
 START_TEST (decode_1337_5bits)
 {
     ret_t         ret;
@@ -181,6 +201,7 @@ decode_tests (void)
     Suite *s1 = suite_create("Decoding");
 
     check_add (s1, decode_19_6bits);
+    check_add (s1, decode_34_6bits);
     check_add (s1, decode_1337_5bits);
     check_add (s1, en_decode_2147483647_5bits);
 
