@@ -3,9 +3,9 @@
 BUILD_DOCS=ON
 BUILD_TESTS=ON
 
-define run-cmake =
-mkdir -p build
-cd build ; cmake -DBUILD_DOCS=$(BUILD_DOCS) -DBUILD_TESTS=$(BUILD_TESTS) $(1) .. ; cd ..
+define run-cmake
+	mkdir -p build
+	cd build ; cmake -DBUILD_DOCS=$(BUILD_DOCS) -DBUILD_TESTS=$(BUILD_TESTS) $(1) .. ; cd ..
 endef
 
 all:
@@ -20,7 +20,7 @@ clean:
 	rm -rf build
 
 doc:
-ifeq (,$(wildcard ./build/Makefile")) 
+ifeq ($(wildcard ./build/Makefile),)
 	$(call run-cmake)
 endif
 	$(MAKE) -C build doc
