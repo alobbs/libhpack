@@ -35,7 +35,7 @@ if(USE_VALGRIND)
     set (VALGRIND_OPTIONS --leak-check=full --num-callers=50)
 endif()
 
-set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
+set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -Wextra")
 
 # pkg-config
 find_package(PkgConfig)
