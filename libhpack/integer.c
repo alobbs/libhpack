@@ -94,11 +94,6 @@ integer_encode (int            N,
     return ret_ok;
 }
 
-static inline bool
-isnt_final_byte (const unsigned char *s, int N)
-{
-    return (*s & limits[N]) & (1 << (N-1));
-}
 
 /** Integer decoding
  *
@@ -127,25 +122,28 @@ integer_decode (int            N,
                 unsigned int  *consumed)
 {
     const unsigned char limit = limits[N];
+    int M = 0;
 
     /* Trivial 1 byte number
      */
-    if (! isnt_final_byte (&mem[0], N)) {
-        *ret = mem[0] & limit;
+    *ret = mem[0] & limit;
+
+    if (*ret < limit) {
         *consumed = 1;
         return ret_ok;
     }
 
     /* Unsigned variable length integer
      */
-    *ret = mem[0] & limit;
-
     for (int i=1; i < mem_len; i++) {
-        *ret += (mem[i]%128) * pow(128, i-1);
-        if (! isnt_final_byte (&mem[i], 8)) {
+        *ret += (mem[i] & 127) * (1 << M);
+
+        if (128 != (mem[i] & 128)) {
             *consumed = i + 1;
             return ret_ok;
         }
+
+        M += 7;
     }
 
     return ret_error;
