@@ -265,7 +265,7 @@ endif (CMAKE_COMPILER_IS_GNUCC)
 
 # Library source code
 if(BUILD_DOCS)
-  add_custom_target (doc ALL)
+  add_custom_target (doc)
   add_subdirectory(doc)
   if(BUILD_TESTS)
     add_test(doxy-coverage ${CMAKE_CURRENT_SOURCE_DIR}/doc/external/doxy-coverage/doxy-coverage.py ${CMAKE_CURRENT_BINARY_DIR}/doc/xml --noerror)
