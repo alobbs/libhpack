@@ -34,6 +34,23 @@
 #include "libhpack/header.h"
 #include "libhpack/header_parser.h"
 
+
+static void
+assert_store_n_eq (hpack_header_store_t *store,
+                   uint32_t              n,
+                   const char           *name,
+                   const char           *value)
+{
+    ret_t                 ret;
+    hpack_header_field_t *field;
+
+    ret = hpack_header_store_get_n (store, n, &field);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (field->name.buf, name);
+    ck_assert_str_eq (field->value.buf, value);
+}
+
+
 /* Literal Headers
  */
 
@@ -197,28 +214,10 @@ END_TEST
 static void
 request1_full_TEST (hpack_header_store_t *store)
 {
-    ret_t                 ret;
-    hpack_header_field_t *field;
-
-    ret = hpack_header_store_get_n (store, 1, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, ":method");
-    ck_assert_str_eq (field->value.buf, "GET");
-
-    ret = hpack_header_store_get_n (store, 2, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, ":scheme");
-    ck_assert_str_eq (field->value.buf, "http");
-
-    ret = hpack_header_store_get_n (store, 3, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, ":path");
-    ck_assert_str_eq (field->value.buf, "/");
-
-    ret = hpack_header_store_get_n (store, 4, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, ":authority");
-    ck_assert_str_eq (field->value.buf, "www.example.com");
+    assert_store_n_eq (store, 1, ":method",    "GET");
+    assert_store_n_eq (store, 2, ":scheme",    "http");
+    assert_store_n_eq (store, 3, ":path",      "/");
+    assert_store_n_eq (store, 4, ":authority", "www.example.com");
 }
 
 START_TEST (request1_full) {
@@ -285,6 +284,7 @@ START_TEST (request1_full_huffman) {
 }
 END_TEST
 
+
 START_TEST (request2_full_huffman) {
     ret_t                 ret;
     chula_buffer_t        raw;
@@ -349,27 +349,10 @@ START_TEST (request2_full_huffman) {
     chula_print_repr (hpack, header_table, &parser.table);
 
     /* Checks */
-    hpack_header_field_t *field;
-
-    ret = hpack_header_store_get_n (&store, 1, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, ":status");
-    ck_assert_str_eq (field->value.buf, "302");
-
-    ret = hpack_header_store_get_n (&store, 2, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, "cache-control");
-    ck_assert_str_eq (field->value.buf, "private");
-
-    ret = hpack_header_store_get_n (&store, 3, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, "date");
-    ck_assert_str_eq (field->value.buf, "Mon, 21 Oct 2013 20:13:21 GMT");
-
-    ret = hpack_header_store_get_n (&store, 4, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, "location");
-    ck_assert_str_eq (field->value.buf, "https://www.example.com");
+    assert_store_n_eq (&store, 1, ":status",       "302");
+    assert_store_n_eq (&store, 2, "cache-control", "private");
+    assert_store_n_eq (&store, 3, "date",          "Mon, 21 Oct 2013 20:13:21 GMT");
+    assert_store_n_eq (&store, 4, "location",      "https://www.example.com");
 
     /* Clean up */
     hpack_header_store_mrproper (&store);
