@@ -33,6 +33,7 @@
 #ifndef CHULA_COMMON_H
 #define CHULA_COMMON_H
 
+#include <stdint.h>
 #include "macros.h"
 
 typedef enum {
@@ -49,8 +50,7 @@ typedef enum {
 	ret_ok_and_sent     =  8
 } ret_t;
 
-typedef unsigned int        crc_t;
-
+typedef unsigned int crc_t;
 typedef void (*chula_func_free_t) (void *);
 
 #endif /* CHULA_COMMON_H */
