@@ -1,7 +1,7 @@
 # libhpack
 **libhpack** implements HPACK “**Header Compression for HTTP/2.0**”, a format adapted to efficiently represent HTTP header fields in the context of the upcoming HTTP/2.0 protocol.
 
-[![Build Status](https://travis-ci.org/alobbs/libhpack.png?branch=master)](https://travis-ci.org/alobbs/libhpack) [![Coverage Status](https://coveralls.io/repos/alobbs/libhpack/badge.png?branch=master)](https://coveralls.io/r/alobbs/libhpack?branch=master)
+[![Build Status](https://travis-ci.org/alobbs/libhpack.png?branch=master)](https://travis-ci.org/alobbs/libhpack) [![Coverage Status](https://coveralls.io/repos/alobbs/libhpack/badge.png?branch=master)](https://coveralls.io/r/alobbs/libhpack?branch=master) [![Coverity Scan Build Status](https://scan.coverity.com/projects/1496/badge.svg)](https://scan.coverity.com/projects/1496)
 
 ***
 
