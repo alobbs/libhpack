@@ -36,15 +36,30 @@
 
 
 static void
-assert_store_n_eq (hpack_header_store_t *store,
-                   uint32_t              n,
-                   const char           *name,
-                   const char           *value)
+assert_store_n_eq (hpack_header_parser_t *parser,
+                   uint32_t               n,
+                   const char            *name,
+                   const char            *value)
 {
     ret_t                 ret;
     hpack_header_field_t *field;
 
-    ret = hpack_header_store_get_n (store, n, &field);
+    ret = hpack_header_store_get_n (parser->store, n, &field);
+    ck_assert (ret == ret_ok);
+    ck_assert_str_eq (field->name.buf, name);
+    ck_assert_str_eq (field->value.buf, value);
+}
+
+static void
+assert_dyn_table_n_eq (hpack_header_parser_t *parser,
+                       uint32_t               n,
+                       const char            *name,
+                       const char            *value)
+{
+    ret_t                 ret;
+    hpack_header_field_t *field;
+
+    ret = hpack_header_block_get (&parser->table.dynamic, n-1, &field);
     ck_assert (ret == ret_ok);
     ck_assert_str_eq (field->name.buf, name);
     ck_assert_str_eq (field->value.buf, value);
@@ -212,12 +227,17 @@ END_TEST
 
 
 static void
-request1_full_TEST (hpack_header_store_t *store)
+request1_full_TEST (hpack_header_parser_t *parser)
 {
-    assert_store_n_eq (store, 1, ":method",    "GET");
-    assert_store_n_eq (store, 2, ":scheme",    "http");
-    assert_store_n_eq (store, 3, ":path",      "/");
-    assert_store_n_eq (store, 4, ":authority", "www.example.com");
+    assert_store_n_eq (parser, 1, ":method",    "GET");
+    assert_store_n_eq (parser, 2, ":scheme",    "http");
+    assert_store_n_eq (parser, 3, ":path",      "/");
+    assert_store_n_eq (parser, 4, ":authority", "www.example.com");
+
+    assert_dyn_table_n_eq (parser, 1, ":authority", "www.example.com");
+    assert_dyn_table_n_eq (parser, 2, ":path",      "/");
+    assert_dyn_table_n_eq (parser, 3, ":scheme",    "http");
+    assert_dyn_table_n_eq (parser, 4, ":method",    "GET");
 }
 
 START_TEST (request1_full) {
@@ -244,7 +264,7 @@ START_TEST (request1_full) {
     chula_print_repr (hpack, header_table, &parser.table);
 
     /* Check headers */
-    request1_full_TEST (&store);
+    request1_full_TEST (&parser);
 
     /* Clean up */
     hpack_header_store_mrproper (&store);
@@ -276,7 +296,7 @@ START_TEST (request1_full_huffman) {
     chula_print_repr (hpack, header_table, &parser.table);
 
     /* Check headers */
-    request1_full_TEST (&store);
+    request1_full_TEST (&parser);
 
     /* Clean up */
     hpack_header_store_mrproper (&store);
@@ -349,10 +369,15 @@ START_TEST (request2_full_huffman) {
     chula_print_repr (hpack, header_table, &parser.table);
 
     /* Checks */
-    assert_store_n_eq (&store, 1, ":status",       "302");
-    assert_store_n_eq (&store, 2, "cache-control", "private");
-    assert_store_n_eq (&store, 3, "date",          "Mon, 21 Oct 2013 20:13:21 GMT");
-    assert_store_n_eq (&store, 4, "location",      "https://www.example.com");
+    assert_store_n_eq (&parser, 1, ":status",       "302");
+    assert_store_n_eq (&parser, 2, "cache-control", "private");
+    assert_store_n_eq (&parser, 3, "date",          "Mon, 21 Oct 2013 20:13:21 GMT");
+    assert_store_n_eq (&parser, 4, "location",      "https://www.example.com");
+
+    assert_dyn_table_n_eq (&parser, 1, "location",      "https://www.example.com");
+    assert_dyn_table_n_eq (&parser, 2, "date",          "Mon, 21 Oct 2013 20:13:21 GMT");
+    assert_dyn_table_n_eq (&parser, 3, "cache-control", "private");
+    assert_dyn_table_n_eq (&parser, 4, ":status",       "302");
 
     /* Clean up */
     hpack_header_store_mrproper (&store);
