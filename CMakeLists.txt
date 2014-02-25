@@ -284,10 +284,10 @@ if(BUILD_TESTS)
 
   if(VALGRIND)
     add_test("valgrind-hpack" ${VALGRIND} ${VALGRIND_OPTIONS} test/test_libhpack)
-    add_test("valgrind-chula" ${VALGRIND} ${VALGRIND_OPTIONS} libchula/test/chula_test)
+    add_test("valgrind-chula" ${VALGRIND} ${VALGRIND_OPTIONS} libchula/test/test_libchula)
   else()
     add_test(hpack test/test_libhpack)
-    add_test(chula libchula/test/chula_test)
+    add_test(chula libchula/test/test_libchula)
   endif()
 endif(BUILD_TESTS)
 
