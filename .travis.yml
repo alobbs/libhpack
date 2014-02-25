@@ -55,4 +55,4 @@ addons:
       description: "Header Compression for HTTP/2.0 library"
     notification_email: alvaro@alobbs.com
     build_command: "make debug"
-    branch_pattern: master
+    branch_pattern: coverity
