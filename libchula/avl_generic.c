@@ -39,7 +39,7 @@ static chula_avl_generic_node_t *node_first  (chula_avl_generic_t *avl);
 static chula_avl_generic_node_t *node_prev   (chula_avl_generic_node_t *node);
 static chula_avl_generic_node_t *node_next   (chula_avl_generic_node_t *node);
 static ret_t                     node_free   (chula_avl_generic_node_t *node, chula_avl_generic_t *avl);
-static cint_t                    node_height (chula_avl_generic_node_t *node);
+static int32_t                   node_height (chula_avl_generic_node_t *node);
 
 
 /* AVL Tree Node
@@ -131,8 +131,8 @@ static chula_avl_generic_node_t *
 node_rotate_left (chula_avl_generic_node_t *node)
 {
 	chula_avl_generic_node_t *right;
-	cint_t                    a_bal;
-	cint_t                    b_bal;
+	int32_t                   a_bal;
+	int32_t                   b_bal;
 
 	right = node->right;
 
@@ -169,8 +169,8 @@ static chula_avl_generic_node_t *
 node_rotate_right (chula_avl_generic_node_t *node)
 {
 	chula_avl_generic_node_t *left;
-	cint_t                    a_bal;
-	cint_t                    b_bal;
+	int32_t                   a_bal;
+	int32_t                   b_bal;
 
 	left = node->left;
 
@@ -230,7 +230,7 @@ node_add (chula_avl_generic_t *avl, chula_avl_generic_node_t *child)
 	chula_avl_generic_node_t *path[MAX_HEIGHT];
 	chula_avl_generic_node_t *node   = avl->root;
 	chula_avl_generic_node_t *parent = NULL;
-	cint_t                    idx    = 1;
+	int32_t                   idx    = 1;
 
 	path[0] = NULL;
 
@@ -313,11 +313,11 @@ node_add (chula_avl_generic_t *avl, chula_avl_generic_node_t *child)
 }
 
 
-static cint_t
+static int32_t
 node_height (chula_avl_generic_node_t *node)
 {
-	cint_t left_height;
-	cint_t right_height;
+	int32_t left_height;
+	int32_t right_height;
 
 	if (node) {
 		left_height = 0;
@@ -338,9 +338,9 @@ node_height (chula_avl_generic_node_t *node)
 static ret_t
 node_check (chula_avl_generic_node_t *node)
 {
-	cint_t                    left_height;
-	cint_t                    right_height;
-	cint_t                    balance;
+	int32_t                   left_height;
+	int32_t                   right_height;
+	int32_t                   balance;
 	chula_avl_generic_node_t *tmp;
 
 	if (node == NULL)
@@ -417,7 +417,7 @@ chula_avl_generic_del (chula_avl_generic_t *avl, chula_avl_generic_node_t *key, 
 	chula_avl_generic_node_t *parent;
 	chula_avl_generic_node_t *pbalance;
 	chula_avl_generic_node_t *node      = avl->root;
-	cint_t                   idx        = 1;
+	int32_t                   idx       = 1;
 
 	if (unlikely (avl->node_is_empty (key)))
 		return ret_error;
@@ -498,7 +498,7 @@ chula_avl_generic_del (chula_avl_generic_t *avl, chula_avl_generic_node_t *key, 
 			chula_avl_generic_node_t *prev    = node->left;
 			chula_avl_generic_node_t *next    = node->right;
 			chula_avl_generic_node_t *nextp   = node;
-			cint_t                    old_idx = idx + 1;
+			int32_t                   old_idx = idx + 1;
 			idx++;
 
 			/* find the immediately next node (and its parent) */

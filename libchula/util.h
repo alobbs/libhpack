@@ -124,8 +124,8 @@ ret_t chula_fd_set_closexec    (int fd);
 ret_t chula_fd_set_reuseaddr   (int fd);
 ret_t chula_fd_close           (int fd);
 
-ret_t chula_sys_fdlimit_get (cuint_t *limit);
-ret_t chula_sys_fdlimit_set (cuint_t  limit);
+ret_t chula_sys_fdlimit_get (uint32_t *limit);
+ret_t chula_sys_fdlimit_set (uint32_t  limit);
 
 /* Users & Groups
  */

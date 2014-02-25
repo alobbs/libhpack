@@ -60,14 +60,14 @@ static int
 chula_estimate_va_length (const char *fmt, va_list ap)
 {
     char      *p;
-    cuchar_t   ch;
-    cllong_t   ll;
-    cullong_t  ul;
-    bool       lflag;
-    bool       llflag;
-    cuint_t    width;
-    char       padc;
-    cuint_t    len = 0;
+    uint8_t   ch;
+    int64_t   ll;
+    uint64_t  ul;
+    bool      lflag;
+    bool      llflag;
+    uint32_t  width;
+    char      padc;
+    uint32_t  len    = 0;
 
 #define LEN_NUM(var,base)                       \
     do {                                        \
@@ -94,7 +94,7 @@ chula_estimate_va_length (const char *fmt, va_list ap)
             len += strlen (p ? p : "(null)");
             break;
         case 'd':
-            ll = lflag ? va_arg(ap, clong_t) : va_arg(ap, int);
+            ll = lflag ? va_arg(ap, int32_t) : va_arg(ap, int);
             if (unlikely (ll < 0)) {
                 ll = -ll;
                 len++;
@@ -109,7 +109,7 @@ chula_estimate_va_length (const char *fmt, va_list ap)
             goto reswitch;
         case 'u':
             if (llflag) {
-                ul = va_arg(ap, cullong_t);
+                ul = va_arg(ap, uint64_t);
             } else {
                 ul = lflag ? va_arg(ap, long) : va_arg(ap, int);
             }
@@ -133,7 +133,7 @@ chula_estimate_va_length (const char *fmt, va_list ap)
             len++;
             break;
         case 'o':
-            ll = lflag ? va_arg(ap, clong_t) : va_arg(ap, int);
+            ll = lflag ? va_arg(ap, int32_t) : va_arg(ap, int);
             if (unlikely (ll < 0)) {
                 ll = -ll;
                 len++;
@@ -150,7 +150,7 @@ chula_estimate_va_length (const char *fmt, va_list ap)
             if (sizeof(void *) > sizeof(int))
                 lflag = true;
         case 'x':
-            ll = lflag ? va_arg(ap, clong_t) : va_arg(ap, int);
+            ll = lflag ? va_arg(ap, int32_t) : va_arg(ap, int);
             if (unlikely (ll < 0)) {
                 ll = -ll;
                 len++;
@@ -184,7 +184,7 @@ chula_buffer_init (chula_buffer_t *buf)
 }
 
 void
-chula_buffer_fake (chula_buffer_t *buf, const char *str, cuint_t len)
+chula_buffer_fake (chula_buffer_t *buf, const char *str, uint32_t len)
 {
     buf->buf  = (char *)str;
     buf->len  = len;
@@ -217,9 +217,9 @@ chula_buffer_clean (chula_buffer_t *buf)
 void
 chula_buffer_swap_buffers (chula_buffer_t *buf, chula_buffer_t *second)
 {
-    char    *tmp_buf;
-    cuint_t  tmp_len;
-    cuint_t  tmp_size;
+    char     *tmp_buf;
+    uint32_t  tmp_len;
+    uint32_t  tmp_size;
 
     tmp_buf  = buf->buf;
     tmp_len  = buf->len;
@@ -304,7 +304,7 @@ chula_buffer_add (chula_buffer_t *buf, const char *txt, size_t size)
      */
     available = buf->size - buf->len;
 
-    if ((cuint_t) available < (size+1)) {
+    if ((uint32_t) available < (size+1)) {
         if (unlikely (realloc_inc_bufsize(buf, size - available) != ret_ok)) {
             return ret_nomem;
         }
@@ -427,7 +427,7 @@ chula_buffer_add_fsize (chula_buffer_t *buf, CST_OFFSET size)
         return ret;
 
     if (size < 973)
-        return chula_buffer_add_ulong10 (buf, (culong_t)size);
+        return chula_buffer_add_ulong10 (buf, (uint32_t)size);
 
     do {
         remain = (int)(size & 1023);
@@ -453,10 +453,10 @@ chula_buffer_add_fsize (chula_buffer_t *buf, CST_OFFSET size)
 
 
 ret_t
-chula_buffer_add_long10 (chula_buffer_t *buf, clong_t lNum)
+chula_buffer_add_long10 (chula_buffer_t *buf, int32_t lNum)
 {
-    culong_t ulNum                 = (culong_t) lNum;
-    cuint_t  flgNeg                = 0;
+    uint32_t ulNum                 = (uint32_t) lNum;
+    uint32_t flgNeg                = 0;
     int      newlen                = 0;
     size_t   i                     = (IOS_NUMBUF - 1);
     char     szOutBuf[IOS_NUMBUF];
@@ -483,7 +483,7 @@ chula_buffer_add_long10 (chula_buffer_t *buf, clong_t lNum)
     /* Verify free space in buffer and if needed then enlarge it.
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
-    if (unlikely ((cuint_t)newlen >= buf->size)) {
+    if (unlikely ((uint32_t)newlen >= buf->size)) {
         if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
             return ret_nomem;
         }
@@ -499,13 +499,13 @@ chula_buffer_add_long10 (chula_buffer_t *buf, clong_t lNum)
 
 
 ret_t
-chula_buffer_add_llong10 (chula_buffer_t *buf, cllong_t lNum)
+chula_buffer_add_llong10 (chula_buffer_t *buf, int64_t lNum)
 {
-    cullong_t ulNum                 = (cullong_t) lNum;
-    cuint_t   flgNeg                = 0;
-    int       newlen                = 0;
-    size_t    i                     = (IOS_NUMBUF - 1);
-    char      szOutBuf[IOS_NUMBUF];
+    uint64_t ulNum                 = (uint64_t) lNum;
+    uint32_t flgNeg                = 0;
+    int      newlen                = 0;
+    size_t   i                     = (IOS_NUMBUF - 1);
+    char     szOutBuf[IOS_NUMBUF];
 
     if (lNum < 0L) {
         flgNeg = 1;
@@ -529,7 +529,7 @@ chula_buffer_add_llong10 (chula_buffer_t *buf, cllong_t lNum)
     /* Verify free space in buffer and if needed then enlarge it.
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
-    if (unlikely ((cuint_t)newlen >= buf->size)) {
+    if (unlikely ((uint32_t)newlen >= buf->size)) {
         if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
             return ret_nomem;
         }
@@ -546,7 +546,7 @@ chula_buffer_add_llong10 (chula_buffer_t *buf, cllong_t lNum)
 
 
 ret_t
-chula_buffer_add_ulong10 (chula_buffer_t *buf, culong_t ulNum)
+chula_buffer_add_ulong10 (chula_buffer_t *buf, uint32_t ulNum)
 {
     int     newlen               = 0;
     size_t  i                    = (IOS_NUMBUF - 1);
@@ -564,7 +564,7 @@ chula_buffer_add_ulong10 (chula_buffer_t *buf, culong_t ulNum)
     /* Verify free space in buffer and if needed then enlarge it.
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
-    if (unlikely ((cuint_t)newlen >= buf->size)) {
+    if (unlikely ((uint32_t)newlen >= buf->size)) {
         if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
             return ret_nomem;
         }
@@ -581,7 +581,7 @@ chula_buffer_add_ulong10 (chula_buffer_t *buf, culong_t ulNum)
 
 
 ret_t
-chula_buffer_add_ullong10 (chula_buffer_t *buf, cullong_t ulNum)
+chula_buffer_add_ullong10 (chula_buffer_t *buf, uint64_t ulNum)
 {
     int     newlen               = 0;
     size_t  i                    = (IOS_NUMBUF - 1);
@@ -599,7 +599,7 @@ chula_buffer_add_ullong10 (chula_buffer_t *buf, cullong_t ulNum)
     /* Verify free space in buffer and if needed then enlarge it.
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
-    if (unlikely ((cuint_t)newlen >= buf->size)) {
+    if (unlikely ((uint32_t)newlen >= buf->size)) {
         if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
             return ret_nomem;
         }
@@ -619,7 +619,7 @@ chula_buffer_add_ullong10 (chula_buffer_t *buf, cullong_t ulNum)
 ** Add a number in hexadecimal format to (buf).
 */
 ret_t
-chula_buffer_add_ulong16 (chula_buffer_t *buf, culong_t ulNum)
+chula_buffer_add_ulong16 (chula_buffer_t *buf, uint32_t ulNum)
 {
     size_t  i                     = (IOS_NUMBUF - 1);
     int     ival                  = 0;
@@ -639,7 +639,7 @@ chula_buffer_add_ulong16 (chula_buffer_t *buf, culong_t ulNum)
     /* Verify free space in buffer and if needed then enlarge it.
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
-    if (unlikely ((cuint_t)newlen >= buf->size)) {
+    if (unlikely ((uint32_t)newlen >= buf->size)) {
         if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
             return ret_nomem;
         }
@@ -659,7 +659,7 @@ chula_buffer_add_ulong16 (chula_buffer_t *buf, culong_t ulNum)
 ** Add a number in hexadecimal format to (buf).
 */
 ret_t
-chula_buffer_add_ullong16 (chula_buffer_t *buf, cullong_t ulNum)
+chula_buffer_add_ullong16 (chula_buffer_t *buf, uint64_t ulNum)
 {
     size_t  i                     = (IOS_NUMBUF - 1);
     int     ival                  = 0;
@@ -679,7 +679,7 @@ chula_buffer_add_ullong16 (chula_buffer_t *buf, cullong_t ulNum)
     /* Verify free space in buffer and if needed then enlarge it.
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
-    if (unlikely ((cuint_t)newlen >= buf->size)) {
+    if (unlikely ((uint32_t)newlen >= buf->size)) {
         if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
             return ret_nomem;
         }
@@ -714,9 +714,9 @@ chula_buffer_add_uint32be (chula_buffer_t *buf, uint32_t n)
 ret_t
 chula_buffer_add_va_fixed (chula_buffer_t *buf, const char *format, ...)
 {
-    int len;
-    int size = buf->size - buf->len;    /* final '\0' is always available */
     va_list ap;
+    int     len;
+    int     size = buf->size - buf->len;    /* final '\0' is always available */
 
     /* Test for minimum buffer size.
      */
@@ -746,10 +746,10 @@ chula_buffer_add_va_fixed (chula_buffer_t *buf, const char *format, ...)
 ret_t
 chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
 {
-    int len;
-    int estimation;
-    int size;
-    ret_t ret;
+    int     len;
+    int     estimation;
+    int     size;
+    ret_t   ret;
     va_list args2;
 
     va_copy (args2, args);
@@ -888,7 +888,7 @@ chula_buffer_prepend (chula_buffer_t *buf, const char *txt, size_t size)
 
     /* Get memory
      */
-    if ((cuint_t) free < (size+1)) {
+    if ((uint32_t) free < (size+1)) {
         if (unlikely (realloc_inc_bufsize(buf, size - free) != ret_ok)) {
             return ret_nomem;
         }
@@ -915,7 +915,7 @@ chula_buffer_is_ending (chula_buffer_t *buf, char c)
 
 
 ret_t
-chula_buffer_move_to_begin (chula_buffer_t *buf, cuint_t pos)
+chula_buffer_move_to_begin (chula_buffer_t *buf, uint32_t pos)
 {
     if (pos == 0)
         return ret_ok;
@@ -983,7 +983,7 @@ chula_buffer_ensure_size (chula_buffer_t *buf, size_t size)
 
 
 ret_t
-chula_buffer_drop_ending (chula_buffer_t *buffer, cuint_t num_chars)
+chula_buffer_drop_ending (chula_buffer_t *buffer, uint32_t num_chars)
 {
     int num;
 
@@ -1003,7 +1003,7 @@ chula_buffer_drop_ending (chula_buffer_t *buffer, cuint_t num_chars)
 ret_t
 chula_buffer_swap_chars (chula_buffer_t *buffer, char a, char b)
 {
-    cuint_t i;
+    uint32_t i;
 
     if (buffer->buf == NULL) {
         return ret_ok;
@@ -1024,7 +1024,7 @@ chula_buffer_remove_dups (chula_buffer_t *buffer, char c)
 {
     char       *a      = buffer->buf;
     const char *end    = buffer->buf + buffer->len;
-    cuint_t     offset = 0;
+    uint32_t    offset = 0;
 
     if (buffer->len < 2) {
         return ret_ok;
@@ -1068,7 +1068,7 @@ chula_buffer_remove_string (chula_buffer_t *buf, char *string, int string_len)
 
 
 ret_t
-chula_buffer_remove_chunk (chula_buffer_t *buf, cuint_t from, cuint_t len)
+chula_buffer_remove_chunk (chula_buffer_t *buf, uint32_t from, uint32_t len)
 {
     char *end;
     char *begin;
@@ -1091,7 +1091,7 @@ chula_buffer_remove_chunk (chula_buffer_t *buf, cuint_t from, cuint_t len)
 }
 
 
-cint_t
+int32_t
 chula_buffer_cmp_buf (chula_buffer_t *A, chula_buffer_t *B)
 {
     if (A->len > B->len)
@@ -1102,8 +1102,8 @@ chula_buffer_cmp_buf (chula_buffer_t *A, chula_buffer_t *B)
     return strncmp (A->buf, B->buf, B->len);
 }
 
-cint_t
-chula_buffer_cmp (chula_buffer_t *buf, char *txt, cuint_t txt_len)
+int32_t
+chula_buffer_cmp (chula_buffer_t *buf, char *txt, uint32_t txt_len)
 {
     chula_buffer_t tmp;
     chula_buffer_fake (&tmp, txt, txt_len);
@@ -1111,7 +1111,7 @@ chula_buffer_cmp (chula_buffer_t *buf, char *txt, cuint_t txt_len)
 }
 
 
-cint_t
+int32_t
 chula_buffer_case_cmp_buf (chula_buffer_t *A, chula_buffer_t *B)
 {
     if (A->len > B->len)
@@ -1122,8 +1122,8 @@ chula_buffer_case_cmp_buf (chula_buffer_t *A, chula_buffer_t *B)
     return strncasecmp (A->buf, B->buf, B->len);
 }
 
-cint_t
-chula_buffer_case_cmp (chula_buffer_t *buf, char *txt, cuint_t txt_len)
+int32_t
+chula_buffer_case_cmp (chula_buffer_t *buf, char *txt, uint32_t txt_len)
 {
     chula_buffer_t tmp;
     chula_buffer_fake (&tmp, txt, txt_len);
@@ -1132,7 +1132,7 @@ chula_buffer_case_cmp (chula_buffer_t *buf, char *txt, cuint_t txt_len)
 
 
 size_t
-chula_buffer_cnt_spn (chula_buffer_t *buf, cuint_t offset, const char *str)
+chula_buffer_cnt_spn (chula_buffer_t *buf, uint32_t offset, const char *str)
 {
     if (unlikely ((buf->buf == NULL) || (buf->len <= offset)))
         return 0;
@@ -1142,7 +1142,7 @@ chula_buffer_cnt_spn (chula_buffer_t *buf, cuint_t offset, const char *str)
 
 
 size_t
-chula_buffer_cnt_cspn (chula_buffer_t *buf, cuint_t offset, const char *str)
+chula_buffer_cnt_cspn (chula_buffer_t *buf, uint32_t offset, const char *str)
 {
     if (unlikely ((buf->buf == NULL) || (buf->len <= offset)))
         return 0;
@@ -1164,8 +1164,8 @@ chula_buffer_crc32 (chula_buffer_t *buf)
 ret_t
 chula_buffer_read_file (chula_buffer_t *buf, char *filename)
 {
-    int r, f;
-    ret_t ret;
+    ret_t       ret;
+    int         r, f;
     struct stat info;
 
     /* Stat() the file
@@ -1396,9 +1396,9 @@ utf8_get_next_char (const char *string)
 
 
 ret_t
-chula_buffer_get_utf8_len (chula_buffer_t *buf, cuint_t *len)
+chula_buffer_get_utf8_len (chula_buffer_t *buf, uint32_t *len)
 {
-    cuint_t     n;
+    uint32_t    n;
     const char *p;
     const char *end;
 
@@ -1497,7 +1497,7 @@ escape_with_table (chula_buffer_t *buffer,
     unsigned char       *t;
     const unsigned char *s, *s_next;
     char                *end;
-    cuint_t              n_escape    = 0;
+    uint32_t             n_escape    = 0;
     static char          hex_chars[] = "0123456789abcdef";
 
     if (unlikely (chula_buffer_is_empty(src)))
@@ -1665,7 +1665,7 @@ chula_buffer_add_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
 
     /* Verify there are no embedded '\0'.
      */
-    if (unlikely ((cuint_t)(p1 - src->buf) != src->len))
+    if (unlikely ((uint32_t)(p1 - src->buf) != src->len))
         return ret_error;
 
     /* Ensure there is proper buffer size.
@@ -1746,7 +1746,7 @@ chula_buffer_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
 ret_t
 chula_buffer_decode_base64 (chula_buffer_t *buf)
 {
-    cuint_t  i;
+    uint32_t  i;
     char     space[128];
     int      space_idx = 0;
     int      phase     = 0;
@@ -1833,11 +1833,11 @@ chula_buffer_decode_base64 (chula_buffer_t *buf)
 ret_t
 chula_buffer_encode_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 {
-    cuchar_t         *in;
-    cuchar_t         *out;
-    ret_t             ret;
-    cuint_t           i, j;
-    cuint_t           inlen   = buf->len;
+    uint8_t  *in;
+    uint8_t  *out;
+    ret_t     ret;
+    uint32_t  i, j;
+    uint32_t  inlen = buf->len;
 
     static const char base64tab[]=
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -1857,12 +1857,12 @@ chula_buffer_encode_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 
     /* Encode source to destination
      */
-    in  = (cuchar_t *) buf->buf;
-    out = (cuchar_t *) encoded->buf;
+    in  = (uint8_t *) buf->buf;
+    out = (uint8_t *) encoded->buf;
 
     for (i=0, j=0; i < inlen; i += 3) {
-        int     a=0,b=0,c=0;
-        int     d, e, f, g;
+        int a=0,b=0,c=0;
+        int d, e, f, g;
 
         a=in[i];
         b= i+1 < inlen ? in[i+1]:0;
@@ -2118,12 +2118,12 @@ chula_buffer_encode_sha1_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 ret_t
 chula_buffer_encode_hex (chula_buffer_t *buf, chula_buffer_t *encoded)
 {
-    ret_t     ret;
-    cuchar_t *in;
-    cuchar_t *out;
-    cuint_t   j;
-    cuint_t   i;
-    cuint_t   inlen = buf->len;
+    ret_t    ret;
+    uint8_t *in;
+    uint8_t *out;
+    uint32_t j;
+    uint32_t i;
+    uint32_t inlen = buf->len;
 
     /* Prepare destination buffer
      */
@@ -2135,15 +2135,15 @@ chula_buffer_encode_hex (chula_buffer_t *buf, chula_buffer_t *encoded)
 
     /* Encode source to destination
      */
-    in  = (cuchar_t *) buf->buf;
-    out = (cuchar_t *) encoded->buf;
+    in  = (uint8_t *) buf->buf;
+    out = (uint8_t *) encoded->buf;
 
     for (i = 0; i != inlen; ++i) {
         j = ( (*in >> 4) & 0xf );
-        *out++ = (cuchar_t) TO_HEX(j);
+        *out++ = (uint8_t) TO_HEX(j);
 
         j =   (*in++ & 0xf);
-        *out++ = (cuchar_t) TO_HEX(j);
+        *out++ = (uint8_t) TO_HEX(j);
     }
 
     *out = '\0';
@@ -2156,7 +2156,7 @@ chula_buffer_encode_hex (chula_buffer_t *buf, chula_buffer_t *encoded)
 ret_t
 chula_buffer_decode_hex (chula_buffer_t *buf)
 {
-    cuint_t i;
+    uint32_t i;
 
     static char hex_to_bin [128] = {
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,    /*            */
@@ -2174,8 +2174,8 @@ chula_buffer_decode_hex (chula_buffer_t *buf)
     for (i=0; i<buf->len/2; i++) {
         /* It uses << 1 rather than * 2
          */
-        cint_t b1 = buf->buf[(i << 1)] & 127;
-        cint_t b2 = buf->buf[(i << 1) + 1] & 127;
+        int32_t b1 = buf->buf[(i << 1)] & 127;
+        int32_t b2 = buf->buf[(i << 1) + 1] & 127;
 
         b1 = hex_to_bin[b1];
         b2 = hex_to_bin[b2];
@@ -2407,7 +2407,7 @@ ret_t
 chula_buffer_add_comma_marks (chula_buffer_t *buf)
 {
     ret_t    ret;
-    cuint_t  off, num, i;
+    uint32_t off, num, i;
     char    *p;
 
     if ((buf->buf == NULL) || (buf->len <= 3))
@@ -2443,8 +2443,8 @@ chula_buffer_add_comma_marks (chula_buffer_t *buf)
 ret_t
 chula_buffer_trim (chula_buffer_t *buf)
 {
-    cuint_t s, e;
-    cuint_t len;
+    uint32_t s, e;
+    uint32_t len;
 
     if (chula_buffer_is_empty (buf))
         return ret_ok;
@@ -2477,8 +2477,8 @@ chula_buffer_trim (chula_buffer_t *buf)
 ret_t
 chula_buffer_to_lowcase (chula_buffer_t *buf)
 {
-    char    c;
-    cuint_t i;
+    char     c;
+    uint32_t i;
 
     for (i=0; i<buf->len; i++) {
         c = buf->buf[i];

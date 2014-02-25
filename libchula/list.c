@@ -39,7 +39,7 @@ ret_t
 chula_list_get_len (chula_list_t *head, size_t *len)
 {
 	chula_list_t *i;
-	cuint_t          n = 0;
+	uint32_t      n = 0;
 
 	list_for_each (i, head)
 		n++;

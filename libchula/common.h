@@ -51,18 +51,6 @@ typedef enum {
 
 typedef unsigned int        crc_t;
 
-typedef int                 cint_t;
-typedef char                cchar_t;
-typedef short               cshort_t;
-typedef long                clong_t;
-typedef long long           cllong_t;
-
-typedef unsigned int        cuint_t;
-typedef unsigned char       cuchar_t;
-typedef unsigned short      cushort_t;
-typedef unsigned long       culong_t;
-typedef unsigned long long  cullong_t;
-
 typedef void (*chula_func_free_t) (void *);
 
 #endif /* CHULA_COMMON_H */

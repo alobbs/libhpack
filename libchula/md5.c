@@ -26,12 +26,12 @@
 
 #ifdef WORDS_BIGENDIAN
 void
-byteSwap(cuint_t *buf, unsigned words)
+byteSwap(uint32_t *buf, unsigned words)
 {
 	md5byte *p = (md5byte *)buf;
 
 	do {
-		*buf++ = (cuint_t)((unsigned)p[3] << 8 | p[2]) << 16 |
+		*buf++ = (uint32_t)((unsigned)p[3] << 8 | p[2]) << 16 |
 			((unsigned)p[1] << 8 | p[0]);
 		p += 4;
 	} while (--words);
@@ -63,7 +63,7 @@ MD5Init(struct MD5Context *ctx)
 void
 MD5Update(struct MD5Context *ctx, md5byte const *buf, unsigned len)
 {
-	cuint_t t;
+	uint32_t t;
 
 	/* Update byte count */
 
@@ -151,9 +151,9 @@ MD5Final(md5byte digest[16], struct MD5Context *ctx)
  * the data and converts bytes into longwords for this routine.
  */
 void
-MD5Transform(cuint_t buf[4], cuint_t const in[16])
+MD5Transform(uint32_t buf[4], uint32_t const in[16])
 {
-	register cuint_t a, b, c, d;
+	register uint32_t a, b, c, d;
 
 	a = buf[0];
 	b = buf[1];

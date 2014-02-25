@@ -43,8 +43,8 @@
 
 typedef struct {
 	char    *buf;        /**< Memory chunk           */
-	cuint_t  size;       /**< Total amount of memory */
-	cuint_t  len;        /**< Length of the string   */
+	uint32_t  size;       /**< Total amount of memory */
+	uint32_t  len;        /**< Length of the string   */
 } chula_buffer_t;
 
 #define BUF(x) ((chula_buffer_t *)(x))
@@ -65,19 +65,19 @@ ret_t chula_buffer_new                  (chula_buffer_t **buf);
 ret_t chula_buffer_free                 (chula_buffer_t  *buf);
 ret_t chula_buffer_init                 (chula_buffer_t  *buf);
 ret_t chula_buffer_mrproper             (chula_buffer_t  *buf);
-void  chula_buffer_fake                 (chula_buffer_t  *buf, const char *str, cuint_t len);
+void  chula_buffer_fake                 (chula_buffer_t  *buf, const char *str, uint32_t len);
 
 void  chula_buffer_clean                (chula_buffer_t  *buf);
 ret_t chula_buffer_dup                  (chula_buffer_t  *buf, chula_buffer_t **dup);
 void  chula_buffer_swap_buffers         (chula_buffer_t  *buf, chula_buffer_t *second);
 
 ret_t chula_buffer_add                  (chula_buffer_t  *buf, const char *txt, size_t size);
-ret_t chula_buffer_add_long10           (chula_buffer_t  *buf, clong_t lNum);
-ret_t chula_buffer_add_llong10          (chula_buffer_t  *buf, cllong_t lNum);
-ret_t chula_buffer_add_ulong10          (chula_buffer_t  *buf, culong_t ulNum);
-ret_t chula_buffer_add_ullong10         (chula_buffer_t  *buf, cullong_t ulNum);
-ret_t chula_buffer_add_ulong16          (chula_buffer_t  *buf, culong_t ulNum);
-ret_t chula_buffer_add_ullong16         (chula_buffer_t  *buf, cullong_t ulNum);
+ret_t chula_buffer_add_long10           (chula_buffer_t  *buf, int32_t lNum);
+ret_t chula_buffer_add_llong10          (chula_buffer_t  *buf, int64_t lNum);
+ret_t chula_buffer_add_ulong10          (chula_buffer_t  *buf, uint32_t ulNum);
+ret_t chula_buffer_add_ullong10         (chula_buffer_t  *buf, uint64_t ulNum);
+ret_t chula_buffer_add_ulong16          (chula_buffer_t  *buf, uint32_t ulNum);
+ret_t chula_buffer_add_ullong16         (chula_buffer_t  *buf, uint64_t ulNum);
 ret_t chula_buffer_add_uint16be         (chula_buffer_t  *buf, uint16_t n);
 ret_t chula_buffer_add_uint32be         (chula_buffer_t  *buf, uint32_t n);
 ret_t chula_buffer_add_va               (chula_buffer_t  *buf, const char *format, ...);
@@ -91,35 +91,35 @@ ret_t chula_buffer_add_fsize            (chula_buffer_t  *buf, CST_OFFSET size);
 
 ret_t chula_buffer_prepend              (chula_buffer_t  *buf, const char *txt, size_t size);
 
-cint_t chula_buffer_cmp                 (chula_buffer_t  *buf, char *txt, cuint_t txt_len);
-cint_t chula_buffer_cmp_buf             (chula_buffer_t  *buf, chula_buffer_t *buf2);
-cint_t chula_buffer_case_cmp            (chula_buffer_t  *buf, char *txt, cuint_t txt_len);
-cint_t chula_buffer_case_cmp_buf        (chula_buffer_t  *buf, chula_buffer_t *buf2);
+int32_t chula_buffer_cmp                 (chula_buffer_t  *buf, char *txt, uint32_t txt_len);
+int32_t chula_buffer_cmp_buf             (chula_buffer_t  *buf, chula_buffer_t *buf2);
+int32_t chula_buffer_case_cmp            (chula_buffer_t  *buf, char *txt, uint32_t txt_len);
+int32_t chula_buffer_case_cmp_buf        (chula_buffer_t  *buf, chula_buffer_t *buf2);
 
 ret_t chula_buffer_read_file            (chula_buffer_t  *buf, char *filename);
 ret_t chula_buffer_read_from_fd         (chula_buffer_t  *buf, int fd, size_t size, size_t *ret_size);
 
-ret_t chula_buffer_move_to_begin        (chula_buffer_t  *buf, cuint_t pos);
-ret_t chula_buffer_drop_ending          (chula_buffer_t  *buf, cuint_t num_chars);
+ret_t chula_buffer_move_to_begin        (chula_buffer_t  *buf, uint32_t pos);
+ret_t chula_buffer_drop_ending          (chula_buffer_t  *buf, uint32_t num_chars);
 ret_t chula_buffer_multiply             (chula_buffer_t  *buf, int num);
 ret_t chula_buffer_swap_chars           (chula_buffer_t  *buf, char a, char b);
 ret_t chula_buffer_remove_dups          (chula_buffer_t  *buf, char c);
 ret_t chula_buffer_remove_string        (chula_buffer_t  *buf, char *string, int string_len);
-ret_t chula_buffer_remove_chunk         (chula_buffer_t  *buf, cuint_t from, cuint_t len);
+ret_t chula_buffer_remove_chunk         (chula_buffer_t  *buf, uint32_t from, uint32_t len);
 ret_t chula_buffer_replace_string       (chula_buffer_t  *buf, const char *subs, int subs_len, const char *repl, int repl_len);
 ret_t chula_buffer_substitute_string    (chula_buffer_t  *bufsrc, chula_buffer_t *bufdst, char *subs, int subs_len, char *repl, int repl_len);
 ret_t chula_buffer_trim                 (chula_buffer_t  *buf);
 ret_t chula_buffer_insert               (chula_buffer_t  *buf, char *txt, size_t txt_len, size_t pos);
 ret_t chula_buffer_insert_buffer        (chula_buffer_t  *buf, chula_buffer_t *src, size_t pos);
 
-ret_t chula_buffer_get_utf8_len         (chula_buffer_t  *buf, cuint_t *len);
+ret_t chula_buffer_get_utf8_len         (chula_buffer_t  *buf, uint32_t *len);
 ret_t chula_buffer_ensure_addlen        (chula_buffer_t  *buf, size_t alen);
 ret_t chula_buffer_ensure_size          (chula_buffer_t  *buf, size_t size);
 
 int    chula_buffer_is_ending           (chula_buffer_t  *buf, char c);
 char   chula_buffer_end_char            (chula_buffer_t  *buf);
-size_t chula_buffer_cnt_spn             (chula_buffer_t  *buf, cuint_t offset, const char *str);
-size_t chula_buffer_cnt_cspn            (chula_buffer_t  *buf, cuint_t offset, const char *str);
+size_t chula_buffer_cnt_spn             (chula_buffer_t  *buf, uint32_t offset, const char *str);
+size_t chula_buffer_cnt_cspn            (chula_buffer_t  *buf, uint32_t offset, const char *str);
 
 crc_t chula_buffer_crc32                (chula_buffer_t  *buf);
 ret_t chula_buffer_encode_base64        (chula_buffer_t  *buf, chula_buffer_t *encoded);

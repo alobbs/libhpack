@@ -249,8 +249,8 @@ chula_atob (const char *str, bool *ret_value)
 int
 chula_string_is_ipv6 (chula_buffer_t *ip)
 {
-    cuint_t i;
-    cuint_t colons = 0;
+    uint32_t i;
+    uint32_t colons = 0;
 
     for (i=0; i<ip->len; i++) {
         if (ip->buf[i] == ':') {
@@ -775,7 +775,7 @@ chula_fd_close (int fd)
 }
 
 ret_t
-chula_sys_fdlimit_get (cuint_t *limit)
+chula_sys_fdlimit_get (uint32_t *limit)
 {
 #ifdef HAVE_GETRLIMIT
         struct rlimit rlp;
@@ -809,7 +809,7 @@ chula_sys_fdlimit_get (cuint_t *limit)
 
 
 ret_t
-chula_sys_fdlimit_set (cuint_t limit)
+chula_sys_fdlimit_set (uint32_t limit)
 {
 	int           re;
 	struct rlimit rl;
@@ -1405,7 +1405,7 @@ chula_path_short (chula_buffer_t *path)
 	while (p < end) {
 		char    *dots_end;
 		char    *prev_slash;
-		cuint_t  len;
+		uint32_t  len;
 
 		if (p[0] != '.') {
 			p++;

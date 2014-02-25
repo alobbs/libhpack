@@ -112,8 +112,8 @@ END_TEST
 
 START_TEST (add)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_add (&b, "123", 3);
     ck_assert (ret == ret_ok);
@@ -133,9 +133,9 @@ END_TEST
 
 START_TEST (slice)
 {
-    ret_t           ret;
-    chula_buffer_t  a    = CHULA_BUF_INIT;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     chula_buffer_add_str (&a, "0123456789");
 
@@ -207,8 +207,8 @@ END_TEST
 
 START_TEST (add_fsize)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_add_fsize (&b, 0);
     ck_assert (ret == ret_ok);
@@ -265,8 +265,8 @@ END_TEST
 
 START_TEST (add_long10)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_add_long10 (&b, 1l);
     ck_assert (ret == ret_ok);
@@ -296,8 +296,8 @@ END_TEST
 
 START_TEST (add_llong10)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_add_llong10 (&b, 0);
     ck_assert (ret == ret_ok);
@@ -327,8 +327,8 @@ END_TEST
 
 START_TEST (add_long16)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_add_ulong16 (&b, 1);
     ck_assert (ret == ret_ok);
@@ -357,8 +357,8 @@ END_TEST
 
 START_TEST (add_llong16)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_add_ullong16 (&b, 0);
     ck_assert (ret == ret_ok);
@@ -382,9 +382,9 @@ END_TEST
 
 START_TEST (add_uint16be)
 {
-    ret_t           ret;
-    uint16_t        num;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    uint16_t       num;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     num = htons(0);
     ret = chula_buffer_add_uint16be (&b, 0);
@@ -403,9 +403,9 @@ END_TEST
 
 START_TEST (add_uint32be)
 {
-    ret_t           ret;
-    uint32_t        num;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    uint32_t       num;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     num = htons(0);
     ret = chula_buffer_add_uint32be (&b, 0);
@@ -425,8 +425,8 @@ END_TEST
 
 START_TEST (add_va)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_add_va (&b, "");
     ck_assert (ret == ret_ok);
@@ -468,8 +468,8 @@ END_TEST
 
 START_TEST (add_char)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_add_char (&b, 'a');
     ck_assert (ret == ret_ok);
@@ -487,8 +487,8 @@ END_TEST
 
 START_TEST (add_char_n)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_add_char_n (&b, 'a', -1);
     ck_assert (ret == ret_ok);
@@ -511,8 +511,8 @@ END_TEST
 
 START_TEST (prepend)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_prepend (&b, "", 0);
     ck_assert (ret == ret_ok);
@@ -546,8 +546,8 @@ END_TEST
 
 START_TEST (is_ending)
 {
-    int             re;
-    chula_buffer_t  b   = CHULA_BUF_INIT;
+    int            re;
+    chula_buffer_t b   = CHULA_BUF_INIT;
 
     re = chula_buffer_is_ending (&b, ' ');
     ck_assert (re == 0);
@@ -569,8 +569,8 @@ END_TEST
 
 START_TEST (move_to_begin)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     chula_buffer_add_str (&b, "0123456789");
     ret = chula_buffer_move_to_begin (&b, 11);
@@ -592,8 +592,8 @@ END_TEST
 
 START_TEST (ensure_size)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ck_assert (b.buf == NULL);
     ck_assert (b.size == 0);
@@ -619,8 +619,8 @@ END_TEST
 
 START_TEST (drop_ending)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     chula_buffer_add_str (&b, "0123456789");
 
@@ -644,8 +644,8 @@ END_TEST
 
 START_TEST (swap_chars)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     chula_buffer_add_str (&b, "0123401234");
 
@@ -670,8 +670,8 @@ END_TEST
 
 START_TEST (remove_dups)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_remove_dups (&b, 'Z');
     ck_assert (ret == ret_ok);
@@ -695,8 +695,8 @@ END_TEST
 
 START_TEST (remove_string)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_remove_string (&b, NULL, 0);
     ck_assert (ret == ret_ok);
@@ -721,8 +721,8 @@ END_TEST
 
 START_TEST (remove_chunk)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_remove_chunk (&b, 0, 0);
     ck_assert (ret == ret_ok);
@@ -750,9 +750,9 @@ END_TEST
 
 START_TEST (cmp_buf)
 {
-    int             re;
-    chula_buffer_t  a   = CHULA_BUF_INIT;
-    chula_buffer_t  b   = CHULA_BUF_INIT;
+    int            re;
+    chula_buffer_t a   = CHULA_BUF_INIT;
+    chula_buffer_t b   = CHULA_BUF_INIT;
 
     re = chula_buffer_cmp_buf (&a, &b);
     ck_assert (re == 0);
@@ -795,8 +795,8 @@ END_TEST
 
 START_TEST (cmp)
 {
-    int             re;
-    chula_buffer_t  b   = CHULA_BUF_INIT;
+    int            re;
+    chula_buffer_t b   = CHULA_BUF_INIT;
 
     /* Case sensitive */
     re = chula_buffer_cmp (&b, NULL, 0);
@@ -846,8 +846,8 @@ END_TEST
 
 START_TEST (crc32)
 {
-    crc_t           crc;
-    chula_buffer_t  b   = CHULA_BUF_INIT;
+    crc_t          crc;
+    chula_buffer_t b   = CHULA_BUF_INIT;
 
     /* python -c "import zlib; print zlib.crc32('')" */
     crc = chula_buffer_crc32 (&b);
@@ -869,8 +869,8 @@ END_TEST
 
 START_TEST (read_file)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     /* Doesn't exists */
     ret = chula_buffer_read_file (&b, "/it/doesnt/exist");
@@ -906,10 +906,10 @@ END_TEST
 
 START_TEST (read_from_fd)
 {
-    int             fd;
-    ret_t           ret;
-    size_t          did_read = 0;
-    chula_buffer_t  b        = CHULA_BUF_INIT;
+    int            fd;
+    ret_t          ret;
+    size_t         did_read = 0;
+    chula_buffer_t b        = CHULA_BUF_INIT;
 
     /* Doesn't exists */
     fd = open ("/it/doesnt/exist", O_RDONLY);
@@ -972,9 +972,9 @@ END_TEST
 
 START_TEST (get_utf8_len)
 {
-    ret_t           ret;
-    cuint_t         len  = 0;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    uint32_t       len  = 0;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_get_utf8_len (&b, &len);
     ck_assert (ret == ret_ok);
@@ -1012,8 +1012,8 @@ END_TEST
 
 START_TEST (unescape_uri)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_unescape_uri (&b);
     ck_assert (ret == ret_ok);
@@ -1048,9 +1048,9 @@ END_TEST
 
 START_TEST (escape_uri)
 {
-    ret_t           ret;
-    chula_buffer_t  a    = CHULA_BUF_INIT;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_escape_uri (&b, &a);
     ck_assert (ret == ret_ok);
@@ -1083,9 +1083,9 @@ END_TEST
 
 START_TEST (escape_uri_delims)
 {
-    ret_t           ret;
-    chula_buffer_t  a    = CHULA_BUF_INIT;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_escape_uri_delims (&b, &a);
     ck_assert (ret == ret_ok);
@@ -1104,9 +1104,9 @@ END_TEST
 
 START_TEST (escape_arg)
 {
-    ret_t           ret;
-    chula_buffer_t  a    = CHULA_BUF_INIT;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_escape_arg (&b, &a);
     ck_assert (ret == ret_ok);
@@ -1125,9 +1125,9 @@ END_TEST
 
 START_TEST (add_escape_html)
 {
-    ret_t           ret;
-    chula_buffer_t  a    = CHULA_BUF_INIT;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     ret = chula_buffer_add_escape_html (&b, &a);
     ck_assert (ret == ret_ok);
@@ -1154,9 +1154,9 @@ END_TEST
 
 START_TEST (base64)
 {
-    ret_t           ret;
-    chula_buffer_t  a    = CHULA_BUF_INIT;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     /* Empty */
     ret = chula_buffer_encode_base64 (&a, &b);
@@ -1201,8 +1201,8 @@ END_TEST
 
 START_TEST (md5_digest)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     /* Empty */
     ret = chula_buffer_encode_md5_digest (&b);
@@ -1232,9 +1232,9 @@ END_TEST
 
 START_TEST (encode_md5)
 {
-    ret_t           ret;
-    chula_buffer_t  a    = CHULA_BUF_INIT;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     /* Empty */
     ret = chula_buffer_encode_md5 (&a, &b);
@@ -1259,9 +1259,9 @@ END_TEST
 
 START_TEST (encode_sha1)
 {
-    ret_t           ret;
-    chula_buffer_t  a    = CHULA_BUF_INIT;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     /* Empty */
     ret = chula_buffer_encode_sha1 (&a, &b);
@@ -1290,8 +1290,8 @@ END_TEST
 
 START_TEST (sha1_digest)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     /* Empty */
     ret = chula_buffer_encode_sha1_digest (&b);
@@ -1330,9 +1330,9 @@ END_TEST
 
 START_TEST (sha1_base64)
 {
-    ret_t           ret;
-    chula_buffer_t  a    = CHULA_BUF_INIT;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     /* Empty */
     ret = chula_buffer_encode_sha1_base64 (&a, &b);
@@ -1367,9 +1367,9 @@ END_TEST
 
 START_TEST (encode_hex)
 {
-    ret_t           ret;
-    chula_buffer_t  a    = CHULA_BUF_INIT;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     /* Empty */
     ret = chula_buffer_encode_hex (&a, &b);
@@ -1404,8 +1404,8 @@ END_TEST
 
 START_TEST (decode_hex)
 {
-    ret_t           ret;
-    chula_buffer_t  b    = CHULA_BUF_INIT;
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
 
     /* Empty */
     ret = chula_buffer_decode_hex (&b);
@@ -1434,8 +1434,8 @@ END_TEST
 
 START_TEST (end_char)
 {
-    char            re;
-    chula_buffer_t  b   = CHULA_BUF_INIT;
+    char           re;
+    chula_buffer_t b   = CHULA_BUF_INIT;
 
     re = chula_buffer_end_char (&b);
     ck_assert (re == '\0');
