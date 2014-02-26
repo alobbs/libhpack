@@ -1209,7 +1209,10 @@ chula_buffer_read_file (chula_buffer_t *buf, char *filename)
     /* Maybe get memory
      */
     ret = chula_buffer_ensure_size (buf, buf->len + info.st_size + 1);
-    if (unlikely (ret != ret_ok)) return ret;
+    if (unlikely (ret != ret_ok)) {
+        chula_fd_close (f);
+        return ret;
+    }
 
     /* Read the content
      */
