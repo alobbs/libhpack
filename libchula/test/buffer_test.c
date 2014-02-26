@@ -617,6 +617,35 @@ START_TEST (ensure_size)
 }
 END_TEST
 
+START_TEST (retract)
+{
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    ck_assert (b.buf == NULL);
+    ck_assert (b.size == 0);
+
+    ret = chula_buffer_ensure_size (&b, 100);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.buf != NULL);
+    ck_assert (b.size == 100);
+
+    ret = chula_buffer_add_str (&b, "abcd");
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 4);
+    ck_assert (b.size == 100);
+
+    ret = chula_buffer_retract (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.buf != NULL);
+    ck_assert (b.len == 4);
+    ck_assert (b.size == 5);
+    ck_assert_str_eq (b.buf, "abcd");
+
+    chula_buffer_mrproper(&b);
+}
+END_TEST
+
 START_TEST (drop_ending)
 {
     ret_t          ret;
@@ -1805,6 +1834,7 @@ buffer_tests (void)
     check_add (s1, is_ending);
     check_add (s1, move_to_begin);
     check_add (s1, ensure_size);
+    check_add (s1, retract);
     check_add (s1, drop_ending);
     check_add (s1, swap_chars);
     check_add (s1, remove_dups);

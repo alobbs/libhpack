@@ -117,6 +117,7 @@ ret_t chula_buffer_insert_buffer        (chula_buffer_t  *buf, chula_buffer_t *s
 ret_t chula_buffer_get_utf8_len         (chula_buffer_t  *buf, uint32_t *len);
 ret_t chula_buffer_ensure_addlen        (chula_buffer_t  *buf, size_t alen);
 ret_t chula_buffer_ensure_size          (chula_buffer_t  *buf, size_t size);
+ret_t chula_buffer_retract              (chula_buffer_t  *buf);
 
 int    chula_buffer_is_ending           (chula_buffer_t  *buf, char c);
 char   chula_buffer_end_char            (chula_buffer_t  *buf);

@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
- *
+o *
  *   Authors:
  *     * Alvaro Lopez Ortega <alvaro@alobbs.com>
  *
@@ -977,6 +977,33 @@ chula_buffer_ensure_size (chula_buffer_t *buf, size_t size)
 
     buf->buf = pbuf;
     buf->size = size;
+
+    return ret_ok;
+}
+
+
+ret_t
+chula_buffer_retract (chula_buffer_t *buf)
+{
+    char *pbuf;
+
+    /* Nothing to do when..
+     */
+    if (chula_buffer_is_empty (buf))
+        return ret_ok;
+
+    if (buf->size <= buf->len+1)
+        return ret_ok;
+
+    /* Shrink the allocated memory
+     */
+    pbuf = (char *) realloc (buf->buf, buf->len+1);
+    if (unlikely (pbuf == NULL)) {
+        return ret_nomem;
+    }
+
+    buf->buf  = pbuf;
+    buf->size = buf->len + 1;
 
     return ret_ok;
 }
