@@ -625,6 +625,11 @@ START_TEST (retract)
     ck_assert (b.buf == NULL);
     ck_assert (b.size == 0);
 
+    ret = chula_buffer_retract (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.buf == NULL);
+    ck_assert (b.size == 0);
+
     ret = chula_buffer_ensure_size (&b, 100);
     ck_assert (ret == ret_ok);
     ck_assert (b.buf != NULL);
@@ -651,6 +656,13 @@ START_TEST (drop_ending)
     ret_t          ret;
     chula_buffer_t b    = CHULA_BUF_INIT;
 
+    ck_assert (b.buf == NULL);
+    ck_assert (b.len == 0);
+    ret = chula_buffer_drop_ending (&b, 1);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.buf == NULL);
+    ck_assert (b.len == 0);
+
     chula_buffer_add_str (&b, "0123456789");
 
     ret = chula_buffer_drop_ending (&b, 0);
@@ -675,6 +687,13 @@ START_TEST (swap_chars)
 {
     ret_t          ret;
     chula_buffer_t b    = CHULA_BUF_INIT;
+
+    ck_assert (b.buf == NULL);
+    ck_assert (b.len == 0);
+    ret = chula_buffer_drop_ending (&b, 1);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.buf == NULL);
+    ck_assert (b.len == 0);
 
     chula_buffer_add_str (&b, "0123401234");
 
@@ -1757,6 +1776,9 @@ START_TEST (cnt_spn)
     size_t         re;
     chula_buffer_t buf = CHULA_BUF_INIT;
 
+    re = chula_buffer_cnt_spn (&buf, 0, "aeiou");
+    ck_assert (re == 0);
+
     chula_buffer_fake_str (&buf, "aaaaaiiiiizooo");
     re = chula_buffer_cnt_spn (&buf, 0, "aeiou");
     ck_assert (re == 10);
@@ -1775,6 +1797,9 @@ START_TEST (cnt_cspn)
 {
     size_t         re;
     chula_buffer_t buf = CHULA_BUF_INIT;
+
+    re = chula_buffer_cnt_spn (&buf, 0, "aeiou");
+    ck_assert (re == 0);
 
     chula_buffer_fake_str (&buf, "xxxxxyyyyyazzz");
     re = chula_buffer_cnt_cspn (&buf, 0, "aeiou");
