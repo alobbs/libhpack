@@ -85,8 +85,7 @@ hpack_huffman_encode (chula_buffer_t *in,
         /* Memory management */
         if (out->size - out->len < 8) {
             ret = chula_buffer_ensure_addlen (out, in->len);
-            if (unlikely(ret != ret_ok))
-                return ret;
+            if (unlikely(ret != ret_ok)) return ret;
         }
 
         /* Encode */
@@ -103,7 +102,9 @@ hpack_huffman_encode (chula_buffer_t *in,
         out->len++;
     }
 
-    chula_buffer_ensure_size (out, out->len+1);
+    ret = chula_buffer_ensure_size (out, out->len+1);
+    if (unlikely(ret != ret_ok)) return ret;
+
     out->buf[out->len] = '\0';
     return ret_ok;
 }
