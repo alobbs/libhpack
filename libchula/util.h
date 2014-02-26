@@ -91,6 +91,7 @@ char   *chula_strerror_r     (int err, char *buf, size_t bufsize);
 char   *chula_min_str        (char *s1, char *s2);
 char   *chula_max_str        (char *s1, char *s2);
 ret_t   chula_atoi           (const char *str, int *ret_value);
+ret_t   chula_atol           (const char *str, long *ret_value);
 ret_t   chula_atob           (const char *str, bool *ret_value);
 int     chula_string_is_ipv6 (chula_buffer_t *ip);
 

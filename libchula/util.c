@@ -227,6 +227,33 @@ chula_atoi (const char *str, int *ret_value)
     return ret_ok;
 }
 
+
+ret_t
+chula_atol (const char *str, long *ret_value)
+{
+    long  tmp;
+    char *endptr = NULL;
+
+    if (str == NULL) {
+        return ret_error;
+    }
+
+    errno = 0;
+    tmp = strtol (str, &endptr, 10);
+    if (errno != 0) {
+        return ret_error;
+    }
+
+    if (str == endptr) {
+        /* No digits were found */
+        return ret_error;
+    }
+
+    *ret_value = tmp;
+    return ret_ok;
+}
+
+
 ret_t
 chula_atob (const char *str, bool *ret_value)
 {
