@@ -615,6 +615,7 @@ chula_rm_rf (chula_buffer_t *path,
              uid_t           only_uid)
 {
 	int             re;
+    ret_t           ret;
 	DIR            *d;
 	struct dirent  *entry;
 	char            entry_buf[512];
@@ -637,9 +638,11 @@ chula_rm_rf (chula_buffer_t *path,
         if (!strncmp (entry->d_name, "..", 2)) continue;
 
 		chula_buffer_clean      (&tmp);
-		chula_buffer_add_buffer (&tmp, path);
-		chula_buffer_add_char   (&tmp, '/');
-		chula_buffer_add        (&tmp, entry->d_name, strlen(entry->d_name));
+
+		ret  = chula_buffer_add_buffer (&tmp, path);
+		ret |= chula_buffer_add_char   (&tmp, '/');
+		ret |= chula_buffer_add        (&tmp, entry->d_name, strlen(entry->d_name));
+        if (unlikely (ret != ret_ok)) return ret_error;
 
         re = chula_stat (tmp.buf, &info);
         if (re != 0) continue;
@@ -1326,7 +1329,7 @@ chula_getgrnam_gid (const char *name, struct group *grbuf, char *buf, size_t buf
 		return ret_ok;
 	}
 
-    ret = chula_atoi (name, &tmp_gid);
+    ret = chula_atol (name, &tmp_gid);
     if (ret != ret_ok)
         return ret;
 
@@ -1744,8 +1747,10 @@ chula_random (void)
 long
 chula_eval_formated_time (chula_buffer_t *buf)
 {
-	char end;
-	int  mul = 1;
+    ret_t ret;
+	char  end;
+    long  val;
+	int   mul = 1;
 
 	if (unlikely (chula_buffer_is_empty (buf)))
 		return 0;
@@ -1771,7 +1776,10 @@ chula_eval_formated_time (chula_buffer_t *buf)
 		break;
 	}
 
-	return atol(buf->buf) * mul;
+    ret = chula_atol (buf->buf, &val);
+    if (unlikely (ret != ret_ok)) return ret;
+
+	return val * mul;
 }
 
 
