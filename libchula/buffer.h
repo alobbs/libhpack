@@ -34,6 +34,8 @@
 #define CHULA_BUFFER_H
 
 #include "common.h"
+#include "crc32.h"
+
 #include <stddef.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -42,7 +44,7 @@
 #include <stdint.h>
 
 typedef struct {
-	char    *buf;        /**< Memory chunk           */
+	char     *buf;        /**< Memory chunk           */
 	uint32_t  size;       /**< Total amount of memory */
 	uint32_t  len;        /**< Length of the string   */
 } chula_buffer_t;

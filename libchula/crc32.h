@@ -35,6 +35,8 @@
 
 #include "common.h"
 
+typedef unsigned int crc_t;
+
 /* Returns crc32 of data block */
 crc_t crc32_sz(char *buf, int size);
 crc_t crc32_partial_sz (crc_t crc_in, char *buf, int size);
