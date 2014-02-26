@@ -10,6 +10,7 @@ endif(BUILD_DOCS)
 # Library
 set(LIB_NAME chula)
 file(GLOB chula_SRCS *.c *.h)
+file(GLOB chula_HDRS *.h)
 
 add_library (
     ${LIB_NAME}
@@ -29,4 +30,9 @@ install (
   TARGETS ${LIB_NAME}
   ARCHIVE DESTINATION lib COMPONENT Development
   LIBRARY DESTINATION lib COMPONENT RuntimeLibraries
+)
+
+install (
+  FILES ${chula_HDRS}
+  DESTINATION include/libchula
 )
