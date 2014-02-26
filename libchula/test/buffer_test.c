@@ -984,6 +984,7 @@ START_TEST (read_from_fd)
 
     fd = open (filename, O_RDONLY);
     ret = chula_buffer_read_from_fd (&b, fd, 9999, &did_read);
+    chula_fd_close (fd);
     unlink (filename);
 
     ck_assert (ret == ret_ok);
