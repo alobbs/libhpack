@@ -1197,8 +1197,7 @@ chula_buffer_read_file (chula_buffer_t *buf, char *filename)
     /* Stat() the file
      */
     r = chula_stat (filename, &info);
-    if (r != 0)
-        return ret_error;
+    if (r != 0) return ret_error;
 
     /* Is a regular file?
      */
@@ -1218,19 +1217,15 @@ chula_buffer_read_file (chula_buffer_t *buf, char *filename)
     /* Maybe get memory
      */
     ret = chula_buffer_ensure_size (buf, buf->len + info.st_size + 1);
-    if (unlikely (ret != ret_ok)) {
-        chula_fd_close (f);
-        return ret;
-    }
+    if (unlikely (ret != ret_ok)) goto error;
 
     /* Read the content
      */
     r = read (f, buf->buf + buf->len, info.st_size);
     if (r < 0) {
         buf->buf[buf->len] = '\0';
-
-        chula_fd_close(f);
-        return ret_error;
+        ret = ret_error;
+        goto error;
     }
 
     /* Close it and exit
@@ -1241,6 +1236,10 @@ chula_buffer_read_file (chula_buffer_t *buf, char *filename)
     buf->buf[buf->len] = '\0';
 
     return ret_ok;
+
+error:
+    chula_fd_close(f);
+    return ret;
 }
 
 
