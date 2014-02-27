@@ -312,6 +312,21 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libhpack.pc.in
 install (FILES ${CMAKE_CURRENT_BINARY_DIR}/libhpack.pc
          DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
+# CPack
+INCLUDE(InstallRequiredSystemLibraries)
+
+set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Header Compression for HTTP/2.0 library")
+set (CPACK_PACKAGE_VENDOR "Alvaro Lopez Ortega")
+set (CPACK_PACKAGE_CONTACT "alvaro@alobbs.com")
+set (CPACK_PACKAGE_VERSION_MAJOR ${hpack_SOVERSION_CURRENT})
+set (CPACK_PACKAGE_VERSION_MINOR ${hpack_SOVERSION_REVISION})
+set (CPACK_PACKAGE_VERSION_PATCH ${hpack_SOVERSION_AGE})
+set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set (CPACK_SOURCE_GENERATOR "TGZ")
+set (CPACK_SOURCE_IGNORE_FILES "build/;\\\\.git.*;\\\\.gdb.*-")
+
+INCLUDE(CPack)
+
 # Final license reminder
 MESSAGE ("
 +------------------------------------------------------------------+
