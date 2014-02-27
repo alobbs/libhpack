@@ -754,13 +754,14 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
     estimation = chula_estimate_va_length (format, args);
     if (unlikely (estimation) < 0) {
 //      LOG_ERROR (CHULA_ERROR_BUFFER_NEG_ESTIMATION, format, estimation);
-        return ret_error;
+        ret = ret_error;
+        goto error;
     }
 
     /* Ensure enough size for buffer.
      */
     ret = chula_buffer_ensure_size (buf, buf->len + estimation + 2);
-    if (unlikely (ret != ret_ok)) return ret;
+    if (unlikely (ret != ret_ok)) goto error;
 
     /* Format the string into the buffer.
      * NOTE: len does NOT include '\0', size includes '\0' (len + 1)
@@ -768,7 +769,8 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
     size = buf->size - buf->len;
     if (unlikely (size < 1)) {
 //      LOG_ERROR (CHULA_ERROR_BUFFER_NO_SPACE, format, size, estimation);
-        return ret_error;
+        ret = ret_error;
+        goto error;
     }
 
     len = vsnprintf (buf->buf + buf->len, size, format, args2);
@@ -779,8 +781,10 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
     }
 #endif
 
-    if (unlikely (len < 0))
-        return ret_error;
+    if (unlikely (len < 0)) {
+        ret = ret_error;
+        goto error;
+    }
 
     /* At this point buf-size is always greater than buf-len, thus size > 0.
      */
@@ -789,20 +793,25 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
 //             estimation, len, size, format);
 
         ret = chula_buffer_ensure_size (buf, buf->len + len + 2);
-        if (unlikely (ret != ret_ok)) return ret;
+        if (unlikely (ret != ret_ok)) goto error;
 
         size = buf->size - buf->len;
         len = vsnprintf (buf->buf + buf->len, size, format, args2);
 
-        if (unlikely (len < 0))
-            return ret_error;
-
-        if (unlikely (len >= size))
-            return ret_error;
+        if (unlikely ((len < 0) || (len >= size))) {
+            ret = ret_error;
+            goto error;
+        }
     }
 
     buf->len += len;
+
+    va_end (args2);
     return ret_ok;
+
+error:
+    va_end (args2);
+    return ret;
 }
 
 
