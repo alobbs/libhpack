@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@/libhpack
+
+Name: libhpack
+Description: Header Compression for HTTP/2.0 library
+Version: @hpack_VERSION@
+Libs: -L${libdir} -lhpack
+Libs.private: @LIBS@
+Cflags: -I${includedir}
+Requires: libchula

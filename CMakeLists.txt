@@ -20,6 +20,16 @@ math(EXPR hpack_SOVERSION_PATCH "${hpack_SOVERSION_REVISION}")
 set(hpack_VERSION ${hpack_SOVERSION_MAJOR}.${hpack_SOVERSION_MINOR}.${hpack_SOVERSION_PATCH})
 set(hpack_SOVERSION ${hpack_SOVERSION_MAJOR})
 
+# Standard replacements
+set(prefix      ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix ${CMAKE_INSTALL_PREFIX})
+set(libdir      ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+set(includedir  ${CMAKE_INSTALL_PREFIX}/include)
+
+if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+  set(CMAKE_INSTALL_LIBDIR lib)
+endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+
 # Options
 option(BUILD_TESTS "Build the test suite" ON)
 option(BUILD_DOCS  "Build the documentation" ON)
@@ -294,6 +304,13 @@ endif(BUILD_TESTS)
 # config.h
 execute_process (COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gen-config.py ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 CONFIGURE_FILE (${CMAKE_CURRENT_BINARY_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE)
+
+# libhpack.pc
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libhpack.pc.in
+               ${CMAKE_CURRENT_BINARY_DIR}/libhpack.pc @ONLY)
+
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/libhpack.pc
+         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
 # Final license reminder
 MESSAGE ("

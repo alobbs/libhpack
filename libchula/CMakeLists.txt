@@ -36,3 +36,10 @@ install (
   FILES ${chula_HDRS}
   DESTINATION include/libchula
 )
+
+# libchula.pc
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libchula.pc.in
+               ${CMAKE_CURRENT_BINARY_DIR}/libchula.pc @ONLY)
+
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/libchula.pc
+         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)

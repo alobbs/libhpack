@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@/libchula
+
+Name: libchula
+Description: C Toolkit
+Version: @hpack_VERSION@
+Libs: -L${libdir} -lchula
+Libs.private: @LIBS@
+Cflags: -I${includedir}
