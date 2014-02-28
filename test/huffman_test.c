@@ -35,7 +35,8 @@
 #include "libhpack/huffman_tables.h"
 
 #define encode_test(s1,s2) encode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1)
-#define decode_test(s1,s2) decode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1)
+#define decode_test(s1,s2) decode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1,1)
+#define decode_test_accept(s1,s2,accept) decode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1,accept)
 #define endecode_test(s1)  endecode_string_test(s1, sizeof(s1)-1)
 
 /* Requests */
@@ -71,6 +72,9 @@
     "\x1d\x5d\x1a\x23\xce\x54\x64\x36\xcd\x49\x4b\xd5\xd1\xcc\x5f\x05"  \
     "\x35\x96\x9b"
 
+#define HUFF_INCOMPLETE_TEXT "\x2a\xa2" //42 and 162 and 3 bits remaining 0x07
+#define HUFF_INCOMPLETE_HUFF "\xfe\xbf\xff\xff\xf7"
+
 /* Texts */
 #define TEXT1 "When your hammer is C++, everything begins to look like a thumb."
 #define TEXT2 "A SQL query goes into a bar, walks up to two tables and asks, 'Can I join you?'"
@@ -102,7 +106,8 @@ encode_string_test (char *str, size_t str_len,
 
 static void
 decode_string_test (char *str, size_t str_len,
-                    char *dec, size_t dec_len)
+                    char *dec, size_t dec_len,
+                    char accepted)
 {
     ret_t                          ret;
     chula_buffer_t                 A;
@@ -118,6 +123,9 @@ decode_string_test (char *str, size_t str_len,
 
     ck_assert (ret == ret_ok);
     ck_assert (B.len == dec_len);
+
+    char context_accepted = context.accept & HPACK_HUFFMAN_ACCEPTED;
+    ck_assert ((context_accepted && accepted) || !(context_accepted || accepted));
 
     for (int i=0; i<dec_len; i++)
         ck_assert (dec[i] == B.buf[i]);
@@ -233,6 +241,10 @@ START_TEST (decode_cookie) {
     decode_test (HUFF_COOKIE_HUFF, HUFF_COOKIE_TEXT);
 }
 END_TEST
+START_TEST (decode_incomplete) {
+    decode_test_accept (HUFF_INCOMPLETE_HUFF, HUFF_INCOMPLETE_TEXT, 0);
+}
+END_TEST
 
 /* Encode-Decode
  */
@@ -281,6 +293,7 @@ decode (void)
     check_add (s1, decode_url);
     check_add (s1, decode_gzip);
     check_add (s1, decode_cookie);
+    check_add (s1, decode_incomplete);
     run_test (s1);
 }
 
