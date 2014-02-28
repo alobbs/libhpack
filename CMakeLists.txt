@@ -315,17 +315,23 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/libhpack.pc
 # CPack
 INCLUDE(InstallRequiredSystemLibraries)
 
-set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Header Compression for HTTP/2.0 library")
-set (CPACK_PACKAGE_VENDOR "Alvaro Lopez Ortega")
-set (CPACK_PACKAGE_CONTACT "alvaro@alobbs.com")
 set (CPACK_PACKAGE_VERSION_MAJOR ${hpack_SOVERSION_CURRENT})
 set (CPACK_PACKAGE_VERSION_MINOR ${hpack_SOVERSION_REVISION})
 set (CPACK_PACKAGE_VERSION_PATCH ${hpack_SOVERSION_AGE})
+set (CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${hpack_VERSION}")
+set (CPACK_PACKAGE_VENDOR "Alvaro Lopez Ortega")
+set (CPACK_PACKAGE_CONTACT "alvaro@alobbs.com")
+set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Header Compression for HTTP/2.0 library")
 set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set (CPACK_SOURCE_GENERATOR "TGZ")
-set (CPACK_SOURCE_IGNORE_FILES "build/;\\\\.git.*;\\\\.gdb.*-")
+set (CPACK_SOURCE_GENERATOR "TGZ;TBZ2")
+
+list(APPEND CPACK_SOURCE_IGNORE_FILES "/build")
+list(APPEND CPACK_SOURCE_IGNORE_FILES "/doc/external")
+list(APPEND CPACK_SOURCE_IGNORE_FILES "\\\\.git.*")
+list(APPEND CPACK_SOURCE_IGNORE_FILES "\\\\.gdb.*")
 
 INCLUDE(CPack)
+add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 
 # Final license reminder
 MESSAGE ("
