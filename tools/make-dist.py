@@ -4,10 +4,12 @@ import shutil
 import tempfile
 import subprocess
 
-def run(cmd):
+def run (cmd, fatal=True):
 	re = os.system(cmd)
-	assert (re == 0)
+	if fatal:
+		assert (re == 0)
 
+# Temporary directory
 tmp_git = tempfile.mkdtemp()
 tmp_bin = tempfile.mkdtemp()
 
@@ -20,6 +22,10 @@ os.makedirs ("libhpack/build")
 os.chdir ("libhpack/build")
 run ("cmake ..")
 
+# Copy html doc to source tree
+run ("make doc")
+run ("cp -rv doc/html ../doc")
+
 # Dist
 for line in os.popen ("make package_source", 'r'):
 	print line,
@@ -28,7 +34,7 @@ for line in os.popen ("make package_source", 'r'):
 		src_tgz = tmp[0]
 
 # Build test
-os.chdir(tmp_bin)
+os.chdir (tmp_bin)
 run ("tar xfvj %s"%(src_tgz))
 
 src_dir = os.path.basename(src_tgz).replace('.tar.bz2','')
