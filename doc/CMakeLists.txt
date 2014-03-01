@@ -36,3 +36,9 @@ add_custom_target(html_docs
 )
 
 add_dependencies(doc DEPENDS html_docs)
+
+# Installation
+install (
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/html
+  DESTINATION share/doc/libhpack
+)
