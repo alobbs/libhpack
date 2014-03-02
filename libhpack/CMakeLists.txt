@@ -22,7 +22,6 @@ add_custom_command (
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/huffman-gen.py -v
 )
 
-#add_dependencies(${LIB_NAME} DEPENDS huffman_tables.c)
 target_link_libraries (${LIB_NAME} ${LIBM})
 
 # Installation
