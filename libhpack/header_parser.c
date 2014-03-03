@@ -272,7 +272,12 @@ hpack_header_parser_all (hpack_header_parser_t *parser,
                          unsigned int          *consumed)
 {
     ret_t ret;
+    bool  diff_enc;
 
+    diff_enc = !hpack_header_block_is_empty (&parser->table.dynamic);
+
+    /* Parse raw header
+     */
     while (true) {
         unsigned int         con   = 0;
         hpack_header_field_t field = HPACK_HDR_FLD_INIT;
@@ -296,6 +301,22 @@ hpack_header_parser_all (hpack_header_parser_t *parser,
         /* Exit */
         if (offset >= buf->len)
             break;
+    }
+
+    /* Differential encoding
+     */
+    if (diff_enc) {
+        hpack_header_field_t *field;
+        hpack_header_block_t *block  = &parser->table.dynamic;
+
+        for (int i=block->len-1; i >= 0 ; i--) {
+            field = &block->headers[i];
+
+            if (parser->store) {
+                ret = hpack_header_store_emit (parser->store, &field);
+                if (ret != ret_ok) return ret;
+            }
+        }
     }
 
     return ret_ok;

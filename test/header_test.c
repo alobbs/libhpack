@@ -280,6 +280,9 @@ START_TEST (request1_full_huffman) {
     unsigned int          offset   = 0;
     unsigned int          consumed = 0;
 
+    /* First Request
+     */
+
     chula_buffer_fake_str (&raw, "\x82\x87\x86\x04\x8b\xdb\x6d\x88\x3e\x68\xd1\xcb\x12\x25\xba\x7f");
 
     hpack_header_store_init (&store);
@@ -297,6 +300,27 @@ START_TEST (request1_full_huffman) {
 
     /* Check headers */
     request1_full_TEST (&parser);
+
+
+    /* Second Request
+     */
+
+    offset   = 0;
+    consumed = 0;
+
+    chula_buffer_fake_str (&raw, "\x1b\x86\x63\x65\x4a\x13\x98\xff");
+    hpack_header_store_init (&store);
+
+    /* Full header parse */
+    ret = hpack_header_parser_all (&parser, &raw, offset, &consumed);
+    ck_assert (ret == ret_ok);
+    ck_assert (consumed == raw.len);
+
+    assert_store_n_eq (&parser, 1, "cache-control", "no-cache");
+    assert_store_n_eq (&parser, 2, ":authority", "www.example.com");
+    assert_store_n_eq (&parser, 3, ":path", "/");
+    assert_store_n_eq (&parser, 4, ":scheme", "http");
+    assert_store_n_eq (&parser, 5, ":method", "GET");
 
     /* Clean up */
     hpack_header_store_mrproper (&store);
