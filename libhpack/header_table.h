@@ -51,6 +51,7 @@ ret_t hpack_header_block_set_max  (hpack_header_block_t *block, uint32_t max);
 ret_t hpack_header_block_add      (hpack_header_block_t *block, hpack_header_field_t *e);
 ret_t hpack_header_block_get      (hpack_header_block_t *block, uint32_t n, hpack_header_field_t **e);
 void  hpack_header_block_repr     (hpack_header_block_t *block, chula_buffer_t *output);
+bool  hpack_header_block_is_empty (hpack_header_block_t *block);
 
 
 typedef struct {

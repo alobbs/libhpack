@@ -222,6 +222,12 @@ hpack_header_block_get (hpack_header_block_t  *block,
     return ret_ok;
 }
 
+bool
+hpack_header_block_is_empty (hpack_header_block_t *block)
+{
+    return (block->len == 0);
+}
+
 void
 hpack_header_block_repr (hpack_header_block_t *block,
                          chula_buffer_t       *output)
