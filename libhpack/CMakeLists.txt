@@ -16,6 +16,12 @@ set_target_properties (
     SOVERSION ${hpack_SOVERSION}
 )
 
+add_custom_command (
+    TARGET ${LIB_NAME}
+    PRE_BUILD
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/huffman-gen.py -v
+)
+
 target_link_libraries (${LIB_NAME} ${LIBM})
 
 # Installation
