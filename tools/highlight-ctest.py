@@ -86,7 +86,7 @@ def run_ctest (binpath):
 	def threaded_function(stdout):
 		highlight_ctest_run (stdout, sys.stdout)
 
-	proc = subprocess.Popen (binpath, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	proc = subprocess.Popen (binpath, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	thread = Thread (target = threaded_function, args=((proc.stdout,)))
 	thread.start()
 	thread.join()
