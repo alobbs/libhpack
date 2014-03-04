@@ -38,6 +38,7 @@
 #include "libchula/testing_macros.h"
 #include "libchula/buffer.h"
 #include "libchula/debug.h"
+#include "libchula/util.h"
 
 START_TEST (init_heap)
 {
