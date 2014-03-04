@@ -32,6 +32,8 @@
 
 #include "missing_sysfuncs.h"
 #include "macros.h"
+#include <string.h>
+#include <strings.h>
 
 #ifndef HAVE_STRSEP
 char *
