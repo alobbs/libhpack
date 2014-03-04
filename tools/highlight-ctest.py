@@ -2,6 +2,8 @@
 
 import re
 import sys
+import subprocess
+from threading import Thread
 
 ESC   = chr(27) + '['
 RESET = '%s0m' % (ESC)
@@ -78,8 +80,29 @@ def highlight_ctest_run (f_in, f_out):
 			" "*(3-len(ok_d)), ok, \
 			" "*(3-len(fail_d)), fail_c
 
+
+
+def run_ctest (binpath):
+	def threaded_function(stdout):
+		highlight_ctest_run (stdout, sys.stdout)
+
+	proc = subprocess.Popen (binpath, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	thread = Thread (target = threaded_function, args=((proc.stdout,)))
+	thread.start()
+	thread.join()
+
+	proc.communicate()
+	if proc.returncode:
+		print red("\nExited with error code %d\n"%(proc.returncode))
+
+	return proc.returncode
+
+
 def main():
-	highlight_ctest_run (sys.stdin, sys.stdout)
+	assert (len(sys.argv) == 2)
+	re = run_ctest (sys.argv[1])
+	sys.exit (re)
+
 
 if __name__ == '__main__':
 	main()
