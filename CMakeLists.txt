@@ -47,20 +47,21 @@ endif()
 
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -Wextra")
 
-# pkg-config
-find_package(PkgConfig)
-
-# Checks
-include(CheckTypeSize)
-include(CheckIncludeFiles)
-include(CheckFunctionExists)
-include(CheckCSourceCompiles)
-
 # Includes
 include_directories(${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 
 # Cmake macros
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+
+# pkg-config
+find_package(PkgConfig)
+
+# Checks
+find_package(Check REQUIRED)
+include(CheckTypeSize)
+include(CheckIncludeFiles)
+include(CheckFunctionExists)
+include(CheckCSourceCompiles)
 
 # Headers
 macro(HTTP2D_CHECK_INCLUDE INCLUDE VARIABLE)
