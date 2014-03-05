@@ -413,7 +413,7 @@ header_fields (void)
 int
 header_full (void)
 {
-    Suite *s1 = suite_create("Header fields parsing");
+    Suite *s1 = suite_create("Full header parsing");
     check_add (s1, request1_full);
     check_add (s1, request1_full_huffman);
     check_add (s1, request2_full_huffman);
