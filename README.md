@@ -27,9 +27,9 @@ Keep track of community news and rub shoulders with the developers:
 libhpack is distributed under the [Simplified BSD License](http://opensource.org/licenses/BSD-2-Clause). See the LICENSE file for more info.
 
 ## References
-* HTTPbis Working Group: HPACK:
+* HTTPbis Working Group: HPACK:  
 http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-06
 
 --
-Alvaro Lopez Ortega
+Alvaro Lopez Ortega  
 [alvaro@gnu.org](mail:alvaro@gnu.org)
