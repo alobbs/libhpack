@@ -44,6 +44,11 @@ def highlight_ctest_run (f_in, f_out):
 			val = re.findall (r'.+ failed$', line)
 			if val:
 				line = line.replace ('failed', red_('failed'))
+
+			val = re.findall (r' (Assertion .+ failed):', line)
+			if val:
+				line = line.replace (val[0], red_(val[0]))
+
 			f_out.write (line)
 			f_out.flush()
 			continue
