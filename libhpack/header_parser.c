@@ -313,7 +313,7 @@ hpack_header_parser_all (hpack_header_parser_t *parser,
             field = &block->headers[i];
 
             if (parser->store) {
-                ret = hpack_header_store_emit (parser->store, &field);
+                ret = hpack_header_store_emit (parser->store, field);
                 if (ret != ret_ok) return ret;
             }
         }
