@@ -104,8 +104,8 @@ def run_ctest (binpath):
 
 
 def main():
-	assert (len(sys.argv) == 2)
-	re = run_ctest (sys.argv[1])
+	assert (len(sys.argv) >= 2)
+	re = run_ctest (" ".join(sys.argv[1:]))
 	sys.exit (re)
 
 
