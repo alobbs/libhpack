@@ -34,36 +34,25 @@
 #include "libhpack/header.h"
 #include "libhpack/header_parser.h"
 
+#define assert_store_n_eq(parser,n,_name,_value)  do {                  \
+        ret_t                 ret;                                      \
+        hpack_header_field_t *field;                                    \
+                                                                        \
+        ret = hpack_header_store_get_n ((parser)->store, n, &field);    \
+        ck_assert (ret == ret_ok);                                      \
+        ck_assert_str_eq (field->name.buf, _name);                      \
+        ck_assert_str_eq (field->value.buf, _value);                    \
+    } while(false)
 
-static void
-assert_store_n_eq (hpack_header_parser_t *parser,
-                   uint32_t               n,
-                   const char            *name,
-                   const char            *value)
-{
-    ret_t                 ret;
-    hpack_header_field_t *field;
-
-    ret = hpack_header_store_get_n (parser->store, n, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, name);
-    ck_assert_str_eq (field->value.buf, value);
-}
-
-static void
-assert_dyn_table_n_eq (hpack_header_parser_t *parser,
-                       uint32_t               n,
-                       const char            *name,
-                       const char            *value)
-{
-    ret_t                 ret;
-    hpack_header_field_t *field;
-
-    ret = hpack_header_block_get (&parser->table.dynamic, n-1, &field);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (field->name.buf, name);
-    ck_assert_str_eq (field->value.buf, value);
-}
+#define assert_dyn_table_n_eq(parser,n,_name,_value) do {               \
+        ret_t                 ret;                                      \
+        hpack_header_field_t *field;                                    \
+                                                                        \
+        ret = hpack_header_block_get (&(parser)->table.dynamic, n-1, &field); \
+        ck_assert (ret == ret_ok);                                      \
+        ck_assert_str_eq (field->name.buf, _name);                      \
+        ck_assert_str_eq (field->value.buf, _value);                    \
+    } while(false)
 
 
 /* Literal Headers
