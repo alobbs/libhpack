@@ -78,7 +78,7 @@ parse_string (chula_buffer_t       *buf,
     ret_t        ret;
     int          n    = offset;
     unsigned int con  = 0;
-    int          len  = 0;
+    unsigned int len  = 0;
     bool         huffman;
 
 /*
@@ -133,7 +133,7 @@ parse_indexed (chula_buffer_t       *buf,
                unsigned int         *consumed)
 {
     ret_t                 ret;
-    int                   num;
+    unsigned int          num;
     hpack_header_field_t *entry = NULL;
     unsigned int          con   = 0;
     int                   n     = offset;
@@ -168,7 +168,7 @@ parse_header_pair (chula_buffer_t       *buf,
                    unsigned int         *consumed)
 {
     ret_t          ret;
-    int            n    = offset;
+    unsigned int   n    = offset;
     unsigned int   con  = 0;
     int            len  = 0;
 

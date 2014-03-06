@@ -34,10 +34,11 @@
 #define LIBHPACK_INTEGER_H
 
 #include <libchula/common.h>
+#include <limits.h>
 
 ret_t
 integer_encode (int            N,        /* Prefix length in bits  */
-                int            value,    /* Number to encode       */
+                unsigned int  value,    /* Number to encode       */
                 unsigned char *mem,      /* Memory to encode it to */
                 unsigned char *mem_len); /* Memory used            */
 
@@ -45,7 +46,19 @@ ret_t
 integer_decode (int            N,         /* Prefix length in bits  */
                 unsigned char *mem,       /* Memory to read         */
                 unsigned char  mem_len,   /* Length of the memory   */
-                int           *ret,       /* Value return           */
+                unsigned int  *ret,       /* Value return           */
                 unsigned int  *consumed); /* Length of encoded num  */
+
+#if __SIZEOF_INT__ == 2
+    #define MAX_LEN_INTEGER 4
+#elif __SIZEOF_INT__ == 4
+    #define MAX_LEN_INTEGER 6
+#else
+    #define MAX_LEN_INTEGER 10
+#endif
+
+#ifndef MIN
+    #define MIN(a,b) ((a) < (b)? (a) : (b))
+#endif
 
 #endif /* LIBHPACK_INTEGER_H */
