@@ -46,9 +46,15 @@ __status__ = "Development"
 
 import sys
 import argparse
-import urllib2
 import re
 import os
+
+if sys.version_info[0] == 2:
+    import urllib2
+else:
+    import urllib.request as urllib2
+    import functools
+    reduce = functools.reduce
 
 
 # CONSTANTS SECTION
@@ -301,7 +307,7 @@ def gen_decode_table(data, verbos=0, bCheckTree=True):
 	# but the code and tables only allow 1 byte decode per 4 bits.
 	verbosity(verbos, 3, "Checking that we have no problem with the bit length of the symbols")
 	e = filter(lambda x: x['bit_len'] < 4, data)
-	if e:
+	if list(e):
 		raise Exception("Problem with min bits")
 
 	# Now we reconstruct the huffman binary tree
@@ -410,10 +416,10 @@ def get_args():
 	args.template = os.path.join(dirname, args.template)
 
 	if args.verbosity >= 2:
-		print "Using parameters:"
+		print ("Using parameters:")
 		for arg in vars(args).items():
-			print "\t",arg[0],"=",arg[1]
-		print
+			print ("\t" + arg[0] + "=" + str(arg[1]))
+		print ()
 	return args
 
 
@@ -438,7 +444,7 @@ def dark_red (s):
 def verbosity(verb, min_lvl, text):
 	"""Prints debugging info depending on the verbosity level"""
 	if min_lvl <= verb:
-		print text
+		print (text)
 
 
 def get_current_data(cfg):
@@ -526,12 +532,12 @@ def get_data(cfg):
 
 	# Get data from file or url: etag, date and size
 	source_size = headers['Content-Length']
-	if 'etag' in headers.dict.keys():
+	if 'ETag' in headers.keys():
 		etag = headers['ETag']
 	else:
 		etag = "\"\""
 
-	if 'last-modified' in headers.dict.keys():
+	if 'last-modified' in headers.keys():
 		source_date = headers['last-modified']
 	else:
 		source_date = headers['Date']
@@ -544,7 +550,12 @@ def get_data(cfg):
 	up_to_date = current_data and ((etag and (etag == current_data['etag'])) or ((source_date == current_data['date']) and (source_size == current_data['size'])))
 
 	if cfg.force or not up_to_date:
-		_tmlSource = sock.read()
+		if 'Content-Type' in headers.keys() and '=' in headers['Content-Type']:
+			content_type = headers['Content-Type'].split('=')[-1]
+		else:
+			content_type = 'utf-8'
+
+		_tmlSource = sock.read().decode(content_type)
 
 		verbosity(cfg.verbosity, 1, "Parsing source file")
 		verbosity(cfg.verbosity, 3, "Contents of source file are:\n" + _tmlSource)
