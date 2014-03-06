@@ -180,6 +180,136 @@ START_TEST (en_decode_2147483647_5bits)
 }
 END_TEST
 
+START_TEST (decode_too_big_for_int)
+{
+    ret_t ret;
+    unsigned int num = 0;
+    unsigned int con = 0;
+    char *data64 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF";
+    char *data32 = "\xFF\xFF\xFF\xFF\xFF\x0A";
+    char *data;
+
+    /* ffff ffff ff0a = 2952790270 [for 32 bits int]
+     * ffff ffff ffff ffff ffff = 9223372036854776062 [for 64 bits int]
+     *
+     * This test tries to decode a number too big for the signed integer type of
+     * the machine, which would be an error if we were working with signed int.
+     */
+    data = sizeof(int) > 32? data64 : data32;
+    ret = integer_decode (8, data, strlen(data), &num, &con);
+    ck_assert (ret == ret_ok);
+    ck_assert (num >= 0);
+    ck_assert (num == (sizeof(int) > 32? 9223372036854776062u : 2952790270u));
+    ck_assert (con == strlen(data));
+}
+END_TEST
+
+START_TEST (decode_too_big_for_uint)
+{
+    ret_t ret;
+    unsigned int num = 0;
+    unsigned int con = 0;
+    char *data64 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x02";
+    char *data32 = "\xFF\xFF\xFF\xFF\xFF\x14";
+    char *data;
+
+    /* ffff ffff ff14 = 5637144830 [for 32 bits unsigned int]
+     * ffff ffff ffff ffff ffff 02 = 9223372036854776062 [for 64 bits unsigned int]
+     *
+     * This test tries to decode a number too big for the unsigned integer type of
+     * the machine, which should be an error.
+     */
+    data = sizeof(int) > 32? data64 : data32;
+    ret = integer_decode (8, data, strlen(data), &num, &con);
+    ck_assert (ret != ret_ok);
+    ck_assert (con == 0);
+}
+END_TEST
+
+START_TEST (decode_too_big_for_ulong)
+{
+    ret_t ret;
+    unsigned int num = 0;
+    unsigned int con = 0;
+    char *data64 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x01";
+    char *data32 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x02";
+    char *data;
+
+    /* ffff ffff ffff ffff ffff 02 = 9223372036854776062 [for 32 bits unsigned long]
+     * ffff ffff ffff ffff ffff ffff ffff ffff ffff ff01 = 680564652712219169506953685007735980286 [for 64 bits unsigned long]
+     *
+     * This test tries to decode a number too big for the unsigned long type of
+     * the machine, which should be an error.
+     */
+    data = sizeof(int) > 32? data64 : data32;
+    ret = integer_decode (8, data, strlen(data), &num, &con);
+    ck_assert (ret != ret_ok);
+    ck_assert (con == 0);
+}
+END_TEST
+
+START_TEST (decode_too_many_zeros)
+{
+    ret_t ret;
+    unsigned int num = 0;
+    unsigned int con = 0;
+    char data[256];
+
+    /* According to the draft a large number of zero values MUST be treated as a
+     * decoding error.
+     */
+    data[0] = 0xFF;
+    memset(data+1, 0x80, sizeof(data)-1);
+    data[sizeof(data)-1] |= 1;
+
+    ret = integer_decode (8, data, strlen(data), &num, &con);
+    ck_assert (ret != ret_ok);
+    ck_assert (con == 0);
+}
+END_TEST
+
+START_TEST (en_decode_max_uint_5bits)
+{
+    unsigned char tmp[15];
+    unsigned char tmp_len  = 0;
+    int           err      = 0;
+    int           num      = 0;
+    unsigned int  con      = 0;
+
+    /* This test encodes and decodes the maximum unsigned int to confirm that
+     * it also works in that end.
+     */
+    integer_encode (5, UINT_MAX, tmp, &tmp_len);
+    ck_assert (tmp_len > 0);
+
+    err = integer_decode (5, tmp, tmp_len, &num, &con);
+    ck_assert (err == 0);
+    ck_assert (con == tmp_len);
+    ck_assert (num == UINT_MAX);
+}
+END_TEST
+
+START_TEST (en_decode_2nd_byte_0)
+{
+    unsigned char tmp[2];
+    unsigned char tmp_len  = 0;
+    int           err      = 0;
+    int           num      = 0;
+    unsigned int  con      = 0;
+
+    /* This test encodes and decodes a number that will use the limit of the
+     * first byte and have the second byte as zero.
+     */
+    integer_encode (8, 255, tmp, &tmp_len);
+    ck_assert (tmp_len > 0);
+
+    err = integer_decode (8, tmp, tmp_len, &num, &con);
+    ck_assert (err == 0);
+    ck_assert (con == tmp_len);
+    ck_assert (num == 255);
+}
+END_TEST
+
 
 int
 encode_tests (void)
@@ -204,6 +334,12 @@ decode_tests (void)
     check_add (s1, decode_34_6bits);
     check_add (s1, decode_1337_5bits);
     check_add (s1, en_decode_2147483647_5bits);
+    check_add (s1, decode_too_big_for_int);
+    check_add (s1, decode_too_big_for_uint);
+    check_add (s1, decode_too_big_for_ulong);
+    check_add (s1, en_decode_max_uint_5bits);
+    check_add (s1, en_decode_2nd_byte_0);
+    check_add (s1, decode_too_many_zeros);
 
     run_test (s1);
 }
