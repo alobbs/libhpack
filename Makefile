@@ -26,4 +26,4 @@ endif
 	$(MAKE) -C build doc
 
 test: all
-	$(MAKE) -C build test ARGS="-V" | tools/highlight-ctest.py
+	tools/highlight-ctest.py $(MAKE) -C build test ARGS='-V'
