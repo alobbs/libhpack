@@ -97,10 +97,12 @@ def run_ctest (binpath):
 	thread.join()
 
 	proc.communicate()
-	if proc.returncode < 0:
-		print "\n[%s!!]"%(red_('CRASHED')),
+
 	if proc.returncode != 0:
-		print red("Exited with error code %d\n" % (proc.returncode))
+		print
+		if proc.returncode < 0:
+			print "[%s!!]"%(red_('CRASHED')),
+		print red("Exited with error code %d\n"%(proc.returncode))
 
 	return proc.returncode
 
