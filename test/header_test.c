@@ -86,6 +86,53 @@ START_TEST (literal_w_index) {
 }
 END_TEST
 
+START_TEST (literal_w_index_false_len) {
+/*
+    This test tries to break the header field parsing by sending string
+    literals with a string length field too big to be hold by a signed integer
+    (works with 32bit and 64bit machines). Since it's too big, and given the
+    algorith of the VLQ it gets transformed into a negative number if this has
+    not been taken into account.
+
+    As a negative number it would pass many of the test conditions for sizes.
+
+    For a 32 bits machine:
+   00                                      | == Literal indexed ==
+   ffff ffff ff0a                          |   Literal name (len = 2952790141). Since it's bigger than INT_MAX (2147483647) it results in a negative number.
+   6375 7374 6f6d 2d6b 6579                | custom-key
+   0d                                      |   Literal value (len = 13)
+   6375 7374 6f6d 2d68 6561 6465 72        | custom-header
+
+
+    For a 64 bits machine:
+   00                                      | == Literal indexed ==
+   ffff ffff ffff ffff ffff                |   Literal name (len = 9223372036854775933). Since it's bigger than INT_MAX (9223372036854775807) it results in a negative number
+   6375 7374 6f6d 2d6b 6579                | custom-key
+   0d                                      |   Literal value (len = 13)
+   6375 7374 6f6d 2d68 6561 6465 72        | custom-header
+
+*/
+    ret_t                 ret;
+    chula_buffer_t        raw;
+    hpack_header_parser_t parser;
+    hpack_header_field_t  field;
+    unsigned int          consumed = 0;
+
+    const char *data64 = "\x00\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\x0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72";
+    const char *data32 = "\x00\xFF\xFF\xFF\xFF\xFF\x0A\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72";
+
+    hpack_header_parser_init (&parser);
+    hpack_header_field_init  (&field);
+    chula_buffer_fake_str (&raw, sizeof(int)>32?data64:data32);
+
+    ret = hpack_header_parser_field (&parser, &raw, 0, &field, &consumed);
+    ck_assert (ret != ret_ok);
+    ck_assert (consumed == 0);
+
+    hpack_header_parser_mrproper (&parser);
+}
+END_TEST
+
 START_TEST (literal_wo_index) {
     ret_t                 ret;
     chula_buffer_t        raw;
@@ -129,6 +176,67 @@ START_TEST (indexed) {
     ck_assert (consumed == raw.len);
     ck_assert_str_eq (field.name.buf, ":method");
     ck_assert_str_eq (field.value.buf, "GET");
+
+    hpack_header_parser_mrproper (&parser);
+}
+END_TEST
+
+START_TEST (indexed_big_value) {
+/*
+    This test tries to break the header field parsing by sending an index header
+    field too big to be hold by a signed integer (works with 32bit and 64bit
+    machines). Since it's too big, and given the algorith of the VLQ it gets
+    transformed into a negative number if this has not been taken into account.
+
+    As a negative number it would pass many of the test conditions for sizes.
+*/
+    ret_t                 ret;
+    chula_buffer_t        raw;
+    hpack_header_parser_t parser;
+    hpack_header_field_t  field;
+    unsigned int          consumed = 0;
+
+    const char *data64 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF";
+    const char *data32 = "\xFF\xFF\xFF\xFF\xFF\x0A";
+
+    hpack_header_parser_init (&parser);
+    hpack_header_field_init (&field);
+    chula_buffer_fake_str (&raw, sizeof(int)>32?data64:data32);
+
+    ret = hpack_header_parser_field (&parser, &raw, 0, &field, &consumed);
+    ck_assert (ret != ret_ok);
+    ck_assert (consumed == 0);
+
+    hpack_header_parser_mrproper (&parser);
+}
+END_TEST
+
+START_TEST (indexed_many_zeroes) {
+/*
+    According to the draft a large number of zero values MUST be treated as a
+    decoding error.
+
+    This test sends a considerable number of zeroes as an index header field.
+*/
+    ret_t                 ret;
+    chula_buffer_t        raw;
+    hpack_header_parser_t parser;
+    hpack_header_field_t  field;
+    unsigned int          consumed = 0;
+
+    char data[256];
+
+    data[0] = 0xFF;
+    memset(data+1, 0x80, sizeof(data)-1);
+    data[sizeof(data)-1] |= 1;
+
+    hpack_header_parser_init (&parser);
+    hpack_header_field_init (&field);
+    chula_buffer_fake_str (&raw, data);
+
+    ret = hpack_header_parser_field (&parser, &raw, 0, &field, &consumed);
+    ck_assert (ret != ret_ok);
+    ck_assert (consumed == 0);
 
     hpack_header_parser_mrproper (&parser);
 }
@@ -404,8 +512,11 @@ header_fields (void)
 {
     Suite *s1 = suite_create("Header fields parsing");
     check_add (s1, literal_w_index);
+    check_add (s1, literal_w_index_false_len);
     check_add (s1, literal_wo_index);
     check_add (s1, indexed);
+    check_add (s1, indexed_big_value);
+    check_add (s1, indexed_many_zeroes);
     check_add (s1, request1);
     run_test (s1);
 }
