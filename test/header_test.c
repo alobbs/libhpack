@@ -98,7 +98,7 @@ START_TEST (literal_w_index_false_len) {
 
     For a 32 bits machine:
    00                                      | == Literal indexed ==
-   ffff ffff ff0a                          |   Literal name (len = 2952790141). Since it's bigger than INT_MAX (2147483647) it results in a negative number.
+   ffff ffff ff0a                          |   Literal name (len = 2952790270). Since it's bigger than INT_MAX (2147483647) it results in a negative number.
    6375 7374 6f6d 2d6b 6579                | custom-key
    0d                                      |   Literal value (len = 13)
    6375 7374 6f6d 2d68 6561 6465 72        | custom-header
@@ -106,7 +106,7 @@ START_TEST (literal_w_index_false_len) {
 
     For a 64 bits machine:
    00                                      | == Literal indexed ==
-   ffff ffff ffff ffff ffff                |   Literal name (len = 9223372036854775933). Since it's bigger than INT_MAX (9223372036854775807) it results in a negative number
+   ffff ffff ffff ffff ffff                |   Literal name (len = 9223372036854776062). Since it's bigger than INT_MAX (9223372036854775807) it results in a negative number
    6375 7374 6f6d 2d6b 6579                | custom-key
    0d                                      |   Literal value (len = 13)
    6375 7374 6f6d 2d68 6561 6465 72        | custom-header
