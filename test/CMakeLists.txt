@@ -1,4 +1,5 @@
-pkg_check_modules(CHECK check)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(CHECK REQUIRED check)
 
 file(GLOB SRCS *.c)
 
