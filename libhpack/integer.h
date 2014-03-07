@@ -50,15 +50,11 @@ integer_decode (int            N,         /* Prefix length in bits  */
                 unsigned int  *consumed); /* Length of encoded num  */
 
 #if __SIZEOF_INT__ == 2
-    #define MAX_LEN_INTEGER 4
+    #define VLQ_MAX_LEN_INTEGER 4
 #elif __SIZEOF_INT__ == 4
-    #define MAX_LEN_INTEGER 6
+    #define VLQ_MAX_LEN_INTEGER 6
 #else
-    #define MAX_LEN_INTEGER 10
-#endif
-
-#ifndef MIN
-    #define MIN(a,b) ((a) < (b)? (a) : (b))
+    #define VLQ_MAX_LEN_INTEGER 10
 #endif
 
 #endif /* LIBHPACK_INTEGER_H */
