@@ -56,7 +56,7 @@ static const unsigned char limits[] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
  */
 ret_t
 integer_encode (int            N,
-                int            value,
+                unsigned int   value,
                 unsigned char *mem,
                 unsigned char *mem_len)
 {
@@ -118,11 +118,12 @@ ret_t
 integer_decode (int            N,
                 unsigned char *mem,
                 unsigned char  mem_len,
-                int           *ret,
+                unsigned int  *ret,
                 unsigned int  *consumed)
 {
     const unsigned char limit = limits[N];
     int M = 0;
+    unsigned long decoded = 0;
 
     /* Trivial 1 byte number
      */
@@ -135,16 +136,18 @@ integer_decode (int            N,
 
     /* Unsigned variable length integer
      */
-    for (int i=1; i < mem_len; i++) {
-        *ret += (mem[i] & 127) * (1 << M);
-
+    decoded = *ret;
+    for (int i=1; i < MIN(mem_len,VLQ_MAX_LEN_INTEGER); i++) {
+        decoded += (mem[i] & 127) * (1L << M);
         if (128 != (mem[i] & 128)) {
+            if (decoded > UINT_MAX)
+                return ret_error;
             *consumed = i + 1;
+            *ret = (unsigned int) decoded;
             return ret_ok;
         }
 
         M += 7;
     }
-
     return ret_error;
 }
