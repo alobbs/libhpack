@@ -137,7 +137,7 @@ integer_decode (int            N,
     /* Unsigned variable length integer
      */
     decoded = *ret;
-    for (int i=1; i < MIN(mem_len,MAX_LEN_INTEGER); i++) {
+    for (int i=1; i < MIN(mem_len,VLQ_MAX_LEN_INTEGER); i++) {
         decoded += (mem[i] & 127) * (1L << M);
         if (128 != (mem[i] & 128)) {
             if (decoded > UINT_MAX)
