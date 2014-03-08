@@ -77,6 +77,16 @@ hpack_header_field_copy (hpack_header_field_t *header,
 }
 
 
+bool
+hpack_header_field_is_empty (hpack_header_field_t *header)
+{
+    if (! chula_buffer_is_empty (&header->name))
+        return false;
+
+    return chula_buffer_is_empty (&header->value);
+}
+
+
 ret_t
 hpack_header_field_repr (hpack_header_field_t *header,
                          chula_buffer_t       *output)
