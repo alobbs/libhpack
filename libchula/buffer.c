@@ -1520,7 +1520,7 @@ escape_with_table (chula_buffer_t *buffer,
 {
     ret_t                ret;
     unsigned char       *t;
-    const unsigned char *s, *s_next;
+    const char          *s, *s_next;
     char                *end;
     uint32_t             n_escape    = 0;
     static char          hex_chars[] = "0123456789abcdef";
