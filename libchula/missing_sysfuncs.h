@@ -33,6 +33,7 @@
 #ifndef CHULA_MISSING_FUNCS_H
 #define CHULA_MISSING_FUNCS_H
 
+#include <config.h>
 #include <stdlib.h>
 
 #ifndef HAVE_STRSEP
@@ -42,7 +43,7 @@ char *strsep (char **str, const char *delims);
 char *strnstr (const char *s, const char *find, size_t slen);
 #endif
 #ifndef HAVE_STRCASESTR
-char *strcasestr (register char *s, register char *find);
+char *strcasestr (const char *s, const char *find);
 #endif
 #ifndef HAVE_STRLCAT
 size_t strlcat (char *dst, const char *src, size_t siz);
