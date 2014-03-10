@@ -29,7 +29,7 @@ with open(FILENAME_CMK, 'r') as f:
     cont = f.read()
 
 includes_t = ''
-for h in re.findall (r'HTTP2D_CHECK_INCLUDE *\(.+? *(\w+)\)', cont, re.IGNORECASE):
+for h in re.findall (r'HPACK_CHECK_INCLUDE *\(.+? *(\w+)\)', cont, re.IGNORECASE):
 	includes_t += '#cmakedefine %s\n' %(h)
 
 functions_t = ''
