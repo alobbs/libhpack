@@ -413,11 +413,40 @@ START_TEST (request1_full_huffman) {
     ck_assert (ret == ret_ok);
     ck_assert (consumed == raw.len);
 
+    chula_print_repr (chula, buffer, &raw);
+    chula_print_repr (hpack, header_store, &store);
+    chula_print_repr (hpack, header_table, &parser.table);
+
     assert_store_n_eq (&parser, 1, "cache-control", "no-cache");
     assert_store_n_eq (&parser, 2, ":authority", "www.example.com");
     assert_store_n_eq (&parser, 3, ":path", "/");
     assert_store_n_eq (&parser, 4, ":scheme", "http");
     assert_store_n_eq (&parser, 5, ":method", "GET");
+
+
+    /* Third Request
+     */
+
+    offset   = 0;
+    consumed = 0;
+
+    chula_buffer_fake_str (&raw, "\x80\x80\x85\x8c\x8b\x84\x00\x88\x4e\xb0\x8b\x74\x97\x90\xfa\x7f\x89\x4e\xb0\x8b\x74\x97\x9a\x17\xa8\xff");
+    hpack_header_store_init (&store);
+
+    /* Full header parse */
+    ret = hpack_header_parser_all (&parser, &raw, offset, &consumed);
+    ck_assert (ret == ret_ok);
+    ck_assert (consumed == raw.len);
+
+    chula_print_repr (chula, buffer, &raw);
+    chula_print_repr (hpack, header_store, &store);
+    chula_print_repr (hpack, header_table, &parser.table);
+
+    assert_store_n_eq (&parser, 1, ":method", "GET");
+    assert_store_n_eq (&parser, 2, ":scheme", "https");
+    assert_store_n_eq (&parser, 3, ":path", "/index.html");
+    assert_store_n_eq (&parser, 4, ":authority", "www.example.com");
+    assert_store_n_eq (&parser, 5, "custom-key", "custom-value");
 
     /* Clean up */
     hpack_header_store_mrproper (&store);
