@@ -905,7 +905,7 @@ START_TEST (crc32)
     /* python -c "import zlib; print zlib.crc32('h')" */
     chula_buffer_add_str (&b, "h");
     crc = chula_buffer_crc32 (&b);
-    ck_assert (crc == -1855256857);
+    ck_assert (crc == 2439710439);
 
     /* python -c "import zlib; print zlib.crc32('hola')" */
     chula_buffer_add_str (&b, "ola");
@@ -1735,7 +1735,7 @@ START_TEST (split_lines)
     chula_buffer_add_str (&b, "1 2 3 4 5 6 7 8 9");
     ret = chula_buffer_split_lines (&b, 10,  "\t");
     num = 0;
-    for (int i=0; i<b.len; i++) num += (b.buf[i]=='\t')?1:0;
+    for (uint32_t i=0; i<b.len; i++) num += (b.buf[i]=='\t')?1:0;
     ck_assert (ret == ret_ok);
     ck_assert (num == 1);
 
@@ -1743,7 +1743,7 @@ START_TEST (split_lines)
     chula_buffer_add_str (&b, "1 2 3 4 5 6 7 8 9 10 11 12");
     ret = chula_buffer_split_lines (&b, 10,  "*");
     num = 0;
-    for (int i=0; i<b.len; i++) num += (b.buf[i]=='*')?1:0;
+    for (uint32_t i=0; i<b.len; i++) num += (b.buf[i]=='*')?1:0;
     ck_assert (ret == ret_ok);
     ck_assert (num == 2);
 

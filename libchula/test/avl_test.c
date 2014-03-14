@@ -244,6 +244,8 @@ while_func (chula_buffer_t *key,
             void           *value,
             void           *param)
 {
+    UNUSED(key);
+
     *((int *)param) += POINTER_TO_INT(value);
     return ret_ok;
 }
