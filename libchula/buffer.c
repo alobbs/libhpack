@@ -1325,7 +1325,7 @@ void
 chula_buffer_repr (chula_buffer_t *buf,
                    chula_buffer_t *output)
 {
-    int            i;
+    uint32_t       i;
     char           text[67];
     unsigned char  tmp;
     char          *hex_text   = NULL;
@@ -1366,7 +1366,7 @@ chula_buffer_repr (chula_buffer_t *buf,
 ret_t
 chula_buffer_print_cstr (chula_buffer_t *buf)
 {
-    int i;
+    uint32_t i;
 
     for (i=0; i<buf->len; i++) {
         unsigned char c = buf->buf[i];
@@ -1519,7 +1519,7 @@ escape_with_table (chula_buffer_t *buffer,
                    uint32_t       *is_char_escaped)
 {
     ret_t                ret;
-    unsigned char       *t;
+    char                *t;
     const char          *s, *s_next;
     char                *end;
     uint32_t             n_escape    = 0;
