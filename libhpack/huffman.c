@@ -81,7 +81,7 @@ hpack_huffman_encode (chula_buffer_t *in,
     const hpack_huffman_code_t *code;
     unsigned char               remaining_bits = 8;
 
-    for (int n=0; n < in->len; n++) {
+    for (uint32_t n=0; n < in->len; n++) {
         /* Memory management */
         if (out->size - out->len < 8) {
             ret = chula_buffer_ensure_addlen (out, in->len);

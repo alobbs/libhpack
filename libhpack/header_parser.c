@@ -76,7 +76,7 @@ parse_string (chula_buffer_t       *buf,
               unsigned int         *consumed)
 {
     ret_t        ret;
-    int          n    = offset;
+    uint32_t     n    = offset;
     unsigned int con  = 0;
     unsigned int len  = 0;
     bool         huffman;
@@ -170,7 +170,7 @@ parse_header_pair (chula_buffer_t       *buf,
     ret_t          ret;
     unsigned int   n    = offset;
     unsigned int   con  = 0;
-    int            len  = 0;
+    uint32_t       len  = 0;
 
 /*
              With Indexing                       Without Indexing

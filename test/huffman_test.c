@@ -94,7 +94,7 @@ encode_string_test (char *str, size_t str_len,
     chula_print_repr (chula, buffer, &B);
     printf ("Source: %s\n\n", A.buf);
 
-    for (int i=0; i<enc_len; i++)
+    for (uint64_t i=0; i<enc_len; i++)
         ck_assert (enc[i] == B.buf[i]);
 
     chula_buffer_mrproper (&B);
@@ -119,7 +119,7 @@ decode_string_test (char *str, size_t str_len,
     ck_assert (ret == ret_ok);
     ck_assert (B.len == dec_len);
 
-    for (int i=0; i<dec_len; i++)
+    for (uint64_t i=0; i<dec_len; i++)
         ck_assert (dec[i] == B.buf[i]);
 
     chula_buffer_mrproper (&B);
@@ -146,7 +146,7 @@ endecode_string_test (char *str, size_t str_len)
     ck_assert (ret == ret_ok);
 
     ck_assert (A.len == C.len);
-    for (int i=0; i<A.len; i++)
+    for (uint64_t i=0; i<A.len; i++)
         ck_assert (A.buf[i] == C.buf[i]);
 
     chula_buffer_mrproper (&B);
