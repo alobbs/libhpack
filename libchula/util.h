@@ -115,7 +115,7 @@ ret_t chula_mkdtemp      (char *template);
 ret_t chula_mkdir        (const char *path, int mode);
 ret_t chula_mkdir_p      (chula_buffer_t *path, int mode);
 ret_t chula_mkdir_p_perm (chula_buffer_t *dir_path, int create_mode, int ensure_perm);
-ret_t chula_rm_rf        (chula_buffer_t *path, uid_t uid);
+ret_t chula_rm_rf        (chula_buffer_t *path, int uid);
 
 /* File descriptor management
  */

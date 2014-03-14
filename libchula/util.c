@@ -612,7 +612,7 @@ chula_mkdir_p_perm (chula_buffer_t *dir_path,
 
 ret_t
 chula_rm_rf (chula_buffer_t *path,
-             uid_t           only_uid)
+             int             only_uid)
 {
 	int             re;
     ret_t           ret;
@@ -648,7 +648,7 @@ chula_rm_rf (chula_buffer_t *path,
         if (re != 0) continue;
 
 		if (only_uid != -1) {
-			if (info.st_uid != only_uid)
+			if (info.st_uid != (uid_t)only_uid)
 				continue;
 		}
 
@@ -684,7 +684,6 @@ ret_t
 chula_fd_set_nodelay (int fd, bool enable)
 {
 	int re;
-	int flags = 0;
 
 	/* Disable the Nagle algorithm. This means that segments are
      * always sent as soon as possible, even if there is only a
@@ -703,6 +702,8 @@ chula_fd_set_nodelay (int fd, bool enable)
 	re = ioctl (fd, FIONBIO, &enable);
 
 #else
+	int flags = 0;
+
 	/* Use POSIX's O_NONBLOCK
 	 */
  	flags = fcntl (fd, F_GETFL, 0);
@@ -1633,12 +1634,12 @@ chula_ntop (int family, struct sockaddr *addr, char *dst, size_t cnt)
 	/* Only old systems without inet_ntop() function
 	 */
 #ifndef HAVE_INET_NTOP
-	{
-		str = inet_ntoa (((struct sockaddr_in *)addr)->sin_addr);
-		memcpy(dst, str, strlen(str));
+    UNUSED(family);
 
-		return ret_ok;
-	}
+    str = inet_ntoa (((struct sockaddr_in *)addr)->sin_addr);
+    memcpy(dst, str, strlen(str));
+
+    return ret_ok;
 #else
 # ifdef HAVE_IPV6
 	if (family == AF_INET6) {
@@ -1659,16 +1660,18 @@ chula_ntop (int family, struct sockaddr *addr, char *dst, size_t cnt)
 				goto error;
 			}
 		}
-	} else
-# endif
-	{
-		struct in_addr *addr4 = &((struct sockaddr_in *)addr)->sin_addr;
 
-		str = inet_ntop (AF_INET, addr4, dst, cnt);
-		if (str == NULL) {
-			goto error;
-		}
+        return ret_ok;
 	}
+# endif
+    struct in_addr *addr4 = &((struct sockaddr_in *)addr)->sin_addr;
+
+    UNUSED(family);
+
+    str = inet_ntop (AF_INET, addr4, dst, cnt);
+    if (str == NULL) {
+        goto error;
+    }
 #endif
 
 	return ret_ok;
