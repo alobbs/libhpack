@@ -115,7 +115,7 @@ END_TEST
 START_TEST (decode_19_6bits)
 {
     ret_t         ret;
-    int           num   = 0;
+    uint32_t      num   = 0;
     unsigned int  con   = 0;
     unsigned char tmp[] = {0x80 | 19};
 
@@ -129,7 +129,7 @@ END_TEST
 START_TEST (decode_34_6bits)
 {
     ret_t         ret;
-    int           num   = 0;
+    uint32_t      num   = 0;
     unsigned int  con   = 0;
     unsigned char tmp[] = {34,1};
 
@@ -149,7 +149,7 @@ END_TEST
 START_TEST (decode_1337_5bits)
 {
     ret_t         ret;
-    int           num   = 0;
+    uint32_t      num   = 0;
     unsigned int  con   = 0;
     unsigned char tmp[] = {31,154,10};
 
@@ -167,7 +167,7 @@ START_TEST (en_decode_2147483647_5bits)
     unsigned char tmp[6];
     unsigned char tmp_len  = 0;
     int           err      = 0;
-    int           num      = 0;
+    uint32_t      num      = 0;
     unsigned int  con      = 0;
 
     integer_encode (5, 2147483647, tmp, &tmp_len);
@@ -182,12 +182,12 @@ END_TEST
 
 START_TEST (decode_too_big_for_int)
 {
-    ret_t ret;
-    unsigned int num = 0;
-    unsigned int con = 0;
-    char *data64 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF";
-    char *data32 = "\xFF\xFF\xFF\xFF\xFF\x0A";
-    char *data;
+    ret_t         ret;
+    unsigned int  num    = 0;
+    unsigned int  con    = 0;
+    const char   *data64 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF";
+    const char   *data32 = "\xFF\xFF\xFF\xFF\xFF\x0A";
+    const char   *data;
 
     /* ffff ffff ff0a = 2952790270 [for 32 bits int]
      * ffff ffff ffff ffff ffff = 9223372036854776062 [for 64 bits int]
@@ -196,7 +196,8 @@ START_TEST (decode_too_big_for_int)
      * the machine, which would be an error if we were working with signed int.
      */
     data = sizeof(int) > 32? data64 : data32;
-    ret = integer_decode (8, data, strlen(data), &num, &con);
+
+    ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
     ck_assert (ret == ret_ok);
     ck_assert (num >= 0);
     ck_assert (num == (sizeof(int) > 32? 9223372036854776062u : 2952790270u));
@@ -206,12 +207,12 @@ END_TEST
 
 START_TEST (decode_too_big_for_uint)
 {
-    ret_t ret;
-    unsigned int num = 0;
-    unsigned int con = 0;
-    char *data64 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x02";
-    char *data32 = "\xFF\xFF\xFF\xFF\xFF\x14";
-    char *data;
+    ret_t         ret;
+    unsigned int  num    = 0;
+    unsigned int  con    = 0;
+    const char   *data64 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x02";
+    const char   *data32 = "\xFF\xFF\xFF\xFF\xFF\x14";
+    const char   *data;
 
     /* ffff ffff ff14 = 5637144830 [for 32 bits unsigned int]
      * ffff ffff ffff ffff ffff 02 = 9223372036854776062 [for 64 bits unsigned int]
@@ -220,7 +221,7 @@ START_TEST (decode_too_big_for_uint)
      * the machine, which should be an error.
      */
     data = sizeof(int) > 32? data64 : data32;
-    ret = integer_decode (8, data, strlen(data), &num, &con);
+    ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
     ck_assert (ret != ret_ok);
     ck_assert (con == 0);
 }
@@ -228,12 +229,12 @@ END_TEST
 
 START_TEST (decode_too_big_for_ulong)
 {
-    ret_t ret;
-    unsigned int num = 0;
-    unsigned int con = 0;
-    char *data64 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x01";
-    char *data32 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x02";
-    char *data;
+    ret_t         ret;
+    unsigned int  num    = 0;
+    unsigned int  con    = 0;
+    const char   *data64 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x01";
+    const char   *data32 = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x02";
+    const char   *data;
 
     /* ffff ffff ffff ffff ffff 02 = 9223372036854776062 [for 32 bits unsigned long]
      * ffff ffff ffff ffff ffff ffff ffff ffff ffff ff01 = 680564652712219169506953685007735980286 [for 64 bits unsigned long]
@@ -242,7 +243,7 @@ START_TEST (decode_too_big_for_ulong)
      * the machine, which should be an error.
      */
     data = sizeof(int) > 32? data64 : data32;
-    ret = integer_decode (8, data, strlen(data), &num, &con);
+    ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
     ck_assert (ret != ret_ok);
     ck_assert (con == 0);
 }
@@ -250,10 +251,10 @@ END_TEST
 
 START_TEST (decode_too_many_zeros)
 {
-    ret_t ret;
-    unsigned int num = 0;
-    unsigned int con = 0;
-    char data[256];
+    ret_t        ret;
+    char         data[256];
+    unsigned int num         = 0;
+    unsigned int con         = 0;
 
     /* According to the draft a large number of zero values MUST be treated as a
      * decoding error.
@@ -262,7 +263,7 @@ START_TEST (decode_too_many_zeros)
     memset(data+1, 0x80, sizeof(data)-1);
     data[sizeof(data)-1] |= 1;
 
-    ret = integer_decode (8, data, strlen(data), &num, &con);
+    ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
     ck_assert (ret != ret_ok);
     ck_assert (con == 0);
 }
@@ -273,7 +274,7 @@ START_TEST (en_decode_max_uint_5bits)
     unsigned char tmp[15];
     unsigned char tmp_len  = 0;
     int           err      = 0;
-    int           num      = 0;
+    uint32_t      num      = 0;
     unsigned int  con      = 0;
 
     /* This test encodes and decodes the maximum unsigned int to confirm that
@@ -294,7 +295,7 @@ START_TEST (en_decode_2nd_byte_0)
     unsigned char tmp[2];
     unsigned char tmp_len  = 0;
     int           err      = 0;
-    int           num      = 0;
+    uint32_t      num      = 0;
     unsigned int  con      = 0;
 
     /* This test encodes and decodes a number that will use the limit of the
