@@ -1519,9 +1519,9 @@ escape_with_table (chula_buffer_t *buffer,
                    uint32_t       *is_char_escaped)
 {
     ret_t                ret;
-    char                *t;
-    const char          *s, *s_next;
-    char                *end;
+    unsigned char       *t;
+    const unsigned char *s, *s_next;
+    unsigned char       *end;
     uint32_t             n_escape    = 0;
     static char          hex_chars[] = "0123456789abcdef";
 
