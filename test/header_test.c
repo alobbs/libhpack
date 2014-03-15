@@ -31,7 +31,6 @@
  */
 
 #include "libchula/testing_macros.h"
-#include "libhpack/header.h"
 #include "libhpack/header_parser.h"
 
 #define assert_store_n_eq(parser,n,_name,_value)  do {                  \
