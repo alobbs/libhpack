@@ -86,36 +86,6 @@
 # error "Can not include inttypes or stdint"
 #endif
 
-/*
-#ifdef HAVE_PTHREAD
-# include <pthread.h>
-#endif
-
-#ifdef HAVE_SCHED_H
-# include <sched.h>
-#endif
-*/
-
-/* IMPORTANT:
- * Cross compilers should define BYTE_ORDER in CFLAGS
- */
-#ifndef BYTE_ORDER
-# ifndef LITTLE_ENDIAN
-#  define LITTLE_ENDIAN  1234    /* LSB first: i386, vax */
-# endif
-# ifndef BIG_ENDIAN
-#  define BIG_ENDIAN     4321    /* MSB first: 68000, ibm, net */
-# endif
-# ifndef PDP_ENDIAN
-#  define PDP_ENDIAN     3412    /* LSB first in word, MSW first in long */
-# endif
-# ifdef WORDS_BIGENDIAN
-#   define BYTE_ORDER  BIG_ENDIAN
-# else
-#   define BYTE_ORDER  LITTLE_ENDIAN
-# endif
-#endif
-
 /* Int limit
  */
 #ifndef INT_MAX

@@ -55,6 +55,7 @@ include(CheckTypeSize)
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckCSourceCompiles)
+include(TestBigEndian)
 
 # Includes
 include_directories(${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
@@ -70,8 +71,16 @@ macro(HPACK_CHECK_INCLUDE INCLUDE VARIABLE)
   endif()
 endmacro()
 
-macro(DEF_INCLUDE NAME VALUE)
+macro(DEF_SET_IFNDEF NAME VALUE)
   set (${NAME} ${VALUE})
+endmacro()
+
+macro(DEF_SET NAME VALUE)
+  set (${NAME} ${VALUE})
+endmacro()
+
+macro(DEF_DEFINE NAME)
+  set (${NAME})
 endmacro()
 
 HPACK_CHECK_INCLUDE (arpa/inet.h HAVE_ARPA_INET_H)
@@ -149,19 +158,32 @@ SET(CMAKE_EXTRA_INCLUDE_FILES)
 
 # Platform
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    DEF_INCLUDE (LINUX TRUE)
+    DEF_SET (LINUX TRUE)
 endif()
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    DEF_INCLUDE (OSX TRUE)
+    DEF_SET (OSX TRUE)
 endif()
 if (CMAKE_SYSTEM_NAME MATCHES "(FreeBSD|OpenBSD|NetBSD)")
-    DEF_INCLUDE (BSD TRUE)
+    DEF_SET (BSD TRUE)
 endif()
 if (CMAKE_SYSTEM_NAME MATCHES "(Solaris|SunOS)")
-    DEF_INCLUDE (SOLARIS TRUE)
+    DEF_SET (SOLARIS TRUE)
 endif()
 
-DEF_INCLUDE (PACKAGE_VERSION "${hpack_VERSION}")
+DEF_SET (PACKAGE_VERSION "${hpack_VERSION}")
+
+# System endianness
+test_big_endian(WORDS_BIGENDIAN)
+
+if(WORDS_BIGENDIAN)
+  set(byteorder 4321)
+else(WORDS_BIGENDIAN)
+  set(byteorder 1234)
+endif(WORDS_BIGENDIAN)
+
+MESSAGE (STATUS "Byte order ${byteorder}")
+DEF_SET_IFNDEF (BYTE_ORDER ${byteorder})
+DEF_DEFINE (WORDS_BIGENDIAN)
 
 # Code tests
 CHECK_C_SOURCE_COMPILES("

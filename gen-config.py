@@ -40,8 +40,14 @@ for f in re.findall (r'CHECK_C_SOURCE_COMPILES *\(.+?(HAVE_.+?)\)\n', cont, re.S
 	functions_t += '#cmakedefine %s\n' %(f)
 
 definitions_t = ''
-for f in re.findall (r'DEF_INCLUDE *\((\w+)? +(.+?)\)', cont, re.IGNORECASE):
+for f in re.findall (r'DEF_SET *\((\w+)? +(.+?)\)', cont, re.IGNORECASE):
 	definitions_t += '#cmakedefine %s %s\n' %(f[0], f[1])
+for f in re.findall (r'DEF_SET_IFNDEF *\((\w+)? +(.+?)\)', cont, re.IGNORECASE):
+	definitions_t += '#ifndef %s\n' %(f[0])
+	definitions_t += '#cmakedefine %s %s\n' %(f[0], f[1])
+	definitions_t += '#endif\n'
+for f in re.findall (r'DEF_DEFINE *\((\w+)?\)', cont, re.IGNORECASE):
+	definitions_t += '#cmakedefine %s\n' %(f)
 
 sizes_t = ''
 for h in re.findall (r'CHECK_TYPE_SIZE *\(.+? *(\w+)\)', cont, re.IGNORECASE):
