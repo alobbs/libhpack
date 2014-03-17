@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
-o *
+ *
  *   Authors:
  *     * Alvaro Lopez Ortega <alvaro@alobbs.com>
  *
@@ -48,7 +48,7 @@ o *
 #include "util.h"
 #include "crc32.h"
 #include "sha1.h"
-//#include "sha512.h"
+#include "sha512.h"
 
 #define REALLOC_EXTRA_SIZE     16
 #define IOS_NUMBUF             64   /* I/O size of digits buffer */
@@ -2059,73 +2059,73 @@ chula_buffer_encode_sha1_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 }
 
 
-/* ret_t */
-/* chula_buffer_encode_sha512 (chula_buffer_t *buf, chula_buffer_t *encoded) */
-/* { */
-/*  SHA512_CTX sha512; */
+ret_t
+chula_buffer_encode_sha512 (chula_buffer_t *buf, chula_buffer_t *encoded)
+{
+    SHA512_CTX sha512;
 
-/*  SHA512_Init (&sha512); */
-/*  SHA512_Update (&sha512, (unsigned char*) buf->buf, buf->len); */
+    SHA512_Init (&sha512);
+    SHA512_Update (&sha512, (void *)buf->buf, buf->len);
 
-/*  chula_buffer_ensure_size (encoded, SHA512_DIGEST_LENGTH + 1); */
-/*  SHA512_Final ((unsigned char *) encoded->buf, &sha512); */
+    chula_buffer_ensure_size (encoded, SHA512_DIGEST_LENGTH + 1);
+    SHA512_Final (&sha512, (void *)encoded->buf);
 
-/*  encoded->len = SHA512_DIGEST_LENGTH; */
-/*  encoded->buf[encoded->len] = '\0'; */
+    encoded->len = SHA512_DIGEST_LENGTH;
+    encoded->buf[encoded->len] = '\0';
 
-/*  return ret_ok; */
-/* } */
+    return ret_ok;
+}
 
 
-/* ret_t */
-/* chula_buffer_encode_sha512_digest (chula_buffer_t *buf) */
-/* { */
-/*  int           i; */
-/*  unsigned char digest[SHA512_DIGEST_LENGTH]; */
-/*  SHA512_CTX    sha512; */
+ret_t
+chula_buffer_encode_sha512_digest (chula_buffer_t *buf)
+{
+    int           i;
+    unsigned char digest[SHA512_DIGEST_LENGTH];
+    SHA512_CTX    sha512;
 
-/*  SHA512_Init   (&sha512); */
-/*  SHA512_Update (&sha512, (unsigned char*) buf->buf, buf->len); */
-/*  SHA512_Final  (digest, &sha512); */
+    SHA512_Init   (&sha512);
+    SHA512_Update (&sha512, (void *) buf->buf, buf->len);
+    SHA512_Final  (&sha512, digest);
 
-/*  chula_buffer_ensure_size (buf, (2 * SHA512_DIGEST_LENGTH)+1); */
+    chula_buffer_ensure_size (buf, (2 * SHA512_DIGEST_LENGTH)+1);
 
-/*  for (i = 0; i < SHA512_DIGEST_LENGTH; ++i) { */
-/*      int tmp; */
+    for (i = 0; i < SHA512_DIGEST_LENGTH; ++i) {
+        int tmp;
 
-/*      tmp = ((digest[i] >> 4) & 0xf); */
-/*      buf->buf[i*2] = TO_HEX(tmp); */
+        tmp = ((digest[i] >> 4) & 0xf);
+        buf->buf[i*2] = TO_HEX(tmp);
 
-/*      tmp = (digest[i] & 0xf); */
-/*      buf->buf[(i*2)+1] = TO_HEX(tmp); */
-/*  } */
+        tmp = (digest[i] & 0xf);
+        buf->buf[(i*2)+1] = TO_HEX(tmp);
+    }
 
-/*  buf->buf[2 * SHA512_DIGEST_LENGTH] = '\0'; */
-/*  buf->len = 2 * SHA512_DIGEST_LENGTH; */
+    buf->buf[2 * SHA512_DIGEST_LENGTH] = '\0';
+    buf->len = 2 * SHA512_DIGEST_LENGTH;
 
-/*  return ret_ok; */
-/* } */
+    return ret_ok;
+}
 
-/* ret_t */
-/* chula_buffer_encode_sha512_base64 (chula_buffer_t *buf, chula_buffer_t *encoded) */
-/* { */
-/*  /\* Prepare destination buffer */
-/*   *\/ */
-/*  chula_buffer_ensure_size (encoded, (SHA512_DIGEST_LENGTH * 2) + 1); */
-/*  chula_buffer_clean (encoded); */
+ret_t
+chula_buffer_encode_sha512_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
+{
+    /* Prepare destination buffer
+     */
+    chula_buffer_ensure_size (encoded, (SHA512_DIGEST_LENGTH * 2) + 1);
+    chula_buffer_clean (encoded);
 
-/*  /\* Encode sha1 + base64 */
-/*   *\/ */
-/*  chula_buffer_encode_sha512 (buf, encoded); */
-/*  chula_buffer_encode_base64 (encoded, buf); */
+    /* Encode sha1 + base64
+     */
+    chula_buffer_encode_sha512 (buf, encoded);
+    chula_buffer_encode_base64 (encoded, buf);
 
-/*  /\* Copy result to destination buffer */
-/*   *\/ */
-/*  chula_buffer_clean (encoded); */
-/*  chula_buffer_add_buffer (encoded, buf); */
+    /* Copy result to destination buffer
+     */
+    chula_buffer_clean (encoded);
+    chula_buffer_add_buffer (encoded, buf);
 
-/*  return ret_ok; */
-/* } */
+    return ret_ok;
+}
 
 
 /* Encode in hexadecimal characters, source buffer (buf) is not touched,

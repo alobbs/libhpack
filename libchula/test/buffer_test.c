@@ -1415,6 +1415,142 @@ START_TEST (sha1_base64)
 }
 END_TEST
 
+START_TEST (encode_sha512)
+{
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    /* Empty:
+     * shasum -a 512 </dev/null
+     */
+    ret = chula_buffer_encode_sha512 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 64);
+    ck_assert_str_eq (b.buf,
+                      "\xcf\x83\xe1\x35\x7e\xef\xb8\xbd\xf1\x54\x28\x50\xd6\x6d"
+                      "\x80\x07\xd6\x20\xe4\x05\x0b\x57\x15\xdc\x83\xf4\xa9\x21"
+                      "\xd3\x6c\xe9\xce\x47\xd0\xd1\x3c\x5d\x85\xf2\xb0\xff\x83"
+                      "\x18\xd2\x87\x7e\xec\x2f\x63\xb9\x31\xbd\x47\x41\x7a\x81"
+                      "\xa5\x38\x32\x7a\xf9\x27\xda\x3e");
+
+    /* Test 1
+     * echo -n "The quick brown fox jumps over the lazy dog" | shasum -a 512
+     */
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+
+    chula_buffer_add_str (&a, "The quick brown fox jumps over the lazy dog");
+    ret = chula_buffer_encode_sha512 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 64);
+    chula_print_repr (chula, buffer, &b);
+    ck_assert (memcmp (b.buf,
+                       "\x07\xe5\x47\xd9\x58\x6f\x6a\x73\xf7\x3f\xba\xc0\x43\x5e"
+                       "\xd7\x69\x51\x21\x8f\xb7\xd0\xc8\xd7\x88\xa3\x09\xd7\x85"
+                       "\x43\x6b\xbb\x64\x2e\x93\xa2\x52\xa9\x54\xf2\x39\x12\x54"
+                       "\x7d\x1e\x8a\x3b\x5e\xd6\xe1\xbf\xd7\x09\x78\x21\x23\x3f"
+                       "\xa0\x53\x8f\x3d\xb8\x54\xfe\xe6", b.len) == 0);
+
+    /* Test 2
+     * echo -n "The quick brown fox jumps over the lazy dog." | shasum -a 512
+     */
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+
+    chula_buffer_add_str (&a, "The quick brown fox jumps over the lazy dog.");
+    ret = chula_buffer_encode_sha512 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 64);
+    ck_assert (memcmp (b.buf,
+                       "\x91\xea\x12\x45\xf2\x0d\x46\xae\x9a\x03\x7a\x98\x9f\x54"
+                       "\xf1\xf7\x90\xf0\xa4\x76\x07\xee\xb8\xa1\x4d\x12\x89\x0c"
+                       "\xea\x77\xa1\xbb\xc6\xc7\xed\x9c\xf2\x05\xe6\x7b\x7f\x2b"
+                       "\x8f\xd4\xc7\xdf\xd3\xa7\xa8\x61\x7e\x45\xf3\xc4\x63\xd4"
+                       "\x81\xc7\xe5\x86\xc3\x9a\xc1\xed", b.len) == 0);
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
+}
+END_TEST
+
+START_TEST (sha512_digest)
+{
+    ret_t          ret;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    /* Empty */
+    ret = chula_buffer_encode_sha512_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 128);
+    ck_assert_str_eq (b.buf, "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e");
+
+    /* Text */
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "abc 123");
+    ret = chula_buffer_encode_sha512_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 128);
+    ck_assert_str_eq (b.buf, "af5c7e6e0028bce466814d8b8f5651ddd82497b6f006bdd818194e14903114a6549ed4ef5e2480591f1e13f3bc0bb8879c3b8f7750349aaecd0f7ee11331c052");
+
+    /* Binary */
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "\x00\x01\xfe\xff");
+    ret = chula_buffer_encode_sha512_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 128);
+    ck_assert_str_eq (b.buf, "4be83ccadf8eac0eae59651f3c2eb4a60342235ee1bd08366f3b2a40bd045c5910e69380c53454090c243965b1571eab2760663d9c52f291f9be20d82e4dc45a");
+
+    /* Large */
+    chula_buffer_clean (&b);
+    chula_buffer_add_str (&b, "abc");
+    chula_buffer_multiply (&b, 64);
+    ret = chula_buffer_encode_sha512_digest (&b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 128);
+    ck_assert_str_eq (b.buf, "450e94ad0bd1f53aafcc83f4ce4a3e0998ec265ab633584c1c208100f9c26a8e10cb898c5aaf39ee635fbe4d5901ce804733b1e964b22aa1f58685404b29255e");
+
+    chula_buffer_mrproper(&b);
+}
+END_TEST
+
+START_TEST (sha512_base64)
+{
+    ret_t          ret;
+    chula_buffer_t a    = CHULA_BUF_INIT;
+    chula_buffer_t b    = CHULA_BUF_INIT;
+
+    /* Empty */
+    ret = chula_buffer_encode_sha512_base64 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 88);
+    ck_assert_str_eq (b.buf, "z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==");
+
+    /* Text */
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+
+    chula_buffer_add_str (&a, "abc 123");
+    ret = chula_buffer_encode_sha512_base64 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 88);
+    ck_assert_str_eq (b.buf, "r1x+bgAovORmgU2Lj1ZR3dgkl7bwBr3YGBlOFJAxFKZUntTvXiSAWR8eE/O8C7iHnDuPd1A0mq7ND37hEzHAUg==");
+
+    /* Binary */
+    chula_buffer_clean (&a);
+    chula_buffer_clean (&b);
+
+    chula_buffer_add_str (&a, "\x00\x01\xfe\xff");
+    ret = chula_buffer_encode_sha512_base64 (&a, &b);
+    ck_assert (ret == ret_ok);
+    ck_assert (b.len == 88);
+    ck_assert_str_eq (b.buf, "S+g8yt+OrA6uWWUfPC60pgNCI17hvQg2bzsqQL0EXFkQ5pOAxTRUCQwkOWWxVx6rJ2BmPZxS8pH5viDYLk3EWg==");
+
+    chula_buffer_mrproper(&a);
+    chula_buffer_mrproper(&b);
+}
+END_TEST
+
 START_TEST (encode_hex)
 {
     ret_t          ret;
@@ -1883,8 +2019,11 @@ buffer_tests (void)
     check_add (s1, md5_digest);
     check_add (s1, encode_md5);
     check_add (s1, encode_sha1);
+    check_add (s1, encode_sha512);
     check_add (s1, sha1_digest);
     check_add (s1, sha1_base64);
+    check_add (s1, sha512_digest);
+    check_add (s1, sha512_base64);
     check_add (s1, encode_hex);
     check_add (s1, decode_hex);
     check_add (s1, end_char);
