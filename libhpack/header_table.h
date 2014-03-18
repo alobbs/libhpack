@@ -47,6 +47,7 @@ typedef struct {
 
 ret_t hpack_header_block_init     (hpack_header_block_t *block);
 ret_t hpack_header_block_mrproper (hpack_header_block_t *block);
+ret_t hpack_header_block_clean    (hpack_header_block_t *block);
 ret_t hpack_header_block_set_max  (hpack_header_block_t *block, uint32_t max);
 ret_t hpack_header_block_add      (hpack_header_block_t *block, hpack_header_field_t *e);
 ret_t hpack_header_block_get      (hpack_header_block_t *block, uint32_t n, hpack_header_field_t **e);

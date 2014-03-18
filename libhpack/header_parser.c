@@ -230,6 +230,36 @@ parse_header_pair (chula_buffer_t       *buf,
     return ret_ok;
 }
 
+
+static inline ret_t
+parse_context_update (chula_buffer_t       *buf,
+                      unsigned int          offset,
+                      hpack_header_table_t *table,
+                      unsigned int         *consumed)
+{
+    ret_t        ret;
+    uint32_t     num;
+    unsigned int con  = 0;
+    int          n    = offset + 1;
+
+    /* Empty */
+    if ((uint8_t)buf->buf[n] == 0x80) {
+        hpack_header_block_clean (&table->dynamic);
+        *consumed = 2;
+        return ret_ok;
+    }
+
+    /* Set new length */
+    ret = integer_decode (7, (unsigned char *)buf->buf + n, buf->len - n, &num, &con);
+    if (ret != ret_ok) return ret_error;
+
+    ret = hpack_header_block_set_max (&table->dynamic, num);
+    if (ret != ret_ok) return ret_error;
+
+    *consumed = 1 + con;
+    return ret_ok;
+}
+
 ret_t
 hpack_header_parser_field (hpack_header_parser_t *parser,
                            chula_buffer_t        *buf,
@@ -237,13 +267,18 @@ hpack_header_parser_field (hpack_header_parser_t *parser,
                            hpack_header_field_t  *field,
                            unsigned int          *consumed)
 {
-    ret_t ret;
-    bool  skip_indexing;
-    char  c              = buf->buf[offset];
+    ret_t          ret;
+    bool           skip_indexing;
+    unsigned char  c              = buf->buf[offset];
 
     /* Parse field
      */
-    if (c & 0x80u) {
+    if (c == 0x80) {
+        /* Context update */
+        ret = parse_context_update (buf, offset, &parser->table, consumed);
+        return ret;
+    }
+    else if (c & 0x80u) {
         /* Indexed header field: 1st bit set */
         ret = parse_indexed (buf, offset, &parser->table, field, consumed);
         if (ret != ret_ok) return ret;
@@ -271,10 +306,11 @@ hpack_header_parser_all (hpack_header_parser_t *parser,
                          unsigned int           offset,
                          unsigned int          *consumed)
 {
-    ret_t ret;
-    bool  diff_enc;
+    ret_t                 ret;
+    bool                  diff_enc;
+    hpack_header_block_t *block     = &parser->table.dynamic;
 
-    diff_enc = !hpack_header_block_is_empty (&parser->table.dynamic);
+    diff_enc = !hpack_header_block_is_empty (block);
 
     /* Parse raw header
      */
@@ -293,7 +329,9 @@ hpack_header_parser_all (hpack_header_parser_t *parser,
 
         /* Emit
          */
-        if (parser->store) {
+        if ((parser->store) &&
+            (! hpack_header_field_is_empty(&field)))
+        {
             ret = hpack_header_store_emit (parser->store, &field);
             if (ret != ret_ok) return ret;
         }
@@ -306,16 +344,26 @@ hpack_header_parser_all (hpack_header_parser_t *parser,
     /* Differential encoding
      */
     if (diff_enc) {
-        hpack_header_field_t *field;
-        hpack_header_block_t *block  = &parser->table.dynamic;
+        hpack_header_block_entry_t *entry;
 
-        for (int i=block->len-1; i >= 0 ; i--) {
-            field = &block->headers[i];
+        for (int32_t i=block->len-1; i >= 0 ; i--) {
+            entry = &block->headers[i];
+
+            if (entry->is_new)
+                continue;
 
             if (parser->store) {
-                ret = hpack_header_store_emit (parser->store, field);
+                ret = hpack_header_store_emit (parser->store, &entry->field);
                 if (ret != ret_ok) return ret;
             }
+        }
+    }
+
+    /*
+     */
+    for (int32_t i=block->len-1; i >= 0 ; i--) {
+        if (block->headers[i].is_new) {
+            block->headers[i].is_new = false;
         }
     }
 

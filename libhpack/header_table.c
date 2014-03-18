@@ -157,6 +157,19 @@ hpack_header_block_mrproper (hpack_header_block_t *block)
     return ret_ok;
 }
 
+ret_t
+hpack_header_block_clean (hpack_header_block_t *block)
+{
+    if (block->headers != NULL) {
+        for (uint32_t n=0; n<block->len; n++) {
+            hpack_header_field_clean (&block->headers[n].field);
+        }
+    }
+
+    block->len = 0;
+    return ret_ok;
+}
+
 static inline void
 block_remove_n_headers (hpack_header_block_t *block, uint32_t to_remove)
 {
