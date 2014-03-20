@@ -186,7 +186,7 @@ chula_buffer_init (chula_buffer_t *buf)
 void
 chula_buffer_fake (chula_buffer_t *buf, const char *str, uint32_t len)
 {
-    buf->buf  = (char *)str;
+    buf->buf  = (uint8_t *)str;
     buf->len  = len;
     buf->size = len + 1;
 }
@@ -210,14 +210,14 @@ void
 chula_buffer_clean (chula_buffer_t *buf)
 {
     if (buf->buf != NULL)
-        buf->buf[0] = '\0';
+        buf->buf[0] = (uint8_t) '\0';
     buf->len = 0;
 }
 
 void
 chula_buffer_swap_buffers (chula_buffer_t *buf, chula_buffer_t *second)
 {
-    char     *tmp_buf;
+    uint8_t  *tmp_buf;
     uint32_t  tmp_len;
     uint32_t  tmp_size;
 
@@ -239,7 +239,7 @@ chula_buffer_dup (chula_buffer_t *buf, chula_buffer_t **dup)
 {
     CHULA_NEW_STRUCT(n, buffer);
 
-    n->buf = (char *) malloc(buf->len + 1);
+    n->buf = (uint8_t *) malloc(buf->len + 1);
     if (unlikely (n->buf == NULL)) {
         free(n);
         return ret_nomem;
@@ -258,10 +258,10 @@ chula_buffer_dup (chula_buffer_t *buf, chula_buffer_t **dup)
 static ret_t
 realloc_inc_bufsize (chula_buffer_t *buf, size_t incsize)
 {
-    char   *pbuf;
-    size_t  newsize = buf->size + incsize + REALLOC_EXTRA_SIZE + 1;
+    uint8_t *pbuf;
+    size_t   newsize = buf->size + incsize + REALLOC_EXTRA_SIZE + 1;
 
-    pbuf = (char *) realloc(buf->buf, newsize);
+    pbuf = (uint8_t *) realloc(buf->buf, newsize);
     if (unlikely (pbuf == NULL)) return ret_nomem;
 
     buf->buf  = pbuf;
@@ -274,11 +274,11 @@ realloc_inc_bufsize (chula_buffer_t *buf, size_t incsize)
 static ret_t
 realloc_new_bufsize (chula_buffer_t *buf, size_t newsize)
 {
-    char *pbuf;
+    uint8_t *pbuf;
 
     newsize += REALLOC_EXTRA_SIZE + 1;
 
-    pbuf = (char *) realloc(buf->buf, newsize);
+    pbuf = (uint8_t *) realloc(buf->buf, newsize);
     if (unlikely (pbuf == NULL)) return ret_nomem;
 
     buf->buf = pbuf;
@@ -311,7 +311,7 @@ chula_buffer_add (chula_buffer_t *buf, const char *txt, size_t size)
     memcpy (buf->buf + buf->len, txt, size);
 
     buf->len += size;
-    buf->buf[buf->len] = '\0';
+    buf->buf[buf->len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -486,7 +486,7 @@ chula_buffer_add_long10 (chula_buffer_t *buf, int32_t lNum)
 
     /* Copy including '\0'
      */
-    strcpy (buf->buf + buf->len, &szOutBuf[i]);
+    strcpy ((char *)buf->buf + buf->len, &szOutBuf[i]);
 
     buf->len = newlen;
     return ret_ok;
@@ -532,7 +532,7 @@ chula_buffer_add_llong10 (chula_buffer_t *buf, int64_t lNum)
 
     /* Copy including '\0'
      */
-    strcpy (buf->buf + buf->len, &szOutBuf[i]);
+    strcpy ((char *)buf->buf + buf->len, &szOutBuf[i]);
 
     buf->len = newlen;
 
@@ -567,7 +567,7 @@ chula_buffer_add_ulong10 (chula_buffer_t *buf, uint32_t ulNum)
 
     /* Copy including '\0'
      */
-    strcpy (buf->buf + buf->len, &szOutBuf[i]);
+    strcpy ((char *)buf->buf + buf->len, &szOutBuf[i]);
 
     buf->len = newlen;
 
@@ -602,7 +602,7 @@ chula_buffer_add_ullong10 (chula_buffer_t *buf, uint64_t ulNum)
 
     /* Copy including '\0'
      */
-    strcpy (buf->buf + buf->len, &szOutBuf[i]);
+    strcpy ((char *)buf->buf + buf->len, &szOutBuf[i]);
 
     buf->len = newlen;
 
@@ -642,7 +642,7 @@ chula_buffer_add_ulong16 (chula_buffer_t *buf, uint32_t ulNum)
 
     /* Copy including '\0'
      */
-    strcpy (buf->buf + buf->len, &szOutBuf[i]);
+    strcpy ((char *)buf->buf + buf->len, &szOutBuf[i]);
 
     buf->len = newlen;
 
@@ -682,7 +682,7 @@ chula_buffer_add_ullong16 (chula_buffer_t *buf, uint64_t ulNum)
 
     /* Copy including '\0'
      */
-    strcpy (buf->buf + buf->len, &szOutBuf[i]);
+    strcpy ((char *)buf->buf + buf->len, &szOutBuf[i]);
 
     buf->len = newlen;
 
@@ -773,7 +773,7 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
         goto error;
     }
 
-    len = vsnprintf (buf->buf + buf->len, size, format, args2);
+    len = vsnprintf ((char *)buf->buf + buf->len, size, format, args2);
 #if 0
     if (unlikely (estimation < len)) {
 //      LOG_ERROR (CHULA_ERROR_BUFFER_BAD_ESTIMATION,
@@ -796,7 +796,7 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
         if (unlikely (ret != ret_ok)) goto error;
 
         size = buf->size - buf->len;
-        len = vsnprintf (buf->buf + buf->len, size, format, args2);
+        len = vsnprintf ((char *)buf->buf + buf->len, size, format, args2);
 
         if (unlikely ((len < 0) || (len >= size))) {
             ret = ret_error;
@@ -835,8 +835,8 @@ chula_buffer_add_char (chula_buffer_t *buf, char c)
     /* Add char (fast path)
      */
     if (likely (buf->len + 1 < buf->size)) {
-        buf->buf[buf->len++] = c;
-        buf->buf[buf->len] = '\0';
+        buf->buf[buf->len++] = (uint8_t) c;
+        buf->buf[buf->len] = (uint8_t) '\0';
         return ret_ok;
     }
 
@@ -848,8 +848,8 @@ chula_buffer_add_char (chula_buffer_t *buf, char c)
 
     /* Add char
      */
-    buf->buf[buf->len++] = c;
-    buf->buf[buf->len] = '\0';
+    buf->buf[buf->len++] = (uint8_t) c;
+    buf->buf[buf->len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -873,7 +873,7 @@ chula_buffer_add_char_n (chula_buffer_t *buf, char c, int num)
 
     memset (buf->buf+buf->len, c, num);
     buf->len += num;
-    buf->buf[buf->len] = '\0';
+    buf->buf[buf->len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -899,7 +899,7 @@ chula_buffer_prepend (chula_buffer_t *buf, const char *txt, size_t size)
 
     memcpy (buf->buf, txt, size);
     buf->len += size;
-    buf->buf[buf->len] = '\0';
+    buf->buf[buf->len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -951,7 +951,7 @@ chula_buffer_ensure_addlen (chula_buffer_t *buf, size_t addlen)
 ret_t
 chula_buffer_ensure_size (chula_buffer_t *buf, size_t size)
 {
-    char *pbuf;
+    uint8_t *pbuf;
 
     /* Maybe it doesn't need it
      * if buf->size == 0 and size == 0 then buf can be NULL.
@@ -962,7 +962,7 @@ chula_buffer_ensure_size (chula_buffer_t *buf, size_t size)
     /* If it is a new buffer, take memory and return
      */
     if (buf->buf == NULL) {
-        buf->buf = (char *) malloc (size);
+        buf->buf = (uint8_t *) malloc (size);
         if (unlikely (buf->buf == NULL))
             return ret_nomem;
         buf->size = size;
@@ -971,7 +971,7 @@ chula_buffer_ensure_size (chula_buffer_t *buf, size_t size)
 
     /* It already has memory, but it needs more..
      */
-    pbuf = (char *) realloc(buf->buf, size);
+    pbuf = (uint8_t *) realloc(buf->buf, size);
     if (unlikely (pbuf == NULL)) {
         return ret_nomem;
     }
@@ -986,7 +986,7 @@ chula_buffer_ensure_size (chula_buffer_t *buf, size_t size)
 ret_t
 chula_buffer_retract (chula_buffer_t *buf)
 {
-    char *pbuf;
+    uint8_t *pbuf;
 
     /* Nothing to do when..
      */
@@ -998,7 +998,7 @@ chula_buffer_retract (chula_buffer_t *buf)
 
     /* Shrink the allocated memory
      */
-    pbuf = (char *) realloc (buf->buf, buf->len+1);
+    pbuf = (uint8_t *) realloc (buf->buf, buf->len+1);
     if (unlikely (pbuf == NULL)) return ret_nomem;
 
     buf->buf  = pbuf;
@@ -1019,7 +1019,7 @@ chula_buffer_drop_ending (chula_buffer_t *buffer, uint32_t num_chars)
 
     num = MIN (num_chars, buffer->len);
 
-    buffer->buf[buffer->len - num] = '\0';
+    buffer->buf[buffer->len - num] = (uint8_t) '\0';
     buffer->len -= num;
 
     return ret_ok;
@@ -1036,8 +1036,8 @@ chula_buffer_swap_chars (chula_buffer_t *buffer, char a, char b)
     }
 
     for (i=0; i < buffer->len; i++) {
-        if (buffer->buf[i] == a) {
-            buffer->buf[i] = b;
+        if (buffer->buf[i] == (uint8_t) a) {
+            buffer->buf[i] = (uint8_t) b;
         }
     }
 
@@ -1048,16 +1048,16 @@ chula_buffer_swap_chars (chula_buffer_t *buffer, char a, char b)
 ret_t
 chula_buffer_remove_dups (chula_buffer_t *buffer, char c)
 {
-    char       *a      = buffer->buf;
-    const char *end    = buffer->buf + buffer->len;
-    uint32_t    offset = 0;
+    uint8_t       *a      = buffer->buf;
+    const uint8_t *end    = buffer->buf + buffer->len;
+    uint32_t       offset = 0;
 
     if (buffer->len < 2) {
         return ret_ok;
     }
 
     do {
-        if ((*a == c) && (a[offset+1] == c)) {
+        if ((*a == (uint8_t) c) && (a[offset+1] == (uint8_t) c)) {
             offset++;
             continue;
         }
@@ -1068,7 +1068,7 @@ chula_buffer_remove_dups (chula_buffer_t *buffer, char c)
     } while ((a + offset < end) && (offset+1 < buffer->len));
 
     buffer->len -= offset;
-    buffer->buf[buffer->len] = '\0';
+    buffer->buf[buffer->len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -1077,13 +1077,13 @@ chula_buffer_remove_dups (chula_buffer_t *buffer, char c)
 ret_t
 chula_buffer_remove_string (chula_buffer_t *buf, char *string, int string_len)
 {
-    char *tmp;
-    int   offset;
+    uint8_t *tmp;
+    int      offset;
 
     if ((buf->len <= 0) || (string == NULL) || (string_len <= 0))
         return ret_ok;
 
-    while ((tmp = strstr (buf->buf, string)) != NULL) {
+    while ((tmp = strstr ((char *)buf->buf, string)) != NULL) {
         offset = tmp - buf->buf;
         memmove (tmp, tmp+string_len, buf->len - (offset+string_len) +1);
         buf->len -= string_len;
@@ -1096,8 +1096,8 @@ chula_buffer_remove_string (chula_buffer_t *buf, char *string, int string_len)
 ret_t
 chula_buffer_remove_chunk (chula_buffer_t *buf, uint32_t from, uint32_t len)
 {
-    char *end;
-    char *begin;
+    uint8_t *end;
+    uint8_t *begin;
 
     if (from >= buf->len)
         return ret_ok;
@@ -1125,7 +1125,7 @@ chula_buffer_cmp_buf (chula_buffer_t *A, chula_buffer_t *B)
     else if (B->len > A->len)
         return - (B->len - A->len);
 
-    return strncmp (A->buf, B->buf, B->len);
+    return memcmp (A->buf, B->buf, B->len);
 }
 
 int32_t
@@ -1145,7 +1145,7 @@ chula_buffer_case_cmp_buf (chula_buffer_t *A, chula_buffer_t *B)
     else if (B->len > A->len)
         return - (B->len - A->len);
 
-    return strncasecmp (A->buf, B->buf, B->len);
+    return strncasecmp ((char *)A->buf, (char *)B->buf, B->len);
 }
 
 int32_t
@@ -1163,7 +1163,7 @@ chula_buffer_cnt_spn (chula_buffer_t *buf, uint32_t offset, const char *str)
     if (unlikely ((buf->buf == NULL) || (buf->len <= offset)))
         return 0;
 
-    return strspn (buf->buf + offset, str);
+    return strspn ((char *)buf->buf + offset, str);
 }
 
 
@@ -1173,7 +1173,7 @@ chula_buffer_cnt_cspn (chula_buffer_t *buf, uint32_t offset, const char *str)
     if (unlikely ((buf->buf == NULL) || (buf->len <= offset)))
         return 0;
 
-    return strcspn (buf->buf + offset, str);
+    return strcspn ((char *)buf->buf + offset, str);
 }
 
 
@@ -1183,7 +1183,7 @@ chula_buffer_crc32 (chula_buffer_t *buf)
     if (chula_buffer_is_empty (buf))
         return 0;
 
-    return crc32_sz (buf->buf, buf->len);
+    return crc32_sz ((char *)buf->buf, buf->len);
 }
 
 
@@ -1223,7 +1223,7 @@ chula_buffer_read_file (chula_buffer_t *buf, char *filename)
      */
     r = read (f, buf->buf + buf->len, info.st_size);
     if (r < 0) {
-        buf->buf[buf->len] = '\0';
+        buf->buf[buf->len] = (uint8_t) '\0';
         ret = ret_error;
         goto error;
     }
@@ -1233,7 +1233,7 @@ chula_buffer_read_file (chula_buffer_t *buf, char *filename)
     chula_fd_close(f);
 
     buf->len += r;
-    buf->buf[buf->len] = '\0';
+    buf->buf[buf->len] = (uint8_t) '\0';
 
     return ret_ok;
 
@@ -1296,7 +1296,7 @@ chula_buffer_read_from_fd (chula_buffer_t *buf, int fd, size_t size, size_t *ret
     *ret_size = len;
     buf->len += len;
 
-    buf->buf[buf->len] = '\0';
+    buf->buf[buf->len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -1325,13 +1325,13 @@ void
 chula_buffer_repr (chula_buffer_t *buf,
                    chula_buffer_t *output)
 {
-    uint32_t       i;
-    char           text[67];
-    unsigned char  tmp;
-    char          *hex_text   = NULL;
-    char          *ascii_text = NULL;
+    uint32_t  i;
+    char      text[67];
+    uint8_t   tmp;
+    char     *hex_text   = NULL;
+    char     *ascii_text = NULL;
 
-    memset(text, 0, 67);
+    memset(text, 0, sizeof(text));
     for (i=0; i < buf->len; i++) {
         if (i%16 == 0) {
             if (text[0] != 0){
@@ -1369,7 +1369,7 @@ chula_buffer_print_cstr (chula_buffer_t *buf)
     uint32_t i;
 
     for (i=0; i<buf->len; i++) {
-        unsigned char c = buf->buf[i];
+        uint8_t c = buf->buf[i];
         printf("\"\\x%02x\"", c);
     }
     printf (CRLF);
@@ -1424,8 +1424,8 @@ ret_t
 chula_buffer_get_utf8_len (chula_buffer_t *buf, uint32_t *len)
 {
     uint32_t    n;
-    const char *p;
-    const char *end;
+    const uint8_t *p;
+    const uint8_t *end;
 
     /* Empty buffer
      */
@@ -1441,7 +1441,7 @@ chula_buffer_get_utf8_len (chula_buffer_t *buf, uint32_t *len)
 
     n = 0;
     do{
-        p = utf8_get_next_char (p);
+        p = (uint8_t *) utf8_get_next_char (p);
         n++;
     } while (p < end);
 
@@ -1457,14 +1457,14 @@ chula_buffer_get_utf8_len (chula_buffer_t *buf, uint32_t *len)
 ret_t
 chula_buffer_unescape_uri (chula_buffer_t *buffer)
 {
-    char *psrc;
-    char *ptgt;
+    uint8_t *psrc;
+    uint8_t *ptgt;
     int   len;
 
-#define hex2dec_m(c)       ( (int) hex2dec_tab[ ( (unsigned char )(c) ) ] )
+#define hex2dec_m(c)       ( (int) hex2dec_tab[c] )
 #define hex2dec_m2(c1, c2) ( hex2dec_m(c1) * 16 + hex2dec_m(c2) )
 
-    TRACE(ENTRIES, "Prev: %s\n", buffer->buf);
+    TRACE(ENTRIES, "Prev: %s\n", (char *)buffer->buf);
 
     if (chula_buffer_is_empty (buffer))
         return ret_ok;
@@ -1472,26 +1472,26 @@ chula_buffer_unescape_uri (chula_buffer_t *buffer)
     /* Verify string termination,
      * we assume there are no '\0' inside buffer.
      */
-    if (buffer->buf[buffer->len] != '\0')
-        buffer->buf[buffer->len]  = '\0';
+    if (buffer->buf[buffer->len] != (uint8_t) '\0')
+        buffer->buf[buffer->len]  = (uint8_t) '\0';
 
     /* Verify if unescaping is needed.
      */
-    if ((psrc = strchr (buffer->buf, '%')) == NULL)
+    if ((psrc = strchr ((char *) buffer->buf, '%')) == NULL)
         return ret_ok;
 
     /* Yes, unescape string.
      */
     len = buffer->len;
-    for (ptgt = psrc; *psrc != '\0'; ++ptgt, ++psrc) {
-        if (psrc[0] != '%' ||
-            !isxdigit(psrc[1]) || !isxdigit(psrc[2])) {
+    for (ptgt = psrc; *psrc != (uint8_t) '\0'; ++ptgt, ++psrc) {
+        if (psrc[0] != (uint8_t)'%' ||
+            !isxdigit((char)psrc[1]) || !isxdigit((char)psrc[2])) {
             *ptgt = *psrc;
             continue;
         }
         /* Escape sequence %xx
          */
-        if (likely ((*ptgt = hex2dec_m2(psrc[1], psrc[2])) != '\0')) {
+        if (likely ((*ptgt = (uint8_t) hex2dec_m2(psrc[1], psrc[2])) != (uint8_t)'\0')) {
             psrc += 2;
             len  -= 2;
             continue;
@@ -1499,17 +1499,17 @@ chula_buffer_unescape_uri (chula_buffer_t *buffer)
         /* Replace null bytes (%00) with
          * spaces, to prevent attacks
          */
-        *ptgt = ' ';
+        *ptgt = (uint8_t) ' ';
         psrc += 2;
         len  -= 2;
     }
-    *ptgt = '\0';
+    *ptgt = (uint8_t) '\0';
     buffer->len = len;
 
 #undef hex2dec_m2
 #undef hex2dec_m
 
-    TRACE(ENTRIES, "Post: %s\n", buffer->buf);
+    TRACE(ENTRIES, "Post: %s\n", (char *) buffer->buf);
     return ret_ok;
 }
 
@@ -1518,12 +1518,12 @@ escape_with_table (chula_buffer_t *buffer,
                    chula_buffer_t *src,
                    uint32_t       *is_char_escaped)
 {
-    ret_t                ret;
-    unsigned char       *t;
-    const unsigned char *s, *s_next;
-    unsigned char       *end;
-    uint32_t             n_escape    = 0;
-    static char          hex_chars[] = "0123456789abcdef";
+    ret_t          ret;
+    uint8_t       *t;
+    const uint8_t *s, *s_next;
+    uint8_t       *end;
+    uint32_t       n_escape    = 0;
+    static char    hex_chars[] = "0123456789abcdef";
 
     if (unlikely (chula_buffer_is_empty(src)))
         return ret_ok;
@@ -1536,7 +1536,7 @@ escape_with_table (chula_buffer_t *buffer,
      */
     s = src->buf;
     do {
-        s_next = utf8_get_next_char (s);
+        s_next = (uint8_t *)utf8_get_next_char (s);
 
         /* It's single-byte character */
         if ((s_next - s) == 1) {
@@ -1562,7 +1562,7 @@ escape_with_table (chula_buffer_t *buffer,
     t = buffer->buf + buffer->len;
 
     do {
-        s_next = utf8_get_next_char (s);
+        s_next = (uint8_t *) utf8_get_next_char (s);
 
         /* Multi-byte character */
         if ((s_next - s) > 1) {
@@ -1587,7 +1587,7 @@ escape_with_table (chula_buffer_t *buffer,
 
     /* ..and the final touch
      */
-    *t = '\0';
+    *t = (uint8_t) '\0';
     buffer->len += src->len + (n_escape * 2);
 
     return ret_ok;
@@ -1640,10 +1640,10 @@ chula_buffer_escape_arg (chula_buffer_t *buffer, chula_buffer_t *src)
 ret_t
 chula_buffer_add_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
 {
-    ret_t   ret;
-    size_t  len0 = 0;
-    size_t  extra = 0;
-    char   *p0, *p1, *p2;
+    ret_t    ret;
+    size_t   len0 = 0;
+    size_t   extra = 0;
+    uint8_t *p0, *p1, *p2;
 
     /* Verify that source string is not empty.
      */
@@ -1653,12 +1653,12 @@ chula_buffer_add_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
     /* Verify string termination,
      * we assume there are no '\0' inside buffer.
      */
-    if (src->buf[src->len] != '\0')
-        src->buf[src->len]  = '\0';
+    if (src->buf[src->len] != (uint8_t) '\0')
+        src->buf[src->len]  = (uint8_t) '\0';
 
     /* Verify if string has to be escaped.
      */
-    if ((p0 = strpbrk (src->buf, "<>&\"")) == NULL) {
+    if ((p0 = strpbrk ((char *)src->buf, "<>&\"")) == NULL) {
         /* No escape found, simply add src to buf.
          */
         return chula_buffer_add_buffer (buf, src);
@@ -1666,8 +1666,8 @@ chula_buffer_add_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
 
     /* Count extra characters
      */
-    for (p1 = p0; *p1 != '\0'; ++p1) {
-        switch(*p1) {
+    for (p1 = p0; *p1 != (uint8_t) '\0'; ++p1) {
+        switch((char)*p1) {
         case '<':   /* &lt; */
         case '>':   /* &gt; */
             extra += 3;
@@ -1706,8 +1706,8 @@ chula_buffer_add_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
 
     p2 = &buf->buf[buf->len + len0];
 
-    for (p1 = p0; *p1 != '\0'; ++p1) {
-        switch (*p1) {
+    for (p1 = p0; *p1 != (uint8_t) '\0'; ++p1) {
+        switch ((char)*p1) {
         case '<':
             memcpy (p2, "&lt;", 4);
             p2 += 4;
@@ -1752,7 +1752,7 @@ chula_buffer_add_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
     /* Set the new length
      */
     buf->len += src->len + extra;
-    buf->buf[buf->len] = '\0';
+    buf->buf[buf->len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -1769,8 +1769,8 @@ chula_buffer_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
 ret_t
 chula_buffer_decode_base64 (chula_buffer_t *buf)
 {
-    uint32_t  i;
-    char     space[128];
+    uint32_t i;
+    uint8_t  space[128];
     int      space_idx = 0;
     int      phase     = 0;
     int      d, prev_d = 0;
@@ -1811,7 +1811,7 @@ chula_buffer_decode_base64 (chula_buffer_t *buf)
     };
 
     for (i=0; i < buf->len; i++) {
-        d = b64_decode_tab[(int) buf->buf[i]];
+        d = b64_decode_tab[buf->buf[i]];
         if (d != -1) {
             switch (phase) {
             case 0:
@@ -1840,7 +1840,7 @@ chula_buffer_decode_base64 (chula_buffer_t *buf)
         }
     }
 
-    space[space_idx]='\0';
+    space[space_idx]=(uint8_t) '\0';
 
     memcpy (buf->buf + buf_pos, space, space_idx+1);
     buf->len = buf_pos + space_idx;
@@ -1879,8 +1879,8 @@ chula_buffer_encode_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 
     /* Encode source to destination
      */
-    in  = (uint8_t *) buf->buf;
-    out = (uint8_t *) encoded->buf;
+    in  = buf->buf;
+    out = encoded->buf;
 
     for (i=0, j=0; i < inlen; i += 3) {
         int a=0,b=0,c=0;
@@ -1896,17 +1896,17 @@ chula_buffer_encode_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
         g = base64tab [c & 63 ];
 
         if (i + 1 >= inlen)
-            f = '=';
+            f = (int) '=';
         if (i + 2 >= inlen)
-            g = '=';
+            g = (int) '=';
 
-        out[j++] = d;
-        out[j++] = e;
-        out[j++] = f;
-        out[j++] = g;
+        out[j++] = (uint8_t) d;
+        out[j++] = (uint8_t) e;
+        out[j++] = (uint8_t) f;
+        out[j++] = (uint8_t) g;
     }
 
-    out[j]  = '\0';
+    out[j]  = (uint8_t) '\0';
     encoded->len = j;
 
     return ret_ok;
@@ -1941,12 +1941,12 @@ chula_buffer_encode_md5_digest (chula_buffer_t *buf)
         int tmp;
 
         tmp = ((digest[i] >> 4) & 0xf);
-        buf->buf[i*2] = TO_HEX(tmp);
+        buf->buf[i*2] = (uint8_t) TO_HEX(tmp);
 
         tmp = (digest[i] & 0xf);
-        buf->buf[(i*2)+1] = TO_HEX(tmp);
+        buf->buf[(i*2)+1] = (uint8_t) TO_HEX(tmp);
     }
-    buf->buf[32] = '\0';
+    buf->buf[32] = (uint8_t) '\0';
     buf->len = 32;
 
     return ret_ok;
@@ -1966,7 +1966,7 @@ chula_buffer_encode_md5 (chula_buffer_t *buf, chula_buffer_t *encoded)
     MD5Update (&context, (md5byte *)buf->buf, buf->len);
     MD5Final ((unsigned char *)encoded->buf, &context);
 
-    encoded->buf[16] = '\0';
+    encoded->buf[16] = (uint8_t) '\0';
     encoded->len = 16;
 
     return ret_ok;
@@ -1992,7 +1992,7 @@ chula_buffer_encode_sha1 (chula_buffer_t *buf, chula_buffer_t *encoded)
     sha_final (&sha1, (unsigned char *) encoded->buf);
 
     encoded->len = SHA1_DIGEST_SIZE;
-    encoded->buf[encoded->len] = '\0';
+    encoded->buf[encoded->len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -2017,13 +2017,13 @@ chula_buffer_encode_sha1_digest (chula_buffer_t *buf)
         int tmp;
 
         tmp = ((digest[i] >> 4) & 0xf);
-        buf->buf[i*2] = TO_HEX(tmp);
+        buf->buf[i*2] = (uint8_t) TO_HEX(tmp);
 
         tmp = (digest[i] & 0xf);
-        buf->buf[(i*2)+1] = TO_HEX(tmp);
+        buf->buf[(i*2)+1] = (uint8_t) TO_HEX(tmp);
     }
 
-    buf->buf[2 * SHA1_DIGEST_SIZE] = '\0';
+    buf->buf[2 * SHA1_DIGEST_SIZE] = (uint8_t) '\0';
     buf->len = 2 * SHA1_DIGEST_SIZE;
 
     return ret_ok;
@@ -2071,7 +2071,7 @@ chula_buffer_encode_sha512 (chula_buffer_t *buf, chula_buffer_t *encoded)
     SHA512_Final (&sha512, (void *)encoded->buf);
 
     encoded->len = SHA512_DIGEST_LENGTH;
-    encoded->buf[encoded->len] = '\0';
+    encoded->buf[encoded->len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -2094,13 +2094,13 @@ chula_buffer_encode_sha512_digest (chula_buffer_t *buf)
         int tmp;
 
         tmp = ((digest[i] >> 4) & 0xf);
-        buf->buf[i*2] = TO_HEX(tmp);
+        buf->buf[i*2] = (uint8_t) TO_HEX(tmp);
 
         tmp = (digest[i] & 0xf);
-        buf->buf[(i*2)+1] = TO_HEX(tmp);
+        buf->buf[(i*2)+1] = (uint8_t) TO_HEX(tmp);
     }
 
-    buf->buf[2 * SHA512_DIGEST_LENGTH] = '\0';
+    buf->buf[2 * SHA512_DIGEST_LENGTH] = (uint8_t) '\0';
     buf->len = 2 * SHA512_DIGEST_LENGTH;
 
     return ret_ok;
@@ -2151,8 +2151,8 @@ chula_buffer_encode_hex (chula_buffer_t *buf, chula_buffer_t *encoded)
 
     /* Encode source to destination
      */
-    in  = (uint8_t *) buf->buf;
-    out = (uint8_t *) encoded->buf;
+    in  = buf->buf;
+    out = encoded->buf;
 
     for (i = 0; i != inlen; ++i) {
         j = ( (*in >> 4) & 0xf );
@@ -2162,7 +2162,7 @@ chula_buffer_encode_hex (chula_buffer_t *buf, chula_buffer_t *encoded)
         *out++ = (uint8_t) TO_HEX(j);
     }
 
-    *out = '\0';
+    *out = (uint8_t) '\0';
     encoded->len = (int) (inlen * 2);
 
     return ret_ok;
@@ -2199,11 +2199,11 @@ chula_buffer_decode_hex (chula_buffer_t *buf)
         if ((b1 == -1) || (b2 == -1))
             break;
 
-        buf->buf[i] = (((b1 << 4) & 0xF0) | (b2 & 0x0F));
+        buf->buf[i] = (uint8_t) (((b1 << 4) & 0xF0) | (b2 & 0x0F));
     }
 
     buf->len /= 2;
-    buf->buf[buf->len] = '\0';
+    buf->buf[buf->len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -2215,7 +2215,7 @@ chula_buffer_end_char (chula_buffer_t *buf)
     if (chula_buffer_is_empty (buf))
         return '\0';
 
-    return buf->buf[buf->len-1];
+    return (char)buf->buf[buf->len-1];
 }
 
 
@@ -2224,12 +2224,12 @@ chula_buffer_replace_string (chula_buffer_t *buf,
                              const char *substring,   int substring_length,
                              const char *replacement, int replacement_length)
 {
-    int         remaining_length;
-    int         result_length;
-    char       *result;
-    char       *result_position;
-    const char *p;
-    const char *substring_position;
+    int            remaining_length;
+    int            result_length;
+    uint8_t       *result;
+    uint8_t       *result_position;
+    const uint8_t *p;
+    const uint8_t *substring_position;
 
     /* Verify formal parameters
      * (those which are not tested would raise a segment violation).
@@ -2258,7 +2258,7 @@ chula_buffer_replace_string (chula_buffer_t *buf,
      */
     result_length = buf->len;
     for (p = buf->buf; ; p = substring_position + substring_length) {
-        substring_position = strstr (p, substring);
+        substring_position = (uint8_t *) strstr ((char *)p, substring);
 
         if (substring_position == NULL)
             break;
@@ -2274,14 +2274,14 @@ chula_buffer_replace_string (chula_buffer_t *buf,
     /* If resulting length is zero, then return now.
      */
     if (result_length < 1) {
-        buf->buf[0] = '\0';
+        buf->buf[0] = (uint8_t) '\0';
         buf->len = 0;
         return ret_ok;
     }
 
     /* Take the new memory chunk
      */
-    result = (char *) malloc (result_length + 1);
+    result = (uint8_t *) malloc (result_length + 1);
     if (unlikely (result == NULL)) return ret_nomem;
 
     /* Build the new string
@@ -2289,7 +2289,7 @@ chula_buffer_replace_string (chula_buffer_t *buf,
     result_position = result;
 
     for (p = buf->buf; ; p = substring_position + substring_length) {
-        substring_position = strstr (p, substring);
+        substring_position = (uint8_t *) strstr ((char *)p, substring);
 
         if (substring_position == NULL) {
             remaining_length = strlen (p);
@@ -2300,7 +2300,7 @@ chula_buffer_replace_string (chula_buffer_t *buf,
         memcpy (result_position, p, substring_position - p);
         result_position += (substring_position - p);
 
-        memcpy (result_position, replacement, replacement_length);
+        memcpy (result_position, (const uint8_t *)replacement, replacement_length);
         result_position += replacement_length;
     }
     *result_position = '\0';
@@ -2335,12 +2335,12 @@ chula_buffer_substitute_string (chula_buffer_t *bufsrc,
                                 char *substring,   int substring_length,
                                 char *replacement, int replacement_length)
 {
-    ret_t       ret;
-    int         remaining_length;
-    int         result_length;
-    char       *result_position;
-    const char *p;
-    const char *substring_position;
+    ret_t          ret;
+    int            remaining_length;
+    int            result_length;
+    uint8_t       *result_position;
+    const uint8_t *p;
+    const uint8_t *substring_position;
 
     /* Verify formal parameters
      * (those which are not tested would raise a segment violation).
@@ -2363,7 +2363,7 @@ chula_buffer_substitute_string (chula_buffer_t *bufsrc,
      */
     result_length = bufsrc->len;
     for (p = bufsrc->buf; ; p = substring_position + substring_length) {
-        substring_position = strstr (p, substring);
+        substring_position = strstr ((char *)p, substring);
 
         if (substring_position == NULL)
             break;
@@ -2392,7 +2392,7 @@ chula_buffer_substitute_string (chula_buffer_t *bufsrc,
     result_position = bufdst->buf;
 
     for (p = bufsrc->buf; ; p = substring_position + substring_length) {
-        substring_position = strstr (p, substring);
+        substring_position = (uint8_t *) strstr ((char *)p, substring);
 
         if (substring_position == NULL) {
             remaining_length = (int) (&(bufsrc->buf[bufsrc->len]) - p);
@@ -2403,13 +2403,13 @@ chula_buffer_substitute_string (chula_buffer_t *bufsrc,
         memcpy (result_position, p, substring_position - p);
         result_position += (int) (substring_position - p);
 
-        memcpy (result_position, replacement, replacement_length);
+        memcpy (result_position, (const uint8_t *)replacement, replacement_length);
         result_position += replacement_length;
     }
 
     /* Terminate the destination buffer
      */
-    *result_position = '\0';
+    *result_position = (uint8_t) '\0';
     bufdst->len  = result_length;
 
     return ret_ok;
@@ -2421,7 +2421,7 @@ chula_buffer_add_comma_marks (chula_buffer_t *buf)
 {
     ret_t    ret;
     uint32_t off, num, i;
-    char    *p;
+    uint8_t *p;
 
     if ((buf->buf == NULL) || (buf->len <= 3))
         return ret_ok;
@@ -2442,12 +2442,12 @@ chula_buffer_add_comma_marks (chula_buffer_t *buf)
     for (i = 0; i < num; i++) {
         int len = (buf->buf + buf->len) - p;
         memmove(p+1, p, len);
-        *p = ',';
+        *p = (uint8_t) ',';
         p +=4;
         buf->len++;
     }
 
-    buf->buf[buf->len] = '\0';
+    buf->buf[buf->len] = (uint8_t) '\0';
     return ret_ok;
 }
 
@@ -2462,14 +2462,14 @@ chula_buffer_trim (chula_buffer_t *buf)
         return ret_ok;
 
     for (s=0; s < buf->len; s++) {
-        char c = buf->buf[s];
+        char c = (char) buf->buf[s];
 
         if (c != ' ' && c != '\t' && c != '\r' && c != '\n')
             break;
     }
 
     for (e=0; e < (buf->len - s); e++) {
-        char c = buf->buf[buf->len-(e+1)];
+        char c = (char) buf->buf[buf->len-(e+1)];
 
         if (c != ' ' && c != '\t' && c != '\r' && c != '\n')
             break;
@@ -2480,7 +2480,7 @@ chula_buffer_trim (chula_buffer_t *buf)
     memmove (buf->buf, buf->buf+s, len);
 
     buf->len = len;
-    buf->buf[len] = '\0';
+    buf->buf[len] = (uint8_t) '\0';
 
     return ret_ok;
 }
@@ -2493,9 +2493,9 @@ chula_buffer_to_lowcase (chula_buffer_t *buf)
     uint32_t i;
 
     for (i=0; i<buf->len; i++) {
-        c = buf->buf[i];
+        c = (char) buf->buf[i];
         if ((c >= 'A') && (c <= 'Z')) {
-            buf->buf[i] = c + ('a'-'A');
+            buf->buf[i] = (uint8_t) c + ('a'-'A');
         }
     }
 
@@ -2528,10 +2528,10 @@ chula_buffer_insert (chula_buffer_t *buf,
              buf->len - posn);
 
     /* Insert the string */
-    memcpy (buf->buf + posn, txt, txt_len);
+    memcpy (buf->buf + posn, (uint8_t *)txt, txt_len);
 
     buf->len += txt_len;
-    buf->buf[buf->len] = '\0';
+    buf->buf[buf->len] = (uint8_t)'\0';
 
     return ret_ok;
 }
@@ -2551,12 +2551,12 @@ chula_buffer_split_lines (chula_buffer_t *buf,
                           int             columns,
                           const char     *indent)
 {
-    ret_t  ret;
-    char  *p;
-    char  *prev_space     = NULL;
-    char  *latest_newline = NULL;
-    int    since_prev     = 0;
-    int    indent_len     = 0;
+    ret_t     ret;
+    uint8_t  *p;
+    uint8_t  *prev_space     = NULL;
+    uint8_t  *latest_newline = NULL;
+    int       since_prev     = 0;
+    int       indent_len     = 0;
 
     if (indent) {
         indent_len = strlen(indent);
@@ -2565,7 +2565,7 @@ chula_buffer_split_lines (chula_buffer_t *buf,
     for (p = buf->buf; p < buf->buf + buf->len; p++) {
         since_prev += 1;
 
-        if (*p != ' ') {
+        if (*p != (uint8_t) ' ') {
             continue;
         }
 
@@ -2577,7 +2577,7 @@ chula_buffer_split_lines (chula_buffer_t *buf,
         if (since_prev >= columns) {
             if (prev_space) {
                 /* Split */
-                *prev_space = '\n';
+                *prev_space = (uint8_t) '\n';
 
                 /* Reset */
                 since_prev = (p - prev_space);
@@ -2585,7 +2585,7 @@ chula_buffer_split_lines (chula_buffer_t *buf,
                 prev_space = NULL;
             } else {
                 /* len(word) > columns */
-                *p = '\n';
+                *p = (uint8_t) '\n';
                 since_prev = 0;
                 latest_newline = p;
             }
