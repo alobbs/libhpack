@@ -131,8 +131,7 @@ chula_avl_del (chula_avl_t *avl, chula_buffer_t *key, void **value)
 {
 	chula_avl_node_t tmp;
 
-	chula_buffer_fake (&tmp.key, key->buf, key->len);
-
+	chula_buffer_fake (&tmp.key, (const char *)key->buf, key->len);
 	return chula_avl_generic_del (AVL_GENERIC(avl), AVL_GENERIC_NODE(&tmp), value);
 }
 
@@ -141,8 +140,7 @@ chula_avl_get (chula_avl_t *avl, chula_buffer_t *key, void **value)
 {
 	chula_avl_node_t tmp;
 
-	chula_buffer_fake (&tmp.key, key->buf, key->len);
-
+	chula_buffer_fake (&tmp.key, (const char *)key->buf, key->len);
 	return chula_avl_generic_get (AVL_GENERIC(avl), AVL_GENERIC_NODE(&tmp), value);
 }
 
@@ -153,7 +151,7 @@ chula_avl_add_ptr (chula_avl_t *avl, const char *key, void *value)
 {
 	chula_buffer_t tmp_key;
 
-	chula_buffer_fake (&tmp_key, (const char *)key, strlen(key));
+	chula_buffer_fake (&tmp_key, key, strlen(key));
 	return chula_avl_add (avl, &tmp_key, value);
 }
 
@@ -162,7 +160,7 @@ chula_avl_del_ptr (chula_avl_t *avl, const char *key, void **value)
 {
 	chula_buffer_t tmp_key;
 
-	chula_buffer_fake (&tmp_key, (const char *)key, strlen(key));
+	chula_buffer_fake (&tmp_key, key, strlen(key));
 	return chula_avl_del (avl, &tmp_key, value);
 }
 
@@ -171,7 +169,7 @@ chula_avl_get_ptr (chula_avl_t *avl, const char *key, void **value)
 {
 	chula_buffer_t tmp_key;
 
-	chula_buffer_fake (&tmp_key, (const char *)key, strlen(key));
+	chula_buffer_fake (&tmp_key, key, strlen(key));
 	return chula_avl_get (avl, &tmp_key, value);
 }
 

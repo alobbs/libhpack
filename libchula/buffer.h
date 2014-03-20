@@ -51,8 +51,8 @@ typedef struct {
 
 #define BUF(x) ((chula_buffer_t *)(x))
 #define CHULA_BUF_INIT               {NULL, 0, 0}
-#define CHULA_BUF_INIT_FAKE(s)       {s, sizeof(s), sizeof(s)-1}
-#define CHULA_BUF_INIT_FAKE_LEN(s,l) {s, l, l}
+#define CHULA_BUF_INIT_FAKE(s)       {(uint8_t *)(s), sizeof(s), sizeof(s)-1}
+#define CHULA_BUF_INIT_FAKE_LEN(s,l) {(uint8_t *)(s), l, l}
 #define CHULA_BUF_SLIDE_NONE         INT_MIN
 
 #define chula_buffer_is_empty(b)        (BUF(b)->len == 0)
