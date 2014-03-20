@@ -110,6 +110,38 @@ START_TEST (_add1) {
 }
 END_TEST
 
+START_TEST (field_get_len) {
+    ret_t                ret;
+    uint64_t             len;
+    hpack_header_field_t field;
+
+    ret = hpack_header_field_init (&field);
+    ck_assert (ret == ret_ok);
+
+    len = 1234;
+    ret = hpack_header_field_get_size (&field, &len);
+    ck_assert (ret == ret_ok);
+    ck_assert (len == 0);
+
+    /* (s =  55) custom-key: custom-header */
+    chula_buffer_add_str (&field.name,  "custom-key");
+    chula_buffer_add_str (&field.value, "custom-header");
+    ret = hpack_header_field_get_size (&field, &len);
+    ck_assert (ret == ret_ok);
+    ck_assert (len == 55);
+
+    /* (s =  42) :method: GET */
+    chula_buffer_clean (&field.name);
+    chula_buffer_clean (&field.value);
+    chula_buffer_add_str (&field.name,  ":method");
+    chula_buffer_add_str (&field.value, "GET");
+    ret = hpack_header_field_get_size (&field, &len);
+    ck_assert (ret == ret_ok);
+    ck_assert (len == 42);
+}
+END_TEST
+
+
 int
 blocks (void)
 {
@@ -121,11 +153,21 @@ blocks (void)
 }
 
 int
+fields (void)
+{
+    Suite *s1 = suite_create("Header Fields");
+    check_add (s1, field_get_len);
+    run_test (s1);
+}
+
+
+int
 header_table_tests (void)
 {
     int re;
 
-    re = blocks();
+    re  = blocks();
+    re += fields();
 
     return re;
 }

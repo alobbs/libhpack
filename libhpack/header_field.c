@@ -99,3 +99,19 @@ hpack_header_field_repr (hpack_header_field_t *header,
 
     return ret_ok;
 }
+
+
+ret_t
+hpack_header_field_get_size (hpack_header_field_t *header,
+                             uint64_t             *size)
+{
+    if (chula_buffer_is_empty(&header->name) &&
+        chula_buffer_is_empty(&header->value))
+    {
+        *size = 0;
+        return ret_ok;
+    }
+
+    *size = header->name.len + header->value.len + 32;
+    return ret_ok;
+}
