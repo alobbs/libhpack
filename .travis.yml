@@ -20,14 +20,14 @@ install: |
   sudo pip install cpp-coveralls --use-mirrors
 
 # Run the Build script
-script: |
-  mkdir -p build
-  cd build
-  cmake $CMAKE_OPTION -DCMAKE_BUILD_TYPE:STRING=Debug ..
-  make VERBOSE=1
-  make doc
-  ../tools/highlight-ctest.py "make test ARGS='-V'"
-  cd ..
+script:
+ - mkdir -p build
+ - cd build
+ - cmake $CMAKE_OPTION -DCMAKE_BUILD_TYPE:STRING=Debug ..
+ - make VERBOSE=1
+ - make doc
+ - ../tools/highlight-ctest.py "make test ARGS='-V'"
+ - cd ..
 
 after_success: |
   if [ x$COVERALLS == xyes ]; then \
