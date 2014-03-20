@@ -44,7 +44,7 @@
 #include <stdint.h>
 
 typedef struct {
-	char     *buf;        /**< Memory chunk           */
+	uint8_t  *buf;        /**< Memory chunk           */
 	uint32_t  size;       /**< Total amount of memory */
 	uint32_t  len;        /**< Length of the string   */
 } chula_buffer_t;

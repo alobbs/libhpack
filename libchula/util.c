@@ -280,7 +280,7 @@ chula_string_is_ipv6 (chula_buffer_t *ip)
     uint32_t colons = 0;
 
     for (i=0; i<ip->len; i++) {
-        if (ip->buf[i] == ':') {
+        if (ip->buf[i] == (uint8_t) ':') {
             colons += 1;
             if (colons == 2)
                 return 1;
@@ -474,7 +474,7 @@ chula_mkstemp (chula_buffer_t *buffer, int *fd)
 {
     int re;
 
-    re = mkstemp (buffer->buf);
+    re = mkstemp ((char *)buffer->buf);
     if (re < 0) return ret_error;
 
     *fd = re;
@@ -510,7 +510,7 @@ ret_t
 chula_mkdir_p (chula_buffer_t *path, int mode)
 {
     int          re;
-    char        *p;
+    uint8_t     *p;
     int          err;
     struct stat  foo;
 
@@ -525,7 +525,7 @@ chula_mkdir_p (chula_buffer_t *path, int mode)
 
 	/* Check whether the directory exists
 	 */
-	re = chula_stat (path->buf, &foo);
+	re = chula_stat ((char *)path->buf, &foo);
 	if (re == 0) {
 		return ret_ok;
 	}
@@ -534,32 +534,32 @@ chula_mkdir_p (chula_buffer_t *path, int mode)
 	 */
 	p = path->buf;
 	while (true) {
-		p = strchr (p+1, '/');
+		p = (uint8_t *) strchr ((char *)p+1, '/');
 		if (p == NULL)
 			break;
 
-		*p = '\0';
+		*p = (uint8_t) '\0';
 
-		re = chula_stat (path->buf, &foo);
+		re = chula_stat ((char *)path->buf, &foo);
 		if (re != 0) {
-			re = chula_mkdir (path->buf, mode);
+			re = chula_mkdir ((char *)path->buf, mode);
 			if ((re != 0) && (errno != EEXIST)) {
 				err = errno;
-				*p = '/';
+				*p = (uint8_t) '/';
 
 //				LOG_ERRNO (err, chula_err_error, CHULA_ERROR_UTIL_MKDIR, path->buf, getuid());
 				return ret_error;
 			}
 		}
 
-		*p = '/';
+		*p = (uint8_t) '/';
 
 		p++;
 		if (p > path->buf + path->len)
 			return ret_ok;
 	}
 
-	re = chula_mkdir (path->buf, mode);
+	re = chula_mkdir ((char *)path->buf, mode);
 	if ((re != 0) && (errno != EEXIST)) {
 		err = errno;
 
@@ -590,7 +590,7 @@ chula_mkdir_p_perm (chula_buffer_t *dir_path,
 
 	/* Does it exist?
 	 */
-	re = chula_stat (dir_path->buf, &foo);
+	re = chula_stat ((char *)dir_path->buf, &foo);
 	if (re != 0) {
 		/* Create the directory
 		 */
@@ -602,7 +602,7 @@ chula_mkdir_p_perm (chula_buffer_t *dir_path,
 
 	/* Check permissions
 	 */
-	re = chula_access (dir_path->buf, ensure_perm);
+	re = chula_access ((char *)dir_path->buf, ensure_perm);
 	if (re != 0) {
 		return ret_deny;
 	}
@@ -624,7 +624,7 @@ chula_rm_rf (chula_buffer_t *path,
 
 	/* Remove the directory contents
 	 */
-	d = chula_opendir (path->buf);
+	d = chula_opendir ((char *)path->buf);
 	if (d == NULL) {
 		return ret_ok;
 	}
@@ -644,7 +644,7 @@ chula_rm_rf (chula_buffer_t *path,
 		ret |= chula_buffer_add        (&tmp, entry->d_name, strlen(entry->d_name));
         if (unlikely (ret != ret_ok)) return ret_error;
 
-        re = chula_stat (tmp.buf, &info);
+        re = chula_stat ((char *)tmp.buf, &info);
         if (re != 0) continue;
 
 		if (only_uid != -1) {
@@ -654,10 +654,10 @@ chula_rm_rf (chula_buffer_t *path,
 
 		if (S_ISDIR (info.st_mode)) {
 			chula_rm_rf (&tmp, only_uid);
-			TRACE (ENTRIES, "Removing dir: %s\n", tmp.buf, re);
+			TRACE (ENTRIES, "Removing dir: %s\n", (char *)tmp.buf, re);
 		} else if (S_ISREG (info.st_mode)) {
-			re = unlink (tmp.buf);
-			TRACE (ENTRIES, "Removing file: %s, re=%d\n", tmp.buf, re);
+			re = unlink ((char *)tmp.buf);
+			TRACE (ENTRIES, "Removing file: %s, re=%d\n", (char *)tmp.buf, re);
 		}
 	}
 
@@ -665,8 +665,8 @@ chula_rm_rf (chula_buffer_t *path,
 
 	/* It should be empty by now
 	 */
-	re = rmdir (path->buf);
-	TRACE (ENTRIES, "Removing top level directory: %s, re=%d\n", path->buf, re);
+	re = rmdir ((char *)path->buf);
+	TRACE (ENTRIES, "Removing top level directory: %s, re=%d\n", (char *)path->buf, re);
 
 	/* Clean up
 	 */
@@ -1430,20 +1430,20 @@ chula_get_timezone_ref (void)
 ret_t
 chula_path_short (chula_buffer_t *path)
 {
-	char *p   = path->buf;
-	char *end = path->buf + path->len;
+	uint8_t *p   = path->buf;
+	uint8_t *end = path->buf + path->len;
 
 	while (p < end) {
-		char    *dots_end;
-		char    *prev_slash;
+		uint8_t  *dots_end;
+		uint8_t  *prev_slash;
 		uint32_t  len;
 
-		if (p[0] != '.') {
+		if (p[0] != (uint8_t)'.') {
 			p++;
 			continue;
 		}
 
-		if ((p[1] == '/') && (p > path->buf) && (*(p-1) == '/')) {
+		if ((p[1] == (uint8_t)'/') && (p > path->buf) && (*(p-1) == (uint8_t)'/')) {
 			chula_buffer_remove_chunk (path, p - path->buf, 2);
 			p -= 1;
 			continue;
@@ -1453,13 +1453,13 @@ chula_path_short (chula_buffer_t *path)
 			return ret_ok;
 		}
 
-		if (p[1] != '.') {
+		if (p[1] != (uint8_t)'.') {
 			p+=2;
 			continue;
 		}
 
 		dots_end = p + 2;
-		while ((dots_end < end) && (*dots_end == '.')) {
+		while ((dots_end < end) && (*dots_end == (uint8_t)'.')) {
 			dots_end++;
 		}
 
@@ -1471,7 +1471,7 @@ chula_path_short (chula_buffer_t *path)
 		if (prev_slash < path->buf)
 			return ret_ok;
 
-		if (*prev_slash != '/') {
+		if (*prev_slash != (uint8_t) '/') {
 			p = dots_end;
 			continue;
 		}
@@ -1479,7 +1479,7 @@ chula_path_short (chula_buffer_t *path)
 		if (prev_slash > path->buf)
 			prev_slash--;
 
-		while ((prev_slash > path->buf) && (*prev_slash != '/')) {
+		while ((prev_slash > path->buf) && (*prev_slash != (uint8_t) '/')) {
 			prev_slash--;
 		}
 
@@ -1524,7 +1524,7 @@ chula_path_find_exec (const char     *bin_name,
 		chula_buffer_add_str (fullpath, "/");
 		chula_buffer_add     (fullpath, bin_name, strlen(bin_name));
 
-		re = chula_access (fullpath->buf, X_OK);
+		re = chula_access ((char *)fullpath->buf, X_OK);
 		if (re == 0) {
 			free (path);
 			return ret_ok;
@@ -1584,7 +1584,7 @@ chula_gethostbyname (chula_buffer_t *hostname, struct addrinfo **addr)
 
 	/* Resolve address
 	 */
-	n = getaddrinfo (hostname->buf, NULL, &hints, addr);
+	n = getaddrinfo ((char *)hostname->buf, NULL, &hints, addr);
 	if (n < 0) {
 		return ret_error;
 	}
@@ -1779,7 +1779,7 @@ chula_eval_formated_time (chula_buffer_t *buf)
 		break;
 	}
 
-    ret = chula_atol (buf->buf, &val);
+    ret = chula_atol ((char *)buf->buf, &val);
     if (unlikely (ret != ret_ok)) return ret;
 
 	return val * mul;
@@ -1789,8 +1789,8 @@ chula_eval_formated_time (chula_buffer_t *buf)
 ret_t
 chula_syslog (int priority, chula_buffer_t *buf)
 {
-	char *p;
-	char *nl, *end;
+	uint8_t *p;
+	uint8_t *nl, *end;
 
 	if (chula_buffer_is_empty(buf))
 		return ret_ok;
@@ -1799,17 +1799,17 @@ chula_syslog (int priority, chula_buffer_t *buf)
 	end = buf->buf + buf->len;
 
 	do {
-		nl = strchr (p, '\n');
+		nl = (uint8_t *) strchr ((char *)p, '\n');
 		if (nl != NULL)
-			*nl = '\0';
+			*nl = (uint8_t)'\0';
 
-		syslog (priority, "%s", p);
+		syslog (priority, "%s", (char *)p);
 
 		if (nl == NULL) {
 			break;
 		}
 
-		*nl = '\n';
+		*nl = (uint8_t)'\n';
 		p = nl + 1;
 	} while (p < end);
 
