@@ -150,7 +150,7 @@ chula_strerror_r (int err, char *buf, size_t bufsize)
     if (bufsize < ERROR_MIN_BUFSIZE)
         return NULL;
 
-#ifdef HAVE_STRERROR_R
+#if defined(HAVE_STRERROR_R) && !defined(_GNU_SOURCE)
     int re;
     re = strerror_r (err, buf, bufsize);
     if (re == 0)

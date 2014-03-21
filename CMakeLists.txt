@@ -292,6 +292,7 @@ find_library(LIBM NAMES m)
 
 if (CMAKE_COMPILER_IS_GNUCC)
   add_definitions (-std=gnu99)
+  add_definitions ("-D_GNU_SOURCE")
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 # Library source code
