@@ -191,6 +191,12 @@ MESSAGE (STATUS "Byte order ${byteorder}")
 DEF_SET_IFNDEF (BYTE_ORDER ${byteorder})
 DEF_DEFINE (WORDS_BIGENDIAN)
 
+INCLUDE(CheckFileOffsetBits)
+CHECK__FILE_OFFSET_BITS()
+IF(_FILE_OFFSET_BITS)
+    add_definitions (-D_FILE_OFFSET_BITS=${_FILE_OFFSET_BITS})
+ENDIF(_FILE_OFFSET_BITS)
+
 # Code tests
 CHECK_C_SOURCE_COMPILES("
 #include <sys/types.h>
