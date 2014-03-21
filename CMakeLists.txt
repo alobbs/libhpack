@@ -45,6 +45,12 @@ if(USE_VALGRIND)
     set (VALGRIND_OPTIONS --leak-check=full --num-callers=50)
 endif()
 
+# Compiler options
+if (CMAKE_COMPILER_IS_GNUCC)
+  add_definitions (-std=gnu99)
+endif (CMAKE_COMPILER_IS_GNUCC)
+
+add_definitions (-D_GNU_SOURCE)
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -Wextra")
 
 # pkg-config
@@ -289,10 +295,6 @@ int main() {
 
 # Libraries
 find_library(LIBM NAMES m)
-
-if (CMAKE_COMPILER_IS_GNUCC)
-  add_definitions (-std=gnu99)
-endif (CMAKE_COMPILER_IS_GNUCC)
 
 # Library source code
 if(BUILD_DOCS)
