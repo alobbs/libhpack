@@ -320,7 +320,7 @@ chula_buffer_add (chula_buffer_t *buf, const char *txt, size_t size)
 ret_t
 chula_buffer_add_buffer (chula_buffer_t *buf, chula_buffer_t *buf2)
 {
-    return chula_buffer_add (buf, buf2->buf, buf2->len);
+    return chula_buffer_add (buf, (const char *)buf2->buf, buf2->len);
 }
 
 
@@ -406,7 +406,7 @@ chula_buffer_add_buffer_slice (chula_buffer_t *buf,
 
     /* Copy the substring
      */
-    return chula_buffer_add (buf, buf2->buf + pos_begin, pos_end - pos_begin);
+    return chula_buffer_add (buf, (const char *)buf2->buf + pos_begin, pos_end - pos_begin);
 }
 
 
@@ -722,7 +722,7 @@ chula_buffer_add_va_fixed (chula_buffer_t *buf, const char *format, ...)
      * NOTE: len does NOT include '\0', size includes '\0' (len + 1)
      */
     va_start (ap, format);
-    len = vsnprintf (buf->buf + buf->len, size, format, ap);
+    len = vsnprintf ((char *)buf->buf + buf->len, size, format, ap);
     va_end (ap);
 
     if (unlikely (len < 0))
@@ -1077,14 +1077,14 @@ chula_buffer_remove_dups (chula_buffer_t *buffer, char c)
 ret_t
 chula_buffer_remove_string (chula_buffer_t *buf, char *string, int string_len)
 {
-    uint8_t *tmp;
-    int      offset;
+    char *tmp;
+    int   offset;
 
     if ((buf->len <= 0) || (string == NULL) || (string_len <= 0))
         return ret_ok;
 
     while ((tmp = strstr ((char *)buf->buf, string)) != NULL) {
-        offset = tmp - buf->buf;
+        offset = tmp - (char *)buf->buf;
         memmove (tmp, tmp+string_len, buf->len - (offset+string_len) +1);
         buf->len -= string_len;
     }
@@ -1314,7 +1314,7 @@ chula_buffer_multiply (chula_buffer_t *buf, int num)
     if (unlikely (ret != ret_ok)) return ret;
 
     for (i=1; i<num; i++) {
-        chula_buffer_add (buf, buf->buf, initial_size);
+        chula_buffer_add (buf, (const char *)buf->buf, initial_size);
     }
 
     return ret_ok;
@@ -1378,8 +1378,8 @@ chula_buffer_print_cstr (chula_buffer_t *buf)
 }
 
 
-static const char *
-utf8_get_next_char (const char *string)
+static const uint8_t *
+utf8_get_next_char (const uint8_t *string)
 {
     /* 2 bytes character: 110vvvvv 10vvvvvv
      */
@@ -1423,7 +1423,7 @@ utf8_get_next_char (const char *string)
 ret_t
 chula_buffer_get_utf8_len (chula_buffer_t *buf, uint32_t *len)
 {
-    uint32_t    n;
+    uint32_t       n;
     const uint8_t *p;
     const uint8_t *end;
 
@@ -1459,7 +1459,7 @@ chula_buffer_unescape_uri (chula_buffer_t *buffer)
 {
     uint8_t *psrc;
     uint8_t *ptgt;
-    int   len;
+    int      len;
 
 #define hex2dec_m(c)       ( (int) hex2dec_tab[c] )
 #define hex2dec_m2(c1, c2) ( hex2dec_m(c1) * 16 + hex2dec_m(c2) )
@@ -1477,7 +1477,7 @@ chula_buffer_unescape_uri (chula_buffer_t *buffer)
 
     /* Verify if unescaping is needed.
      */
-    if ((psrc = strchr ((char *) buffer->buf, '%')) == NULL)
+    if ((psrc = (uint8_t *)strchr((char *)buffer->buf, '%')) == NULL)
         return ret_ok;
 
     /* Yes, unescape string.
@@ -1658,7 +1658,7 @@ chula_buffer_add_escape_html (chula_buffer_t *buf, chula_buffer_t *src)
 
     /* Verify if string has to be escaped.
      */
-    if ((p0 = strpbrk ((char *)src->buf, "<>&\"")) == NULL) {
+    if ((p0 = (uint8_t*) strpbrk ((char *)src->buf, "<>&\"")) == NULL) {
         /* No escape found, simply add src to buf.
          */
         return chula_buffer_add_buffer (buf, src);
@@ -2292,7 +2292,7 @@ chula_buffer_replace_string (chula_buffer_t *buf,
         substring_position = (uint8_t *) strstr ((char *)p, substring);
 
         if (substring_position == NULL) {
-            remaining_length = strlen (p);
+            remaining_length = strlen ((char*)p);
             memcpy (result_position, p, remaining_length);
             result_position += remaining_length;
             break;
@@ -2363,7 +2363,7 @@ chula_buffer_substitute_string (chula_buffer_t *bufsrc,
      */
     result_length = bufsrc->len;
     for (p = bufsrc->buf; ; p = substring_position + substring_length) {
-        substring_position = strstr ((char *)p, substring);
+        substring_position = (uint8_t *) strstr((char *)p, substring);
 
         if (substring_position == NULL)
             break;
@@ -2542,7 +2542,7 @@ chula_buffer_insert_buffer (chula_buffer_t *buf,
                             chula_buffer_t *src,
                             size_t          pos)
 {
-    return chula_buffer_insert (buf, src->buf, src->len, pos);
+    return chula_buffer_insert (buf, (char *)src->buf, src->len, pos);
 }
 
 
