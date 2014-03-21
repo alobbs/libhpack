@@ -152,6 +152,7 @@ chula_strerror_r (int err, char *buf, size_t bufsize)
 
 #ifdef HAVE_STRERROR_R
     int re;
+    int  strerror_r (int, char *, size_t);
     re = strerror_r (err, buf, bufsize);
     if (re == 0)
         return buf;

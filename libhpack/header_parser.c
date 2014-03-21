@@ -114,7 +114,7 @@ parse_string (chula_buffer_t       *buf,
         n += len;
     }
     else{
-        ret = chula_buffer_add (string, buf->buf + n, len);
+        ret = chula_buffer_add (string, (const char *)buf->buf + n, len);
         if (unlikely (ret != ret_ok)) return ret_error;
         n += len;
     }

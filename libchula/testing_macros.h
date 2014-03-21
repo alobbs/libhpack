@@ -49,4 +49,7 @@
     srunner_free(sr);                           \
     return test_ret;
 
+#define ch_assert(a)          ck_assert(a)
+#define ch_assert_str_eq(a,b) ck_assert_str_eq((const char *)(a),(const char *)(b))
+
 #endif /* LIBCHULA_TESTING_MACROS */

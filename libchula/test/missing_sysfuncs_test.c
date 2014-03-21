@@ -45,27 +45,27 @@ START_TEST (_strsep)
     char *token;
 
     string = strdup ("Hello  there,stranger");
-    ck_assert (string != NULL);
+    ch_assert (string != NULL);
     tofree = string;
 
     token = strsep (&string, " ,");
-    ck_assert (token != NULL);
-    ck_assert_str_eq (token, "Hello");
+    ch_assert (token != NULL);
+    ch_assert_str_eq (token, "Hello");
 
     token = strsep (&string, " ,");
-    ck_assert (token != NULL);
-    ck_assert_str_eq (token, "");
+    ch_assert (token != NULL);
+    ch_assert_str_eq (token, "");
 
     token = strsep (&string, " ,");
-    ck_assert (token != NULL);
-    ck_assert_str_eq (token, "there");
+    ch_assert (token != NULL);
+    ch_assert_str_eq (token, "there");
 
     token = strsep (&string, " ,");
-    ck_assert (token != NULL);
-    ck_assert_str_eq (token, "stranger");
+    ch_assert (token != NULL);
+    ch_assert_str_eq (token, "stranger");
 
     token = strsep (&string, " ,");
-    ck_assert (token == NULL);
+    ch_assert (token == NULL);
 
     free (tofree);
 }
@@ -77,17 +77,17 @@ START_TEST (_strnstr)
     char *string = "This is a testing string";
 
     p = strnstr (string, "is a", strlen(string));
-    ck_assert (p != NULL);
+    ch_assert (p != NULL);
 
     p = strnstr (string, string, strlen(string));
-    ck_assert (p != NULL);
-    ck_assert (p == string);
+    ch_assert (p != NULL);
+    ch_assert (p == string);
 
     p = strnstr (string, "testing", 9);
-    ck_assert (p == NULL);
+    ch_assert (p == NULL);
 
     p = strnstr (string, "foobar", strlen(string));
-    ck_assert (p == NULL);
+    ch_assert (p == NULL);
 }
 END_TEST
 
@@ -97,21 +97,21 @@ START_TEST (_strcasestr)
     char *string = "This is a testing string";
 
     p = strcasestr (string, "iS A");
-    ck_assert (p != NULL);
+    ch_assert (p != NULL);
 
     p = strcasestr (string, "tHIS IS A TESTING STRiNG");
-    ck_assert (p != NULL);
-    ck_assert (p == string);
+    ch_assert (p != NULL);
+    ch_assert (p == string);
 
     p = strcasestr (string, string);
-    ck_assert (p != NULL);
-    ck_assert (p == string);
+    ch_assert (p != NULL);
+    ch_assert (p == string);
 
     p = strcasestr (string, "TeStInG");
-    ck_assert (p != NULL);
+    ch_assert (p != NULL);
 
     p = strcasestr (string, "foobar");
-    ck_assert (p == NULL);
+    ch_assert (p == NULL);
 }
 END_TEST
 
@@ -122,24 +122,24 @@ START_TEST (_strncasestrn)
     int   stringlen = strlen(string);
 
     p = strncasestrn (string, stringlen, "iS A", 4);
-    ck_assert (p != NULL);
+    ch_assert (p != NULL);
 
     p = strncasestrn (string, stringlen, "tHIS IS A TESTING STRiNG", stringlen);
-    ck_assert (p != NULL);
-    ck_assert (p == string);
+    ch_assert (p != NULL);
+    ch_assert (p == string);
 
     p = strncasestrn (string, stringlen, string, stringlen);
-    ck_assert (p != NULL);
-    ck_assert (p == string);
+    ch_assert (p != NULL);
+    ch_assert (p == string);
 
     p = strncasestrn (string, stringlen, "TeStInG", 7);
-    ck_assert (p != NULL);
+    ch_assert (p != NULL);
 
     p = strncasestrn (string, stringlen, "is a trick that I'm playing", 4);
-    ck_assert (p != NULL);
+    ch_assert (p != NULL);
 
     p = strncasestrn (string, stringlen, "foobar", 6);
-    ck_assert (p == NULL);
+    ch_assert (p == NULL);
 }
 END_TEST
 
@@ -150,7 +150,7 @@ START_TEST (_strncasestr)
     int   stringlen = strlen(string);
 
     p = strncasestr (string, "iS A", stringlen);
-    ck_assert (p != NULL);
+    ch_assert (p != NULL);
 }
 END_TEST
 
@@ -166,13 +166,13 @@ START_TEST (_strlcat)
 
 
     len = strlcat (s1, s2, sizeof(s1));
-    ck_assert_str_eq (s1, "hi there!");
-    ck_assert (len == strlen("hi there!"));
+    ch_assert_str_eq (s1, "hi there!");
+    ch_assert (len == strlen("hi there!"));
 
     /* Too long */
     strncpy (s2, "12345678901234567890", sizeof(s2));
     len = strlcat (s1, s2, sizeof(s1));
-    ck_assert (len > sizeof(s1));
+    ch_assert (len > sizeof(s1));
 }
 END_TEST
 

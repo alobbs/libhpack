@@ -49,11 +49,11 @@ START_TEST (new_)
     chula_avl_t *avl = NULL;
 
     ret = chula_avl_new (&avl);
-    ck_assert (avl != NULL);
-    ck_assert (ret == ret_ok);
+    ch_assert (avl != NULL);
+    ch_assert (ret == ret_ok);
 
     ret = chula_avl_free (AVL_GENERIC(avl), NULL);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -63,7 +63,7 @@ START_TEST (empty)
     chula_avl_t avl;
 
     ret = chula_avl_init (&avl);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     chula_avl_mrproper (AVL_GENERIC(&avl), NULL);
 }
@@ -78,35 +78,35 @@ START_TEST (_ptr)
     chula_avl_init (&avl);
 
     ret = chula_avl_add_ptr (&avl, "uno", INT_TO_POINTER(1));
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
     ret = chula_avl_add_ptr (&avl, "dos", INT_TO_POINTER(2));
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
     ret = chula_avl_add_ptr (&avl, "tres", INT_TO_POINTER(3));
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     chula_avl_get_ptr (&avl, "dos", &p);
-    ck_assert (POINTER_TO_INT(p) == 2);
+    ch_assert (POINTER_TO_INT(p) == 2);
     chula_avl_get_ptr (&avl, "tres", &p);
-    ck_assert (POINTER_TO_INT(p) == 3);
+    ch_assert (POINTER_TO_INT(p) == 3);
     chula_avl_get_ptr (&avl, "uno", &p);
-    ck_assert (POINTER_TO_INT(p) == 1);
+    ch_assert (POINTER_TO_INT(p) == 1);
 
     chula_avl_set_case (&avl, true);
     chula_avl_get_ptr (&avl, "TrEs", &p);
-    ck_assert (POINTER_TO_INT(p) == 3);
+    ch_assert (POINTER_TO_INT(p) == 3);
     chula_avl_set_case (&avl, false);
 
     chula_avl_del_ptr (&avl, "dos", NULL);
     chula_avl_get_ptr (&avl, "uno", &p);
-    ck_assert (POINTER_TO_INT(p) == 1);
+    ch_assert (POINTER_TO_INT(p) == 1);
 
     p = NULL;
     ret = chula_avl_get_ptr (&avl, "dos", &p);
-    ck_assert (ret != ret_ok);
-    ck_assert (p == NULL);
+    ch_assert (ret != ret_ok);
+    ch_assert (p == NULL);
 
     ret = chula_avl_check (AVL_GENERIC(&avl));
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     chula_avl_mrproper (AVL_GENERIC(&avl), NULL);
 }
@@ -127,30 +127,30 @@ START_TEST (_buf)
     chula_buffer_add_str (&tres, "tres");
 
     ret = chula_avl_add (&avl, &uno, INT_TO_POINTER(1));
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
     ret = chula_avl_add (&avl, &dos, INT_TO_POINTER(2));
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
     ret = chula_avl_add (&avl, &tres, INT_TO_POINTER(3));
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     chula_avl_get (&avl, &dos, &p);
-    ck_assert (POINTER_TO_INT(p) == 2);
+    ch_assert (POINTER_TO_INT(p) == 2);
     chula_avl_get (&avl, &tres, &p);
-    ck_assert (POINTER_TO_INT(p) == 3);
+    ch_assert (POINTER_TO_INT(p) == 3);
     chula_avl_get (&avl, &uno, &p);
-    ck_assert (POINTER_TO_INT(p) == 1);
+    ch_assert (POINTER_TO_INT(p) == 1);
 
     chula_avl_del (&avl, &dos, NULL);
     chula_avl_get (&avl, &uno, &p);
-    ck_assert (POINTER_TO_INT(p) == 1);
+    ch_assert (POINTER_TO_INT(p) == 1);
 
     p = NULL;
     ret = chula_avl_get (&avl, &dos, &p);
-    ck_assert (ret != ret_ok);
-    ck_assert (p == NULL);
+    ch_assert (ret != ret_ok);
+    ch_assert (p == NULL);
 
     ret = chula_avl_check (AVL_GENERIC(&avl));
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     chula_buffer_mrproper (&uno);
     chula_buffer_mrproper (&dos);
@@ -167,27 +167,27 @@ START_TEST (len)
 
     /* None */
     chula_avl_init (&avl);
-    ck_assert (chula_avl_is_empty (AVL_GENERIC(&avl)));
+    ch_assert (chula_avl_is_empty (AVL_GENERIC(&avl)));
 
     ret = chula_avl_len (AVL_GENERIC(&avl), &len);
-    ck_assert (ret == ret_ok);
-    ck_assert (len == 0);
+    ch_assert (ret == ret_ok);
+    ch_assert (len == 0);
 
     /* Single */
     chula_avl_add_ptr (&avl, "uno", INT_TO_POINTER(1));
-    ck_assert (ret == ret_ok);
-    ck_assert (! chula_avl_is_empty (AVL_GENERIC(&avl)));
+    ch_assert (ret == ret_ok);
+    ch_assert (! chula_avl_is_empty (AVL_GENERIC(&avl)));
 
     chula_avl_len (AVL_GENERIC(&avl), &len);
-    ck_assert (len == 1);
+    ch_assert (len == 1);
 
     /* Multiple */
     chula_avl_add_ptr (&avl, "dos", INT_TO_POINTER(2));
-    ck_assert (ret == ret_ok);
-    ck_assert (! chula_avl_is_empty (AVL_GENERIC(&avl)));
+    ch_assert (ret == ret_ok);
+    ch_assert (! chula_avl_is_empty (AVL_GENERIC(&avl)));
 
     chula_avl_len (AVL_GENERIC(&avl), &len);
-    ck_assert (len == 2);
+    ch_assert (len == 2);
 
     chula_avl_mrproper (AVL_GENERIC(&avl), NULL);
 }
@@ -200,7 +200,7 @@ START_TEST (stress)
     int         pi[] = {3, 14, 15, 92, 65, 35, 89, 79, 32, 38, 46, 26, 43, 38, 32, 79, 50};
 
     ret = chula_avl_init (&avl);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     /* Add */
     for (int i=0; i<16; i++) {
@@ -217,7 +217,7 @@ START_TEST (stress)
     }
 
     ret = chula_avl_mrproper (AVL_GENERIC(&avl), fake_free);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -235,7 +235,7 @@ START_TEST (mrproper)
     }
 
     ret = chula_avl_mrproper (AVL_GENERIC(&avl), fake_free);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -269,8 +269,8 @@ START_TEST (_while)
     }
 
     ret = chula_avl_while (AVL_GENERIC(&avl), while_func, &total, &key, &value);
-    ck_assert (ret == ret_ok);
-    ck_assert (total == expected);
+    ch_assert (ret == ret_ok);
+    ch_assert (total == expected);
 
     chula_avl_mrproper (AVL_GENERIC(&avl), NULL);
 }

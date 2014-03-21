@@ -39,12 +39,12 @@ START_TEST (_init) {
     hpack_header_block_t block;
 
     ret = hpack_header_block_init (&block);
-    ck_assert (ret == ret_ok);
-    ck_assert (block.len == 0);
-    ck_assert (block.headers == NULL);
+    ch_assert (ret == ret_ok);
+    ch_assert (block.len == 0);
+    ch_assert (block.headers == NULL);
 
     ret = hpack_header_block_mrproper (&block);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -54,11 +54,11 @@ START_TEST (_set_max) {
 
     hpack_header_block_init (&block);
     ret = hpack_header_block_set_max (&block, 5);
-    ck_assert (ret == ret_ok);
-    ck_assert (block.headers != NULL);
+    ch_assert (ret == ret_ok);
+    ch_assert (block.headers != NULL);
 
     ret = hpack_header_block_mrproper (&block);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -80,9 +80,9 @@ START_TEST (_add1) {
     /* Add field #2-5 */
     for (int i=0; i<6; i++) {
         ret = hpack_header_block_add (&block, &field[i]);
-        ck_assert (ret == ret_ok);
+        ch_assert (ret == ret_ok);
     }
-    ck_assert (block.len == 5);
+    ch_assert (block.len == 5);
 
     /*    |4  3  2  1  0| */
     /*    |             | */
@@ -91,22 +91,22 @@ START_TEST (_add1) {
     /* Get pos=0 */
     fi  = NULL;
     ret = hpack_header_block_get (&block, 0, &fi);
-    ck_assert (ret == ret_ok);
-    ck_assert (fi != NULL);
-    ck_assert_str_eq (fi->name.buf, "f");
+    ch_assert (ret == ret_ok);
+    ch_assert (fi != NULL);
+    ch_assert_str_eq (fi->name.buf, "f");
 
     /* Get pos=1 */
     fi = NULL;
     ret = hpack_header_block_get (&block, 1, &fi);
-    ck_assert_str_eq (fi->name.buf, "e");
+    ch_assert_str_eq (fi->name.buf, "e");
 
     /* Get pos=5 */
     ret = hpack_header_block_get (&block, 4, &fi);
-    ck_assert_str_eq (fi->name.buf, "b");
+    ch_assert_str_eq (fi->name.buf, "b");
 
     /* Clean up */
     ret = hpack_header_block_mrproper (&block);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -116,19 +116,19 @@ START_TEST (field_get_len) {
     hpack_header_field_t field;
 
     ret = hpack_header_field_init (&field);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     len = 1234;
     ret = hpack_header_field_get_size (&field, &len);
-    ck_assert (ret == ret_ok);
-    ck_assert (len == 0);
+    ch_assert (ret == ret_ok);
+    ch_assert (len == 0);
 
     /* (s =  55) custom-key: custom-header */
     chula_buffer_add_str (&field.name,  "custom-key");
     chula_buffer_add_str (&field.value, "custom-header");
     ret = hpack_header_field_get_size (&field, &len);
-    ck_assert (ret == ret_ok);
-    ck_assert (len == 55);
+    ch_assert (ret == ret_ok);
+    ch_assert (len == 55);
 
     /* (s =  42) :method: GET */
     chula_buffer_clean (&field.name);
@@ -136,8 +136,8 @@ START_TEST (field_get_len) {
     chula_buffer_add_str (&field.name,  ":method");
     chula_buffer_add_str (&field.value, "GET");
     ret = hpack_header_field_get_size (&field, &len);
-    ck_assert (ret == ret_ok);
-    ck_assert (len == 42);
+    ch_assert (ret == ret_ok);
+    ch_assert (len == 42);
 }
 END_TEST
 

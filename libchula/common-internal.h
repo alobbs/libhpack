@@ -39,23 +39,19 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include "macros.h"
-//#include "threading.h"
-//#include "constants.h"
 
-#ifndef _WIN32
-# if defined HAVE_ENDIAN_H
-#  include <endian.h>
-# elif defined HAVE_MACHINE_ENDIAN_H
-#  include <machine/endian.h>
-# elif defined HAVE_SYS_ENDIAN_H
-#  include <sys/endian.h>
-# elif defined HAVE_SYS_MACHINE_H
-#  include <sys/machine.h>
-# elif defined HAVE_SYS_ISA_DEFS_H
-#  include <sys/isa_defs.h>
-# else
-#  error "Can not include endian.h"
-# endif
+#if defined HAVE_ENDIAN_H
+# include <endian.h>
+#elif defined HAVE_MACHINE_ENDIAN_H
+# include <machine/endian.h>
+#elif defined HAVE_SYS_ENDIAN_H
+# include <sys/endian.h>
+#elif defined HAVE_SYS_MACHINE_H
+# include <sys/machine.h>
+#elif defined HAVE_SYS_ISA_DEFS_H
+# include <sys/isa_defs.h>
+#else
+# error "Can not include endian.h"
 #endif
 
 #ifdef HAVE_SYS_TYPES_H
