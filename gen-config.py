@@ -38,6 +38,8 @@ for f in re.findall (r'CHECK_FUNCTION_EXISTS *\(.+? *(\w+)\)', cont, re.IGNORECA
 
 for f in re.findall (r'CHECK_C_SOURCE_COMPILES *\(.+?(HAVE_.+?)\)\n', cont, re.S):
 	functions_t += '#cmakedefine %s\n' %(f)
+for f in re.findall (r'CHECK_C_SOURCE_RUNS *\(.+?(HAVE_.+?)\)\n', cont, re.S):
+	functions_t += '#cmakedefine %s\n' %(f)
 
 definitions_t = ''
 for f in re.findall (r'DEF_SET *\((\w+)? +(.+?)\)', cont, re.IGNORECASE):

@@ -61,6 +61,7 @@ include(CheckTypeSize)
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckCSourceCompiles)
+include(CheckCSourceRuns)
 include(TestBigEndian)
 
 # Includes
@@ -298,6 +299,24 @@ int main() {
     res = timezone / 60;
 }
 " HAVE_INT_TIMEZONE)
+
+CHECK_C_SOURCE_RUNS("
+#include <string.h>
+#include <errno.h>
+int main () {
+  char buffer[1024];
+  char *string = strerror_r (EACCES, buffer, sizeof(buffer));
+  return (!string || !string[0]) ? 99 : 0;
+}" HAVE_GLIBC_STRERROR_R)
+
+CHECK_C_SOURCE_RUNS("
+#include <string.h>
+#include <errno.h>
+int main () {
+  char buffer[1024];
+  int error = strerror_r (EACCES, buffer, sizeof(buffer));
+  return (!buffer[0] || error) ? 99: 0;
+}" HAVE_POSIX_STRERROR_R)
 
 # Libraries
 find_library(LIBM NAMES m)
