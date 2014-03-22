@@ -341,31 +341,5 @@ hpack_header_parser_all (hpack_header_parser_t *parser,
             break;
     }
 
-    /* Differential encoding
-     */
-    if (diff_enc) {
-        hpack_header_block_entry_t *entry;
-
-        for (int32_t i=block->len-1; i >= 0 ; i--) {
-            entry = &block->headers[i];
-
-            if (entry->is_new)
-                continue;
-
-            if (parser->store) {
-                ret = hpack_header_store_emit (parser->store, &entry->field);
-                if (ret != ret_ok) return ret;
-            }
-        }
-    }
-
-    /*
-     */
-    for (int32_t i=block->len-1; i >= 0 ; i--) {
-        if (block->headers[i].is_new) {
-            block->headers[i].is_new = false;
-        }
-    }
-
     return ret_ok;
 }

@@ -145,7 +145,7 @@ ret_t
 hpack_header_block_mrproper (hpack_header_block_t *block)
 {
     if (block->headers != NULL) {
-        for (int n=0; n<block->len; n++) {
+        for (uint32_t n=0; n<block->len; n++) {
             hpack_header_field_mrproper (&block->headers[n]);
         }
         free (block->headers);
@@ -162,7 +162,7 @@ hpack_header_block_clean (hpack_header_block_t *block)
 {
     if (block->headers != NULL) {
         for (uint32_t n=0; n<block->len; n++) {
-            hpack_header_field_clean (&block->headers[n].field);
+            hpack_header_field_clean (&block->headers[n]);
         }
     }
 
@@ -249,7 +249,7 @@ hpack_header_block_repr (hpack_header_block_t *block,
 
     chula_buffer_add_va  (output, "hpack_header_block@%x\n", POINTER_TO_INT(block));
 
-    for (int i=0; i < block->len; i++) {
+    for (uint32_t i=0; i < block->len; i++) {
         max_len = MAX(block->headers[i].name.len, max_len);
     }
 
