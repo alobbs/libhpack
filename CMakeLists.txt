@@ -63,6 +63,7 @@ include(CheckFunctionExists)
 include(CheckCSourceCompiles)
 include(CheckCSourceRuns)
 include(TestBigEndian)
+include(CMakePushCheckState)
 
 # Includes
 include_directories(${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
@@ -300,6 +301,10 @@ int main() {
 }
 " HAVE_INT_TIMEZONE)
 
+cmake_push_check_state()
+get_directory_property(CMAKE_REQUIRED_DEFINITIONS COMPILE_DEFINITIONS)
+get_directory_property(CMAKE_REQUIRED_FLAGS COMPILE_FLAGS)
+
 CHECK_C_SOURCE_RUNS("
 #include <string.h>
 #include <errno.h>
@@ -317,6 +322,8 @@ int main () {
   int error = strerror_r (EACCES, buffer, sizeof(buffer));
   return (!buffer[0] || error) ? 99: 0;
 }" HAVE_POSIX_STRERROR_R)
+
+cmake_pop_check_state()
 
 # Libraries
 find_library(LIBM NAMES m)
