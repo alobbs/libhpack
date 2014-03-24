@@ -45,6 +45,15 @@ if(USE_VALGRIND)
     set (VALGRIND_OPTIONS --leak-check=full --num-callers=50)
 endif()
 
+# Includes
+include(CheckTypeSize)
+include(CheckIncludeFiles)
+include(CheckFunctionExists)
+include(CheckCSourceCompiles)
+include(CheckCSourceRuns)
+include(TestBigEndian)
+include(CMakePushCheckState)
+
 # Compiler options
 if (CMAKE_COMPILER_IS_GNUCC)
   add_definitions (-std=gnu99)
@@ -55,15 +64,6 @@ set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -Wextra")
 
 # pkg-config
 find_package(PkgConfig)
-
-# Checks
-include(CheckTypeSize)
-include(CheckIncludeFiles)
-include(CheckFunctionExists)
-include(CheckCSourceCompiles)
-include(CheckCSourceRuns)
-include(TestBigEndian)
-include(CMakePushCheckState)
 
 # Includes
 include_directories(${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
@@ -200,6 +200,14 @@ IF(_FILE_OFFSET_BITS)
 ENDIF(_FILE_OFFSET_BITS)
 
 # Code tests
+cmake_push_check_state()
+
+get_directory_property(CMAKE_REQUIRED_FLAGS COMPILE_FLAGS)
+get_directory_property(compile_definitions COMPILE_DEFINITIONS)
+foreach (def ${compile_definitions})
+  list(APPEND CMAKE_REQUIRED_DEFINITIONS "-D${def}")
+endforeach (def ${compile_definitions})
+
 CHECK_C_SOURCE_COMPILES("
 #include <sys/types.h>
 #include <dirent.h>
@@ -300,10 +308,6 @@ int main() {
     res = timezone / 60;
 }
 " HAVE_INT_TIMEZONE)
-
-cmake_push_check_state()
-get_directory_property(CMAKE_REQUIRED_DEFINITIONS COMPILE_DEFINITIONS)
-get_directory_property(CMAKE_REQUIRED_FLAGS COMPILE_FLAGS)
 
 CHECK_C_SOURCE_RUNS("
 #include <string.h>
