@@ -317,6 +317,11 @@ START_TEST (request1) {
     ch_assert_str_eq (field.value.buf, "www.example.com");
     chula_print_repr (hpack, header_field, &field);
 
+    /* Check size */
+    uint64_t size = 0;
+    ret = hpack_header_table_get_size (&parser.table, &size);
+    ch_assert (size == 180);
+
     hpack_header_parser_mrproper (&parser);
 }
 END_TEST

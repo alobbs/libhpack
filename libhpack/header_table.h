@@ -67,5 +67,6 @@ ret_t hpack_header_table_mrproper (hpack_header_table_t *table);
 ret_t hpack_header_table_add      (hpack_header_table_t *table, hpack_header_field_t *field);
 ret_t hpack_header_table_get      (hpack_header_table_t *table, uint32_t n, hpack_header_field_t **field);
 void  hpack_header_table_repr     (hpack_header_table_t *table, chula_buffer_t *output);
+ret_t hpack_header_table_get_size (hpack_header_table_t *table, uint64_t *size);
 
 #endif /* LIBHPACK_HEADER_TABLE_H */

@@ -313,10 +313,34 @@ hpack_header_table_get (hpack_header_table_t  *table,
     return hpack_header_block_get (&table->statics, n_static, field);
 }
 
-
 void
 hpack_header_table_repr (hpack_header_table_t *table,
                          chula_buffer_t       *output)
 {
     hpack_header_block_repr (&table->dynamic, output);
+}
+
+ret_t
+hpack_header_table_get_size (hpack_header_table_t *table,
+                             uint64_t             *size)
+{
+    ret_t    ret;
+    uint64_t total = 0;
+
+    for (uint32_t n=0; n < table->dynamic.len; n++)
+    {
+        uint64_t              s = 0;
+        hpack_header_field_t *e = NULL;
+
+        ret = hpack_header_block_get (&table->dynamic, n, &e);
+        if (unlikely (ret != ret_ok)) return ret;
+
+        ret = hpack_header_field_get_size (e, &s);
+        if (unlikely (ret != ret_ok)) return ret;
+
+        total += s;
+    }
+
+    *size = total;
+    return ret_ok;
 }
