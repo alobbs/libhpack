@@ -246,6 +246,7 @@ START_TEST (request1) {
     chula_buffer_t        raw;
     hpack_header_parser_t parser;
     hpack_header_field_t  field;
+    uint64_t              size     = 0;
     unsigned int          offset   = 0;
     unsigned int          consumed = 0;
 
@@ -317,9 +318,8 @@ START_TEST (request1) {
     ch_assert_str_eq (field.value.buf, "www.example.com");
     chula_print_repr (hpack, header_field, &field);
 
-    /* Check size */
-    uint64_t size = 0;
     ret = hpack_header_table_get_size (&parser.table, &size);
+    ch_assert (ret == ret_ok);
     ch_assert (size == 180);
 
     hpack_header_parser_mrproper (&parser);
@@ -330,6 +330,9 @@ END_TEST
 static void
 request1_full_TEST (hpack_header_parser_t *parser)
 {
+    ret_t    ret;
+    uint64_t size = 0;
+
     assert_store_n_eq (parser, 1, ":method",    "GET");
     assert_store_n_eq (parser, 2, ":scheme",    "http");
     assert_store_n_eq (parser, 3, ":path",      "/");
@@ -339,6 +342,11 @@ request1_full_TEST (hpack_header_parser_t *parser)
     assert_dyn_table_n_eq (parser, 2, ":path",      "/");
     assert_dyn_table_n_eq (parser, 3, ":scheme",    "http");
     assert_dyn_table_n_eq (parser, 4, ":method",    "GET");
+
+    /* Check size */
+    ret = hpack_header_table_get_size (&parser->table, &size);
+    ch_assert (ret == ret_ok);
+    ch_assert (size == 180);
 }
 
 START_TEST (request1_full) {
@@ -401,7 +409,6 @@ START_TEST (request1_full_huffman) {
 
     /* Check headers */
     request1_full_TEST (&parser);
-
 
     /* Second Request
      */
