@@ -32,6 +32,7 @@
 
 #include "libchula/testing_macros.h"
 #include "libhpack/integer.h"
+#include <time.h>
 
 /* All examples came from:
  * http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-05
@@ -311,6 +312,44 @@ START_TEST (en_decode_2nd_byte_0)
 }
 END_TEST
 
+START_TEST (range_0_65535)
+{
+    ret_t    ret;
+    uint8_t  tmp[64];
+    uint64_t total    = 0;
+    time_t   starting = time(NULL);
+
+    for (uint8_t bitsn=1; bitsn <= 8; bitsn++) {
+        for (uint32_t num=0; num < 65535; num++) {
+            uint8_t  len1 = 0;
+            uint32_t len2 = 0;
+            uint32_t val  = 0;
+
+            /* Clear memory */
+            memset (tmp, 0, sizeof(tmp));
+
+            /* Encode */
+            ret = integer_encode (bitsn, num, tmp, &len1);
+            ch_assert (ret == ret_ok);
+
+            /* Decode */
+            ret = integer_decode (bitsn, tmp, sizeof(tmp), &val, &len2);
+            ch_assert (ret == ret_ok);
+
+            /* Tests */
+            ch_assert (len1 == len2);
+            ch_assert (val == num);
+
+            total++;
+        }
+    }
+
+    uint32_t secs = time(NULL) - starting;
+    printf ("%llu encoding+decodings in %d secs (%llu per sec)\n", total, secs, total/secs);
+}
+END_TEST
+
+
 
 int
 encode_tests (void)
@@ -346,12 +385,23 @@ decode_tests (void)
 }
 
 int
+range_tests (void)
+{
+    Suite *s1 = suite_create("Range en/decoding");
+
+    check_add (s1, range_0_65535);
+
+    run_test (s1);
+}
+
+int
 integer_tests (void)
 {
     int ret;
 
     ret  = encode_tests();
     ret += decode_tests();
+    ret += range_tests();
 
     return ret;
 }
