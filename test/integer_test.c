@@ -344,7 +344,7 @@ START_TEST (range_0_65535)
         }
     }
 
-    uint32_t secs = time(NULL) - starting;
+    uint32_t secs = MAX(1, time(NULL) - starting);
     printf ("%llu encoding+decodings in %d secs (%llu per sec)\n", total, secs, total/secs);
 }
 END_TEST
