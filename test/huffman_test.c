@@ -95,7 +95,7 @@ encode_string_test (char *str, size_t str_len,
     printf ("Source: %s\n\n", A.buf);
 
     for (uint64_t i=0; i<enc_len; i++)
-        ch_assert (enc[i] == B.buf[i]);
+        ch_assert ((uint8_t)enc[i] == B.buf[i]);
 
     chula_buffer_mrproper (&B);
 }
@@ -120,7 +120,7 @@ decode_string_test (char *str, size_t str_len,
     ch_assert (B.len == dec_len);
 
     for (uint64_t i=0; i<dec_len; i++)
-        ch_assert (dec[i] == B.buf[i]);
+        ch_assert ((uint8_t)dec[i] == B.buf[i]);
 
     chula_buffer_mrproper (&B);
 }
