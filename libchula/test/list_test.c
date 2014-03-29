@@ -54,7 +54,7 @@ entry_cmp (chula_list_t *a, chula_list_t *b)
 START_TEST (empty)
 {
     chula_list_t l = LIST_HEAD_INIT(l);
-    ck_assert (chula_list_empty(&l));
+    ch_assert (chula_list_empty(&l));
 }
 END_TEST
 
@@ -69,10 +69,10 @@ START_TEST (add)
     chula_list_add (LIST(&e2), &l);
     chula_list_add (LIST(&e3), &l);
 
-    ck_assert (((test_entry_t *)(l.next))->value == 3);
-    ck_assert (((test_entry_t *)(l.next->next))->value == 2);
-    ck_assert (((test_entry_t *)(l.next->next->next))->value == 1);
-    ck_assert (l.next->next->next->next == &l);
+    ch_assert (((test_entry_t *)(l.next))->value == 3);
+    ch_assert (((test_entry_t *)(l.next->next))->value == 2);
+    ch_assert (((test_entry_t *)(l.next->next->next))->value == 1);
+    ch_assert (l.next->next->next->next == &l);
 }
 END_TEST
 
@@ -87,10 +87,10 @@ START_TEST (add_tail)
     chula_list_add_tail (LIST(&e2), &l);
     chula_list_add_tail (LIST(&e3), &l);
 
-    ck_assert (((test_entry_t *)(l.next))->value == 1);
-    ck_assert (((test_entry_t *)(l.next->next))->value == 2);
-    ck_assert (((test_entry_t *)(l.next->next->next))->value == 3);
-    ck_assert (l.next->next->next->next == &l);
+    ch_assert (((test_entry_t *)(l.next))->value == 1);
+    ch_assert (((test_entry_t *)(l.next->next))->value == 2);
+    ch_assert (((test_entry_t *)(l.next->next->next))->value == 3);
+    ch_assert (l.next->next->next->next == &l);
 }
 END_TEST
 
@@ -107,8 +107,8 @@ START_TEST (del)
 
     chula_list_del (LIST(&e2));
 
-    ck_assert (((test_entry_t *)(l.next))->value == 1);
-    ck_assert (((test_entry_t *)(l.next->next))->value == 3);
+    ch_assert (((test_entry_t *)(l.next))->value == 1);
+    ch_assert (((test_entry_t *)(l.next->next))->value == 3);
 }
 END_TEST
 
@@ -131,9 +131,9 @@ START_TEST (reparent)
 
     chula_list_reparent (&l2, &l1);
 
-    ck_assert (((test_entry_t *)(l2.next))->value == 1);
-    ck_assert (((test_entry_t *)(l2.next->next))->value == 2);
-    ck_assert (((test_entry_t *)(l2.next->next->next))->value == 3);
+    ch_assert (((test_entry_t *)(l2.next))->value == 1);
+    ch_assert (((test_entry_t *)(l2.next->next))->value == 2);
+    ch_assert (((test_entry_t *)(l2.next->next->next))->value == 3);
 }
 END_TEST
 
@@ -146,9 +146,9 @@ START_TEST (sort)
     test_entry_t e4 = {.base = LIST_HEAD_INIT(e4.base), .value = 8};
 
     /* Empty */
-    ck_assert (chula_list_empty(&l));
+    ch_assert (chula_list_empty(&l));
     chula_list_sort (&l, entry_cmp);
-    ck_assert (chula_list_empty(&l));
+    ch_assert (chula_list_empty(&l));
 
     /* Sort a list */
     chula_list_add_tail (LIST(&e1), &l);
@@ -158,10 +158,10 @@ START_TEST (sort)
 
     chula_list_sort (&l, entry_cmp);
 
-    ck_assert (((test_entry_t *)(l.next))->value == 1);
-    ck_assert (((test_entry_t *)(l.next->next))->value == 2);
-    ck_assert (((test_entry_t *)(l.next->next->next))->value == 3);
-    ck_assert (((test_entry_t *)(l.next->next->next->next))->value == 8);
+    ch_assert (((test_entry_t *)(l.next))->value == 1);
+    ch_assert (((test_entry_t *)(l.next->next))->value == 2);
+    ch_assert (((test_entry_t *)(l.next->next->next))->value == 3);
+    ch_assert (((test_entry_t *)(l.next->next->next->next))->value == 8);
 }
 END_TEST
 
@@ -172,17 +172,17 @@ START_TEST (get_len)
     test_entry_t e1  = {.base = LIST_HEAD_INIT(e1.base), .value = 3};
     test_entry_t e2  = {.base = LIST_HEAD_INIT(e2.base), .value = 2};
 
-    ck_assert (chula_list_empty(&l));
+    ch_assert (chula_list_empty(&l));
     chula_list_get_len (&l, &len);
-    ck_assert (len == 0);
+    ch_assert (len == 0);
 
     chula_list_add_tail (LIST(&e1), &l);
     chula_list_get_len (&l, &len);
-    ck_assert (len == 1);
+    ch_assert (len == 1);
 
     chula_list_add_tail (LIST(&e2), &l);
     chula_list_get_len (&l, &len);
-    ck_assert (len == 2);
+    ch_assert (len == 2);
 }
 END_TEST
 
@@ -202,10 +202,10 @@ START_TEST (invert)
 
     chula_list_invert (&l);
 
-    ck_assert (((test_entry_t *)(l.next))->value == 4);
-    ck_assert (((test_entry_t *)(l.next->next))->value == 3);
-    ck_assert (((test_entry_t *)(l.next->next->next))->value == 2);
-    ck_assert (((test_entry_t *)(l.next->next->next->next))->value == 1);
+    ch_assert (((test_entry_t *)(l.next))->value == 4);
+    ch_assert (((test_entry_t *)(l.next->next))->value == 3);
+    ch_assert (((test_entry_t *)(l.next->next->next))->value == 2);
+    ch_assert (((test_entry_t *)(l.next->next->next->next))->value == 1);
 }
 END_TEST
 
@@ -218,10 +218,10 @@ START_TEST (content_add)
     chula_list_content_add (&l, INT_TO_POINTER(2));
     chula_list_content_add (&l, INT_TO_POINTER(3));
 
-    ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next)) == 3);
-    ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next)) == 2);
-    ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next->next)) == 1);
-    ck_assert (LIST_ITEM_INFO(l.next->next->next->next) == NULL);
+    ch_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next)) == 3);
+    ch_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next)) == 2);
+    ch_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next->next)) == 1);
+    ch_assert (LIST_ITEM_INFO(l.next->next->next->next) == NULL);
 
     chula_list_content_free (&l, NULL);
 }
@@ -236,10 +236,10 @@ START_TEST (content_add_tail)
     chula_list_content_add_tail (&l, INT_TO_POINTER(2));
     chula_list_content_add_tail (&l, INT_TO_POINTER(3));
 
-    ck_assert (LIST_ITEM_INFO(l.next) == NULL);
-    ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next)) == 1);
-    ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next->next)) == 2);
-    ck_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next->next->next)) == 3);
+    ch_assert (LIST_ITEM_INFO(l.next) == NULL);
+    ch_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next)) == 1);
+    ch_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next->next)) == 2);
+    ch_assert (POINTER_TO_INT (LIST_ITEM_INFO(l.next->next->next->next)) == 3);
 
     chula_list_content_free (&l, NULL);
 }
@@ -258,7 +258,7 @@ START_TEST (content_free)
     chula_list_content_free (&l, free);
 
     chula_list_get_len (&l, &len);
-    ck_assert (len == 0);
+    ch_assert (len == 0);
 
     chula_list_content_free (&l, NULL);
 }
@@ -280,7 +280,7 @@ START_TEST (content_free_item_simple)
     }
 
     chula_list_get_len (&l, &len);
-    ck_assert (len == 0);
+    ch_assert (len == 0);
 
     chula_list_content_free (&l, NULL);
 }

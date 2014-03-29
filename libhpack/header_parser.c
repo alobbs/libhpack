@@ -114,7 +114,7 @@ parse_string (chula_buffer_t       *buf,
         n += len;
     }
     else{
-        ret = chula_buffer_add (string, buf->buf + n, len);
+        ret = chula_buffer_add (string, (const char *)buf->buf + n, len);
         if (unlikely (ret != ret_ok)) return ret_error;
         n += len;
     }
@@ -339,32 +339,6 @@ hpack_header_parser_all (hpack_header_parser_t *parser,
         /* Exit */
         if (offset >= buf->len)
             break;
-    }
-
-    /* Differential encoding
-     */
-    if (diff_enc) {
-        hpack_header_block_entry_t *entry;
-
-        for (int32_t i=block->len-1; i >= 0 ; i--) {
-            entry = &block->headers[i];
-
-            if (entry->is_new)
-                continue;
-
-            if (parser->store) {
-                ret = hpack_header_store_emit (parser->store, &entry->field);
-                if (ret != ret_ok) return ret;
-            }
-        }
-    }
-
-    /*
-     */
-    for (int32_t i=block->len-1; i >= 0 ; i--) {
-        if (block->headers[i].is_new) {
-            block->headers[i].is_new = false;
-        }
     }
 
     return ret_ok;

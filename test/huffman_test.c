@@ -88,14 +88,14 @@ encode_string_test (char *str, size_t str_len,
     chula_buffer_fake (&A, str, str_len);
 
     ret = hpack_huffman_encode (&A, &B);
-    ck_assert (ret == ret_ok);
-    ck_assert (B.len == enc_len);
+    ch_assert (ret == ret_ok);
+    ch_assert (B.len == enc_len);
 
     chula_print_repr (chula, buffer, &B);
     printf ("Source: %s\n\n", A.buf);
 
     for (uint64_t i=0; i<enc_len; i++)
-        ck_assert (enc[i] == B.buf[i]);
+        ch_assert (enc[i] == B.buf[i]);
 
     chula_buffer_mrproper (&B);
 }
@@ -116,11 +116,11 @@ decode_string_test (char *str, size_t str_len,
     chula_print_repr (chula, buffer, &A);
     printf ("Decoded: %s\n\n", B.buf);
 
-    ck_assert (ret == ret_ok);
-    ck_assert (B.len == dec_len);
+    ch_assert (ret == ret_ok);
+    ch_assert (B.len == dec_len);
 
     for (uint64_t i=0; i<dec_len; i++)
-        ck_assert (dec[i] == B.buf[i]);
+        ch_assert (dec[i] == B.buf[i]);
 
     chula_buffer_mrproper (&B);
 }
@@ -137,17 +137,17 @@ endecode_string_test (char *str, size_t str_len)
     chula_buffer_fake (&A, str, str_len);
 
     ret = hpack_huffman_encode (&A, &B);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     chula_print_repr (chula, buffer, &B);
     printf ("Source: %s\n\n", A.buf);
 
     ret = hpack_huffman_decode (&B, &C, &context);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
-    ck_assert (A.len == C.len);
+    ch_assert (A.len == C.len);
     for (uint64_t i=0; i<A.len; i++)
-        ck_assert (A.buf[i] == C.buf[i]);
+        ch_assert (A.buf[i] == C.buf[i]);
 
     chula_buffer_mrproper (&B);
     chula_buffer_mrproper (&C);

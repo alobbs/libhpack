@@ -32,6 +32,7 @@
 
 #include "libchula/testing_macros.h"
 #include "libhpack/integer.h"
+#include <time.h>
 
 /* All examples came from:
  * http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-05
@@ -47,8 +48,8 @@ START_TEST (encode_10_5bits)
     integer_encode (5, 10, tmp, &len);
 
     /* Check output */
-    ck_assert (len == 1);
-    ck_assert (tmp[0] == 10);
+    ch_assert (len == 1);
+    ch_assert (tmp[0] == 10);
 }
 END_TEST
 
@@ -62,10 +63,10 @@ START_TEST (encode_1337_5bits)
     integer_encode (5, 1337, tmp, &len);
 
     /* Check output */
-    ck_assert (len == 3);
-    ck_assert (tmp[0] == 31);
-    ck_assert (tmp[1] == 154);
-    ck_assert (tmp[2] == 10);
+    ch_assert (len == 3);
+    ch_assert (tmp[0] == 31);
+    ch_assert (tmp[1] == 154);
+    ch_assert (tmp[2] == 10);
 }
 END_TEST
 
@@ -79,8 +80,8 @@ START_TEST (encode_42_8bits)
     integer_encode (8, 42, tmp, &len);
 
     /* Check output */
-    ck_assert (len == 1);
-    ck_assert (tmp[0] == 42);
+    ch_assert (len == 1);
+    ch_assert (tmp[0] == 42);
 }
 END_TEST
 
@@ -92,8 +93,8 @@ START_TEST (encode_12_6bits)
     integer_encode (6, 12, tmp, &len);
 
     /* Check output */
-    ck_assert (len == 1);
-    ck_assert (tmp[0] == (0xC0 | 12));
+    ch_assert (len == 1);
+    ch_assert (tmp[0] == (0xC0 | 12));
 }
 END_TEST
 
@@ -105,10 +106,10 @@ START_TEST (encode_1338_5bits)
     integer_encode (5, 1338, tmp, &len);
 
     /* Check output */
-    ck_assert (len == 3);
-    ck_assert (tmp[0] == (0xA0 | 31));
-    ck_assert (tmp[1] == 155);
-    ck_assert (tmp[2] == 10);
+    ch_assert (len == 3);
+    ch_assert (tmp[0] == (0xA0 | 31));
+    ch_assert (tmp[1] == 155);
+    ch_assert (tmp[2] == 10);
 }
 END_TEST
 
@@ -120,9 +121,9 @@ START_TEST (decode_19_6bits)
     unsigned char tmp[] = {0x80 | 19};
 
     ret = integer_decode (6, tmp, 1, &num, &con);
-    ck_assert (ret == ret_ok);
-    ck_assert (con == 1);
-    ck_assert (num == 19);
+    ch_assert (ret == ret_ok);
+    ch_assert (con == 1);
+    ch_assert (num == 19);
 }
 END_TEST
 
@@ -140,9 +141,9 @@ START_TEST (decode_34_6bits)
      * should be filled with 1s).
      */
     ret = integer_decode (6, tmp, 1, &num, &con);
-    ck_assert (ret == ret_ok);
-    ck_assert (con == 1);
-    ck_assert (num == 34);
+    ch_assert (ret == ret_ok);
+    ch_assert (con == 1);
+    ch_assert (num == 34);
 }
 END_TEST
 
@@ -155,9 +156,9 @@ START_TEST (decode_1337_5bits)
 
     ret = integer_decode (5, tmp, 3, &num, &con);
 
-    ck_assert (ret == ret_ok);
-    ck_assert (num == 1337);
-    ck_assert (con == 3);
+    ch_assert (ret == ret_ok);
+    ch_assert (num == 1337);
+    ch_assert (con == 3);
 }
 END_TEST
 
@@ -171,12 +172,12 @@ START_TEST (en_decode_2147483647_5bits)
     unsigned int  con      = 0;
 
     integer_encode (5, 2147483647, tmp, &tmp_len);
-    ck_assert (tmp_len > 0);
+    ch_assert (tmp_len > 0);
 
     err = integer_decode (5, tmp, tmp_len, &num, &con);
-    ck_assert (err == 0);
-    ck_assert (con == 6);
-    ck_assert (num == 2147483647);
+    ch_assert (err == 0);
+    ch_assert (con == 6);
+    ch_assert (num == 2147483647);
 }
 END_TEST
 
@@ -198,10 +199,10 @@ START_TEST (decode_too_big_for_int)
     data = sizeof(int) > 32? data64 : data32;
 
     ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
-    ck_assert (ret == ret_ok);
-    ck_assert (num >= 0);
-    ck_assert (num == (sizeof(int) > 32? 9223372036854776062u : 2952790270u));
-    ck_assert (con == strlen(data));
+    ch_assert (ret == ret_ok);
+    ch_assert (num >= 0);
+    ch_assert (num == (sizeof(int) > 32? 9223372036854776062u : 2952790270u));
+    ch_assert (con == strlen(data));
 }
 END_TEST
 
@@ -222,8 +223,8 @@ START_TEST (decode_too_big_for_uint)
      */
     data = sizeof(int) > 32? data64 : data32;
     ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
-    ck_assert (ret != ret_ok);
-    ck_assert (con == 0);
+    ch_assert (ret != ret_ok);
+    ch_assert (con == 0);
 }
 END_TEST
 
@@ -244,8 +245,8 @@ START_TEST (decode_too_big_for_ulong)
      */
     data = sizeof(int) > 32? data64 : data32;
     ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
-    ck_assert (ret != ret_ok);
-    ck_assert (con == 0);
+    ch_assert (ret != ret_ok);
+    ch_assert (con == 0);
 }
 END_TEST
 
@@ -264,8 +265,8 @@ START_TEST (decode_too_many_zeros)
     data[sizeof(data)-1] |= 1;
 
     ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
-    ck_assert (ret != ret_ok);
-    ck_assert (con == 0);
+    ch_assert (ret != ret_ok);
+    ch_assert (con == 0);
 }
 END_TEST
 
@@ -281,12 +282,12 @@ START_TEST (en_decode_max_uint_5bits)
      * it also works in that end.
      */
     integer_encode (5, UINT_MAX, tmp, &tmp_len);
-    ck_assert (tmp_len > 0);
+    ch_assert (tmp_len > 0);
 
     err = integer_decode (5, tmp, tmp_len, &num, &con);
-    ck_assert (err == 0);
-    ck_assert (con == tmp_len);
-    ck_assert (num == UINT_MAX);
+    ch_assert (err == 0);
+    ch_assert (con == tmp_len);
+    ch_assert (num == UINT_MAX);
 }
 END_TEST
 
@@ -302,14 +303,52 @@ START_TEST (en_decode_2nd_byte_0)
      * first byte and have the second byte as zero.
      */
     integer_encode (8, 255, tmp, &tmp_len);
-    ck_assert (tmp_len > 0);
+    ch_assert (tmp_len > 0);
 
     err = integer_decode (8, tmp, tmp_len, &num, &con);
-    ck_assert (err == 0);
-    ck_assert (con == tmp_len);
-    ck_assert (num == 255);
+    ch_assert (err == 0);
+    ch_assert (con == tmp_len);
+    ch_assert (num == 255);
 }
 END_TEST
+
+START_TEST (range_0_65535)
+{
+    ret_t    ret;
+    uint8_t  tmp[64];
+    uint64_t total    = 0;
+    time_t   starting = time(NULL);
+
+    for (uint8_t bitsn=1; bitsn <= 8; bitsn++) {
+        for (uint32_t num=0; num < 65535; num++) {
+            uint8_t  len1 = 0;
+            uint32_t len2 = 0;
+            uint32_t val  = 0;
+
+            /* Clear memory */
+            memset (tmp, 0, sizeof(tmp));
+
+            /* Encode */
+            ret = integer_encode (bitsn, num, tmp, &len1);
+            ch_assert (ret == ret_ok);
+
+            /* Decode */
+            ret = integer_decode (bitsn, tmp, sizeof(tmp), &val, &len2);
+            ch_assert (ret == ret_ok);
+
+            /* Tests */
+            ch_assert (len1 == len2);
+            ch_assert (val == num);
+
+            total++;
+        }
+    }
+
+    uint32_t secs = MAX(1, time(NULL) - starting);
+    printf ("%llu encoding+decodings in %d secs (%llu per sec)\n", total, secs, total/secs);
+}
+END_TEST
+
 
 
 int
@@ -346,12 +385,23 @@ decode_tests (void)
 }
 
 int
+range_tests (void)
+{
+    Suite *s1 = suite_create("Range en/decoding");
+
+    check_add (s1, range_0_65535);
+
+    run_test (s1);
+}
+
+int
 integer_tests (void)
 {
     int ret;
 
     ret  = encode_tests();
     ret += decode_tests();
+    ret += range_tests();
 
     return ret;
 }

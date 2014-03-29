@@ -145,7 +145,7 @@ ret_t
 hpack_header_block_mrproper (hpack_header_block_t *block)
 {
     if (block->headers != NULL) {
-        for (int n=0; n<block->len; n++) {
+        for (uint32_t n=0; n<block->len; n++) {
             hpack_header_field_mrproper (&block->headers[n]);
         }
         free (block->headers);
@@ -162,7 +162,7 @@ hpack_header_block_clean (hpack_header_block_t *block)
 {
     if (block->headers != NULL) {
         for (uint32_t n=0; n<block->len; n++) {
-            hpack_header_field_clean (&block->headers[n].field);
+            hpack_header_field_clean (&block->headers[n]);
         }
     }
 
@@ -249,7 +249,7 @@ hpack_header_block_repr (hpack_header_block_t *block,
 
     chula_buffer_add_va  (output, "hpack_header_block@%x\n", POINTER_TO_INT(block));
 
-    for (int i=0; i < block->len; i++) {
+    for (uint32_t i=0; i < block->len; i++) {
         max_len = MAX(block->headers[i].name.len, max_len);
     }
 
@@ -313,10 +313,34 @@ hpack_header_table_get (hpack_header_table_t  *table,
     return hpack_header_block_get (&table->statics, n_static, field);
 }
 
-
 void
 hpack_header_table_repr (hpack_header_table_t *table,
                          chula_buffer_t       *output)
 {
     hpack_header_block_repr (&table->dynamic, output);
+}
+
+ret_t
+hpack_header_table_get_size (hpack_header_table_t *table,
+                             uint64_t             *size)
+{
+    ret_t    ret;
+    uint64_t total = 0;
+
+    for (uint32_t n=0; n < table->dynamic.len; n++)
+    {
+        uint64_t              s = 0;
+        hpack_header_field_t *e = NULL;
+
+        ret = hpack_header_block_get (&table->dynamic, n, &e);
+        if (unlikely (ret != ret_ok)) return ret;
+
+        ret = hpack_header_field_get_size (e, &s);
+        if (unlikely (ret != ret_ok)) return ret;
+
+        total += s;
+    }
+
+    *size = total;
+    return ret_ok;
 }

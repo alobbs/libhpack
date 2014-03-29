@@ -38,9 +38,9 @@
         hpack_header_field_t *field;                                    \
                                                                         \
         ret = hpack_header_store_get_n ((parser)->store, n, &field);    \
-        ck_assert (ret == ret_ok);                                      \
-        ck_assert_str_eq (field->name.buf, _name);                      \
-        ck_assert_str_eq (field->value.buf, _value);                    \
+        ch_assert (ret == ret_ok);                                      \
+        ch_assert_str_eq (field->name.buf, _name);                      \
+        ch_assert_str_eq (field->value.buf, _value);                    \
     } while(false)
 
 #define assert_dyn_table_n_eq(parser,n,_name,_value) do {               \
@@ -48,9 +48,9 @@
         hpack_header_field_t *field;                                    \
                                                                         \
         ret = hpack_header_block_get (&(parser)->table.dynamic, n-1, &field); \
-        ck_assert (ret == ret_ok);                                      \
-        ck_assert_str_eq (field->name.buf, _name);                      \
-        ck_assert_str_eq (field->value.buf, _value);                    \
+        ch_assert (ret == ret_ok);                                      \
+        ch_assert_str_eq (field->name.buf, _name);                      \
+        ch_assert_str_eq (field->value.buf, _value);                    \
     } while(false)
 
 
@@ -76,10 +76,10 @@ START_TEST (literal_w_index) {
     chula_buffer_fake_str (&raw, "\x00\x0a\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\x0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72");
 
     ret = hpack_header_parser_field (&parser, &raw, 0, &field, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == raw.len);
-    ck_assert_str_eq (field.name.buf, "custom-key");
-    ck_assert_str_eq (field.value.buf, "custom-header");
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == raw.len);
+    ch_assert_str_eq (field.name.buf, "custom-key");
+    ch_assert_str_eq (field.value.buf, "custom-header");
 
     hpack_header_parser_mrproper (&parser);
 }
@@ -125,8 +125,8 @@ START_TEST (literal_w_index_false_len) {
     chula_buffer_fake_str (&raw, sizeof(int)>32?data64:data32);
 
     ret = hpack_header_parser_field (&parser, &raw, 0, &field, &consumed);
-    ck_assert (ret != ret_ok);
-    ck_assert (consumed == 0);
+    ch_assert (ret != ret_ok);
+    ch_assert (consumed == 0);
 
     hpack_header_parser_mrproper (&parser);
 }
@@ -150,10 +150,10 @@ START_TEST (literal_wo_index) {
     chula_buffer_fake_str (&raw, "\x44\x0c\x2f\x73\x61\x6d\x70\x6c\x65\x2f\x70\x61\x74\x68");
 
     ret = hpack_header_parser_field (&parser, &raw, 0, &field, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == raw.len);
-    ck_assert_str_eq (field.name.buf, ":path");
-    ck_assert_str_eq (field.value.buf, "/sample/path");
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == raw.len);
+    ch_assert_str_eq (field.name.buf, ":path");
+    ch_assert_str_eq (field.value.buf, "/sample/path");
 
     hpack_header_parser_mrproper (&parser);
 }
@@ -171,10 +171,10 @@ START_TEST (indexed) {
     chula_buffer_fake_str (&raw, "\x82");
 
     ret = hpack_header_parser_field (&parser, &raw, 0, &field, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == raw.len);
-    ck_assert_str_eq (field.name.buf, ":method");
-    ck_assert_str_eq (field.value.buf, "GET");
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == raw.len);
+    ch_assert_str_eq (field.name.buf, ":method");
+    ch_assert_str_eq (field.value.buf, "GET");
 
     hpack_header_parser_mrproper (&parser);
 }
@@ -203,8 +203,8 @@ START_TEST (indexed_big_value) {
     chula_buffer_fake_str (&raw, sizeof(int)>32?data64:data32);
 
     ret = hpack_header_parser_field (&parser, &raw, 0, &field, &consumed);
-    ck_assert (ret != ret_ok);
-    ck_assert (consumed == 0);
+    ch_assert (ret != ret_ok);
+    ch_assert (consumed == 0);
 
     hpack_header_parser_mrproper (&parser);
 }
@@ -234,8 +234,8 @@ START_TEST (indexed_many_zeroes) {
     chula_buffer_fake_str (&raw, data);
 
     ret = hpack_header_parser_field (&parser, &raw, 0, &field, &consumed);
-    ck_assert (ret != ret_ok);
-    ck_assert (consumed == 0);
+    ch_assert (ret != ret_ok);
+    ch_assert (consumed == 0);
 
     hpack_header_parser_mrproper (&parser);
 }
@@ -246,6 +246,7 @@ START_TEST (request1) {
     chula_buffer_t        raw;
     hpack_header_parser_t parser;
     hpack_header_field_t  field;
+    uint64_t              size     = 0;
     unsigned int          offset   = 0;
     unsigned int          consumed = 0;
 
@@ -275,47 +276,51 @@ START_TEST (request1) {
 
     /* 82 - :method: GET */
     ret = hpack_header_parser_field (&parser, &raw, offset, &field, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == 1);
-    ck_assert_str_eq (field.name.buf, ":method");
-    ck_assert_str_eq (field.value.buf, "GET");
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == 1);
+    ch_assert_str_eq (field.name.buf, ":method");
+    ch_assert_str_eq (field.value.buf, "GET");
     chula_print_repr (hpack, header_field, &field);
 
     offset += consumed;
-    ck_assert (offset == 1);
+    ch_assert (offset == 1);
     memset (&field, 0, sizeof(field));
 
     /* 87 - :scheme: http */
     ret = hpack_header_parser_field (&parser, &raw, offset, &field, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == 1);
-    ck_assert_str_eq (field.name.buf, ":scheme");
-    ck_assert_str_eq (field.value.buf, "http");
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == 1);
+    ch_assert_str_eq (field.name.buf, ":scheme");
+    ch_assert_str_eq (field.value.buf, "http");
     chula_print_repr (hpack, header_field, &field);
 
     offset += consumed;
-    ck_assert (offset == 2);
+    ch_assert (offset == 2);
     memset (&field, 0, sizeof(field));
 
     /* 86 - :path: / */
     ret = hpack_header_parser_field (&parser, &raw, offset, &field, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == 1);
-    ck_assert_str_eq (field.name.buf, ":path");
-    ck_assert_str_eq (field.value.buf, "/");
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == 1);
+    ch_assert_str_eq (field.name.buf, ":path");
+    ch_assert_str_eq (field.value.buf, "/");
     chula_print_repr (hpack, header_field, &field);
 
     offset += consumed;
-    ck_assert (offset == 3);
+    ch_assert (offset == 3);
     memset (&field, 0, sizeof(field));
 
     /* 04 - :authority: www.example.com */
     ret = hpack_header_parser_field (&parser, &raw, offset, &field, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == 17);
-    ck_assert_str_eq (field.name.buf, ":authority");
-    ck_assert_str_eq (field.value.buf, "www.example.com");
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == 17);
+    ch_assert_str_eq (field.name.buf, ":authority");
+    ch_assert_str_eq (field.value.buf, "www.example.com");
     chula_print_repr (hpack, header_field, &field);
+
+    ret = hpack_header_table_get_size (&parser.table, &size);
+    ch_assert (ret == ret_ok);
+    ch_assert (size == 180);
 
     hpack_header_parser_mrproper (&parser);
 }
@@ -325,6 +330,9 @@ END_TEST
 static void
 request1_full_TEST (hpack_header_parser_t *parser)
 {
+    ret_t    ret;
+    uint64_t size = 0;
+
     assert_store_n_eq (parser, 1, ":method",    "GET");
     assert_store_n_eq (parser, 2, ":scheme",    "http");
     assert_store_n_eq (parser, 3, ":path",      "/");
@@ -334,6 +342,11 @@ request1_full_TEST (hpack_header_parser_t *parser)
     assert_dyn_table_n_eq (parser, 2, ":path",      "/");
     assert_dyn_table_n_eq (parser, 3, ":scheme",    "http");
     assert_dyn_table_n_eq (parser, 4, ":method",    "GET");
+
+    /* Check size */
+    ret = hpack_header_table_get_size (&parser->table, &size);
+    ch_assert (ret == ret_ok);
+    ch_assert (size == 180);
 }
 
 START_TEST (request1_full) {
@@ -352,8 +365,8 @@ START_TEST (request1_full) {
 
     /* Full header parse */
     ret = hpack_header_parser_all (&parser, &raw, offset, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == raw.len);
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == raw.len);
 
     chula_print_repr (chula, buffer, &raw);
     chula_print_repr (hpack, header_store, &store);
@@ -387,8 +400,8 @@ START_TEST (request1_full_huffman) {
 
     /* Full header parse */
     ret = hpack_header_parser_all (&parser, &raw, offset, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == raw.len);
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == raw.len);
 
     chula_print_repr (chula, buffer, &raw);
     chula_print_repr (hpack, header_store, &store);
@@ -396,7 +409,6 @@ START_TEST (request1_full_huffman) {
 
     /* Check headers */
     request1_full_TEST (&parser);
-
 
     /* Second Request
      */
@@ -409,8 +421,8 @@ START_TEST (request1_full_huffman) {
 
     /* Full header parse */
     ret = hpack_header_parser_all (&parser, &raw, offset, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == raw.len);
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == raw.len);
 
     chula_print_repr (chula, buffer, &raw);
     chula_print_repr (hpack, header_store, &store);
@@ -434,8 +446,8 @@ START_TEST (request1_full_huffman) {
 
     /* Full header parse */
     ret = hpack_header_parser_all (&parser, &raw, offset, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == raw.len);
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == raw.len);
 
     chula_print_repr (chula, buffer, &raw);
     chula_print_repr (hpack, header_store, &store);
@@ -510,8 +522,8 @@ START_TEST (request2_full_huffman) {
 
     /* Full header parse */
     ret = hpack_header_parser_all (&parser, &raw, offset, &consumed);
-    ck_assert (ret == ret_ok);
-    ck_assert (consumed == raw.len);
+    ch_assert (ret == ret_ok);
+    ch_assert (consumed == raw.len);
 
     chula_print_repr (chula, buffer, &raw);
     chula_print_repr (hpack, header_store, &store);

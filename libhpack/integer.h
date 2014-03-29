@@ -36,9 +36,11 @@
 #include <libchula/common.h>
 #include <limits.h>
 
+#define VLQ_MAX_LEN_INTEGER (SIZEOF_INT + 2)
+
 ret_t
 integer_encode (int            N,        /* Prefix length in bits  */
-                unsigned int  value,    /* Number to encode       */
+                unsigned int  value,     /* Number to encode       */
                 unsigned char *mem,      /* Memory to encode it to */
                 unsigned char *mem_len); /* Memory used            */
 
@@ -48,13 +50,5 @@ integer_decode (int            N,         /* Prefix length in bits  */
                 unsigned char  mem_len,   /* Length of the memory   */
                 unsigned int  *ret,       /* Value return           */
                 unsigned int  *consumed); /* Length of encoded num  */
-
-#if __SIZEOF_INT__ == 2
-    #define VLQ_MAX_LEN_INTEGER 4
-#elif __SIZEOF_INT__ == 4
-    #define VLQ_MAX_LEN_INTEGER 6
-#else
-    #define VLQ_MAX_LEN_INTEGER 10
-#endif
 
 #endif /* LIBHPACK_INTEGER_H */

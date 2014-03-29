@@ -45,17 +45,25 @@ if(USE_VALGRIND)
     set (VALGRIND_OPTIONS --leak-check=full --num-callers=50)
 endif()
 
-set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -Wextra")
-
-# pkg-config
-find_package(PkgConfig)
-
-# Checks
+# Includes
 include(CheckTypeSize)
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckCSourceCompiles)
+include(CheckCSourceRuns)
 include(TestBigEndian)
+include(CMakePushCheckState)
+
+# Compiler options
+if (CMAKE_COMPILER_IS_GNUCC)
+  add_definitions (-std=gnu99)
+endif (CMAKE_COMPILER_IS_GNUCC)
+
+add_definitions (-D_GNU_SOURCE)
+set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -Wextra")
+
+# pkg-config
+find_package(PkgConfig)
 
 # Includes
 include_directories(${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
@@ -185,7 +193,21 @@ MESSAGE (STATUS "Byte order ${byteorder}")
 DEF_SET_IFNDEF (BYTE_ORDER ${byteorder})
 DEF_DEFINE (WORDS_BIGENDIAN)
 
+INCLUDE(CheckFileOffsetBits)
+CHECK__FILE_OFFSET_BITS()
+IF(_FILE_OFFSET_BITS)
+    add_definitions (-D_FILE_OFFSET_BITS=${_FILE_OFFSET_BITS})
+ENDIF(_FILE_OFFSET_BITS)
+
 # Code tests
+cmake_push_check_state()
+
+get_directory_property(CMAKE_REQUIRED_FLAGS COMPILE_FLAGS)
+get_directory_property(compile_definitions COMPILE_DEFINITIONS)
+foreach (def ${compile_definitions})
+  list(APPEND CMAKE_REQUIRED_DEFINITIONS "-D${def}")
+endforeach (def ${compile_definitions})
+
 CHECK_C_SOURCE_COMPILES("
 #include <sys/types.h>
 #include <dirent.h>
@@ -287,13 +309,28 @@ int main() {
 }
 " HAVE_INT_TIMEZONE)
 
+CHECK_C_SOURCE_RUNS("
+#include <string.h>
+#include <errno.h>
+int main () {
+  char buffer[1024];
+  char *string = strerror_r (EACCES, buffer, sizeof(buffer));
+  return (!string || !string[0]) ? 99 : 0;
+}" HAVE_GLIBC_STRERROR_R)
+
+CHECK_C_SOURCE_RUNS("
+#include <string.h>
+#include <errno.h>
+int main () {
+  char buffer[1024];
+  int error = strerror_r (EACCES, buffer, sizeof(buffer));
+  return (!buffer[0] || error) ? 99: 0;
+}" HAVE_POSIX_STRERROR_R)
+
+cmake_pop_check_state()
+
 # Libraries
 find_library(LIBM NAMES m)
-
-if (CMAKE_COMPILER_IS_GNUCC)
-  add_definitions (-std=gnu99)
-  add_definitions ("-D_GNU_SOURCE")
-endif (CMAKE_COMPILER_IS_GNUCC)
 
 # Library source code
 if(BUILD_DOCS)

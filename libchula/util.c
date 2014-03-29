@@ -150,12 +150,16 @@ chula_strerror_r (int err, char *buf, size_t bufsize)
     if (bufsize < ERROR_MIN_BUFSIZE)
         return NULL;
 
-#if defined(HAVE_STRERROR_R) && !defined(_GNU_SOURCE)
-    int re;
-    re = strerror_r (err, buf, bufsize);
+
+#ifdef HAVE_GLIBC_STRERROR_R
+    char *re = strerror_r (err, buf, bufsize);
+    if (re != NULL)
+        return re;
+#elif defined HAVE_POSIX_STRERROR_R
+    int re = strerror_r (err, buf, bufsize);
     if (re == 0)
         return buf;
-# else
+#else
     char *p;
     p = strerror(err);
     if (p != NULL)
@@ -791,7 +795,7 @@ chula_fd_set_reuseaddr (int fd)
 	return ret_ok;
 }
 
-ret_t inline
+inline ret_t
 chula_fd_close (int fd)
 {
 	int re;

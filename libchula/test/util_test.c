@@ -54,35 +54,35 @@ START_TEST (_strerror_r)
 
     /* Buffer handling */
     s = chula_strerror_r (13, NULL, sizeof(tmp));
-    ck_assert (s == NULL);
+    ch_assert (s == NULL);
 
     s = chula_strerror_r (13, tmp, 0);
-    ck_assert (s == NULL);
+    ch_assert (s == NULL);
 
     /* -1 */
     memset (tmp, 0, sizeof(tmp));
     s = chula_strerror_r (-1, tmp, sizeof(tmp));
-    ck_assert (s != NULL);
-    ck_assert (strstr(s, "Unknown error") != NULL);
+    ch_assert (s != NULL);
+    ch_assert (strstr((const char*)s, "Unknown error") != NULL);
 
     /* 0 */
     memset (tmp, 0, sizeof(tmp));
     s = chula_strerror_r (0, tmp, sizeof(tmp));
-    ck_assert (s != NULL);
-    ck_assert ((strstr(s, "Success") != NULL) ||
-               (strstr(s, "Undefined") != NULL));
+    ch_assert (s != NULL);
+    ch_assert ((strstr((const char*)s, "Success") != NULL) ||
+               (strstr((const char*)s, "Undefined") != NULL));
 
     /* 13: Permission denied */
     memset (tmp, 0, sizeof(tmp));
     s = chula_strerror_r (13, tmp, sizeof(tmp));
-    ck_assert (s != NULL);
-    ck_assert (strstr(s, "Permission denied") != NULL);
+    ch_assert (s != NULL);
+    ch_assert (strstr((const char*)s, "Permission denied") != NULL);
 
     /* 98765 */
     memset (tmp, 0, sizeof(tmp));
     s = chula_strerror_r (98765, tmp, sizeof(tmp));
-    ck_assert (s != NULL);
-    ck_assert (strstr(s, "Unknown error") != NULL);
+    ch_assert (s != NULL);
+    ch_assert (strstr((const char*)s, "Unknown error") != NULL);
 }
 END_TEST
 
@@ -91,10 +91,10 @@ START_TEST (min_str)
     char *A = "a";
     char *B = "b";
 
-    ck_assert (chula_min_str(NULL,NULL) == NULL);
-    ck_assert (chula_min_str(A,NULL) == A);
-    ck_assert (chula_min_str(NULL,A) == A);
-    ck_assert (chula_min_str(A,B) != NULL);
+    ch_assert (chula_min_str(NULL,NULL) == NULL);
+    ch_assert (chula_min_str(A,NULL) == A);
+    ch_assert (chula_min_str(NULL,A) == A);
+    ch_assert (chula_min_str(A,B) != NULL);
 }
 END_TEST
 
@@ -103,10 +103,10 @@ START_TEST (max_str)
     char *A = "a";
     char *B = "b";
 
-    ck_assert (chula_max_str(NULL,NULL) == NULL);
-    ck_assert (chula_max_str(A,NULL) == A);
-    ck_assert (chula_max_str(NULL,A) == A);
-    ck_assert (chula_max_str(A,B) != NULL);
+    ch_assert (chula_max_str(NULL,NULL) == NULL);
+    ch_assert (chula_max_str(A,NULL) == A);
+    ch_assert (chula_max_str(NULL,A) == A);
+    ch_assert (chula_max_str(A,B) != NULL);
 }
 END_TEST
 
@@ -116,18 +116,18 @@ START_TEST (_atoi)
     ret_t ret;
 
     ret = chula_atoi (NULL, &re);
-    ck_assert (ret == ret_error);
+    ch_assert (ret == ret_error);
 
     ret = chula_atoi ("", &re);
-    ck_assert (ret == ret_error);
+    ch_assert (ret == ret_error);
 
     ret = chula_atoi ("123", &re);
-    ck_assert (re == 123);
-    ck_assert (ret == ret_ok);
+    ch_assert (re == 123);
+    ch_assert (ret == ret_ok);
 
     ret = chula_atoi ("-321", &re);
-    ck_assert (re == -321);
-    ck_assert (ret == ret_ok);
+    ch_assert (re == -321);
+    ch_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -137,26 +137,26 @@ START_TEST (_atob)
     ret_t ret;
 
     ret = chula_atob (NULL, &re);
-    ck_assert (ret == ret_error);
+    ch_assert (ret == ret_error);
 
     ret = chula_atob ("", &re);
-    ck_assert (ret == ret_error);
+    ch_assert (ret == ret_error);
 
     ret = chula_atob ("123", &re);
-    ck_assert (re == true);
-    ck_assert (ret == ret_ok);
+    ch_assert (re == true);
+    ch_assert (ret == ret_ok);
 
     ret = chula_atob ("0", &re);
-    ck_assert (re == false);
-    ck_assert (ret == ret_ok);
+    ch_assert (re == false);
+    ch_assert (ret == ret_ok);
 
     ret = chula_atob ("-0", &re);
-    ck_assert (re == false);
-    ck_assert (ret == ret_ok);
+    ch_assert (re == false);
+    ch_assert (ret == ret_ok);
 
     ret = chula_atob ("-321", &re);
-    ck_assert (re == true);
-    ck_assert (ret == ret_ok);
+    ch_assert (re == true);
+    ch_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -165,16 +165,16 @@ START_TEST (is_ipv6)
     chula_buffer_t ip;
 
     chula_buffer_fake_str (&ip, "");
-    ck_assert (chula_string_is_ipv6 (&ip) == 0);
+    ch_assert (chula_string_is_ipv6 (&ip) == 0);
 
     chula_buffer_fake_str (&ip, "127.0.0.1");
-    ck_assert (chula_string_is_ipv6 (&ip) == 0);
+    ch_assert (chula_string_is_ipv6 (&ip) == 0);
 
     chula_buffer_fake_str (&ip, "::1");
-    ck_assert (chula_string_is_ipv6 (&ip));
+    ch_assert (chula_string_is_ipv6 (&ip));
 
     chula_buffer_fake_str (&ip, "2001:0db8:0000:0000:0000:ff00:0042:8329");
-    ck_assert (chula_string_is_ipv6 (&ip));
+    ch_assert (chula_string_is_ipv6 (&ip));
 }
 END_TEST
 
@@ -187,17 +187,17 @@ START_TEST (_dirs)
 
     /* Open */
     d = chula_opendir ("/most/likely/it/does/not/exists");
-    ck_assert (d == NULL);
+    ch_assert (d == NULL);
 
     d = chula_opendir ("/");
-    ck_assert (d != NULL);
+    ch_assert (d != NULL);
 
     /* Walk */
     dresult = NULL;
     re = chula_readdir (d, &dentry, &dresult);
-    ck_assert (re == 0);
-    ck_assert (dresult != NULL);
-    ck_assert (strlen(dresult->d_name) > 0);
+    ch_assert (re == 0);
+    ch_assert (dresult != NULL);
+    ch_assert (strlen(dresult->d_name) > 0);
 
     /* Close */
     chula_closedir (d);
@@ -210,10 +210,10 @@ START_TEST (_stat)
     struct stat st;
 
     re = chula_stat ("/it/does/not/exist", &st);
-    ck_assert (re == -1);
+    ch_assert (re == -1);
 
     re = chula_stat ("/", &st);
-    ck_assert (re == 0);
+    ch_assert (re == 0);
 }
 END_TEST
 
@@ -223,10 +223,10 @@ START_TEST (_lstat)
     struct stat st;
 
     re = chula_lstat ("/it/does/not/exist", &st);
-    ck_assert (re == -1);
+    ch_assert (re == -1);
 
     re = chula_lstat ("/", &st);
-    ck_assert (re == 0);
+    ch_assert (re == 0);
 }
 END_TEST
 
@@ -237,17 +237,17 @@ START_TEST (_fstat)
     struct stat st;
 
     re = chula_fstat (-1, &st);
-    ck_assert (re == -1);
+    ch_assert (re == -1);
 
     re = chula_fstat (63333, &st);
-    ck_assert (re == -1);
+    ch_assert (re == -1);
 
     fd = chula_open ("/", O_RDONLY, 0);
-    ck_assert (fd >= 0);
+    ch_assert (fd >= 0);
 
     re = chula_fstat (fd, &st);
     chula_fd_close(fd);
-    ck_assert (re == 0);
+    ch_assert (re == 0);
 }
 END_TEST
 
@@ -256,10 +256,10 @@ START_TEST (_access)
     int re;
 
     re = chula_access ("/it/does/not/exist", R_OK);
-    ck_assert (re == -1);
+    ch_assert (re == -1);
 
     re = chula_access ("/", R_OK);
-    ck_assert (re == 0);
+    ch_assert (re == 0);
 }
 END_TEST
 
@@ -275,22 +275,22 @@ START_TEST (_unlink)
     chula_buffer_add_long10 (&path, getpid());
 
     /* It doesn't exist */
-    ck_assert (chula_stat (path.buf, &st) == -1);
+    ch_assert (chula_stat ((const char *)path.buf, &st) == -1);
 
     /* Create file */
-    fd = chula_open (path.buf, O_WRONLY|O_CREAT|O_TRUNC|O_NOFOLLOW, S_IRUSR|S_IWUSR);
-    ck_assert (fd >= 0);
+    fd = chula_open ((const char*)path.buf, O_WRONLY|O_CREAT|O_TRUNC|O_NOFOLLOW, S_IRUSR|S_IWUSR);
+    ch_assert (fd >= 0);
     chula_fd_close (fd);
 
     /* It exists */
-    ck_assert (chula_stat (path.buf, &st) == 0);
+    ch_assert (chula_stat ((const char *)path.buf, &st) == 0);
 
     /* Unlink */
-    re = chula_unlink (path.buf);
-    ck_assert (re == 0);
+    re = chula_unlink ((const char*)path.buf);
+    ch_assert (re == 0);
 
     /* It mustn't exist */
-    ck_assert (chula_stat (path.buf, &st) == -1);
+    ch_assert (chula_stat ((const char *)path.buf, &st) == -1);
 
     chula_buffer_mrproper (&path);
 }
@@ -302,9 +302,9 @@ START_TEST (_pipe)
     int fds[2];
 
     re = chula_pipe (fds);
-    ck_assert (re == 0);
-    ck_assert (fds[0] >= 0);
-    ck_assert (fds[1] >= 0);
+    ch_assert (re == 0);
+    ch_assert (fds[0] >= 0);
+    ch_assert (fds[1] >= 0);
 
     chula_fd_close (fds[0]);
     chula_fd_close (fds[1]);
@@ -319,14 +319,14 @@ START_TEST (_mktemp)
 
     chula_buffer_add_str (&filename, "/tmp/temp.XXXXXX");
     ret = chula_mkstemp (&filename, &fd);
-    ck_assert (ret == ret_ok);
-    ck_assert (fd >= 0);
+    ch_assert (ret == ret_ok);
+    ch_assert (fd >= 0);
     chula_fd_close (fd);
 
     chula_buffer_clean (&filename);
     chula_buffer_add_str (&filename, "/tmp/temp.XXXXXX");
-    chula_mkdtemp (filename.buf);
-    ck_assert (ret == ret_ok);
+    chula_mkdtemp ((char*)filename.buf);
+    ch_assert (ret == ret_ok);
 
     chula_buffer_mrproper (&filename);
 }
@@ -338,10 +338,10 @@ START_TEST (_mkdir2)
     chula_buffer_t path = CHULA_BUF_INIT;
 
     ret = chula_mkdir_p_perm (NULL, 0777, R_OK);
-    ck_assert (ret == ret_error);
+    ch_assert (ret == ret_error);
 
     ret = chula_mkdir_p_perm (&path, 0777, R_OK);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 }
 END_TEST
 
@@ -356,27 +356,27 @@ START_TEST (_mkdir)
     chula_buffer_add_va (&path, "/mkdir_pid%d/mkdir/1/22/333/4444", getpid());
 
     /* Path does not exists */
-    ck_assert (chula_stat (path.buf, &st) == -1);
+    ch_assert (chula_stat ((const char*)path.buf, &st) == -1);
 
     /* Create dir */
     ret = chula_mkdir_p_perm (&path, 0777, R_OK);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     /* Path does exists */
-    ck_assert (chula_stat (path.buf, &st) == 0);
+    ch_assert (chula_stat ((const char*)path.buf, &st) == 0);
 
     /* Create a file (for rm_rf) */
     chula_buffer_clean (&path);
     chula_tmp_dir_copy (&path);
     chula_buffer_add_va (&path, "/mkdir_pid%d/file", getpid());
 
-    fd = open (path.buf, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+    fd = open ((const char*)path.buf, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
     chula_fd_close (fd);
 
     /* rm -rf */
     chula_buffer_drop_ending (&path, 5);
     ret = chula_rm_rf (&path, -1);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     /* Clean up */
     chula_buffer_mrproper (&path);
@@ -389,8 +389,8 @@ START_TEST (_fdlimit)
     unsigned int limit = 0;
 
     ret = chula_sys_fdlimit_get (&limit);
-    ck_assert (ret == ret_ok);
-    ck_assert (limit > 0);
+    ch_assert (ret == ret_ok);
+    ch_assert (limit > 0);
 
     /* Odds are it won't get away with it, so realisticly there is
      * nothing to be tested after this call */
@@ -405,8 +405,8 @@ START_TEST (_getpwnam)
     char          buffer[1024];
 
     ret = chula_getpwnam ("root", &pwd, buffer, sizeof(buffer));
-    ck_assert (ret == ret_ok);
-    ck_assert (pwd.pw_dir != NULL);
+    ch_assert (ret == ret_ok);
+    ch_assert (pwd.pw_dir != NULL);
 }
 END_TEST
 
@@ -417,8 +417,8 @@ START_TEST (_getpwuid)
     char          buffer[1024];
 
     ret = chula_getpwuid (0, &pwd, buffer, sizeof(buffer));
-    ck_assert (ret == ret_ok);
-    ck_assert (pwd.pw_dir != NULL);
+    ch_assert (ret == ret_ok);
+    ch_assert (pwd.pw_dir != NULL);
 }
 END_TEST
 
@@ -431,14 +431,14 @@ START_TEST (_getpwnam_uid)
     /* Feed it a name */
     memset (&pwd, 0, sizeof(pwd));
     ret = chula_getpwnam_uid ("root", &pwd, buffer, sizeof(buffer));
-    ck_assert (ret == ret_ok);
-    ck_assert (pwd.pw_dir != NULL);
+    ch_assert (ret == ret_ok);
+    ch_assert (pwd.pw_dir != NULL);
 
     /* Feed it an ID */
     memset (&pwd, 0, sizeof(pwd));
     ret = chula_getpwnam_uid ("0", &pwd, buffer, sizeof(buffer));
-    ck_assert (ret == ret_ok);
-    ck_assert (pwd.pw_dir != NULL);
+    ch_assert (ret == ret_ok);
+    ch_assert (pwd.pw_dir != NULL);
 }
 END_TEST
 
@@ -457,9 +457,9 @@ START_TEST (_getgrnam)
 
     grp.gr_gid = -1;
     ret = chula_getgrnam (group_name, &grp, buffer, sizeof(buffer));
-    ck_assert (ret == ret_ok);
-    ck_assert (grp.gr_gid >= 0);
-    ck_assert_str_eq (grp.gr_name, group_name);
+    ch_assert (ret == ret_ok);
+    ch_assert (grp.gr_gid >= 0);
+    ch_assert_str_eq (grp.gr_name, group_name);
 }
 END_TEST
 
@@ -479,8 +479,8 @@ START_TEST (_getgrgid)
 
     grp.gr_gid = -1;
     ret = chula_getgrgid (group_id, &grp, buffer, sizeof(buffer));
-    ck_assert (ret == ret_ok);
-    ck_assert (grp.gr_gid >= 0);
+    ch_assert (ret == ret_ok);
+    ch_assert (grp.gr_gid >= 0);
 }
 END_TEST
 
@@ -501,9 +501,9 @@ START_TEST (_getgrnam_gid)
     grp.gr_gid  = -1;
     grp.gr_name = NULL;
     ret = chula_getgrnam_gid (group_name, &grp, buffer, sizeof(buffer));
-    ck_assert (ret == ret_ok);
-    ck_assert (grp.gr_gid >= 0);
-    ck_assert_str_eq (grp.gr_name, group_name);
+    ch_assert (ret == ret_ok);
+    ch_assert (grp.gr_gid >= 0);
+    ch_assert_str_eq (grp.gr_name, group_name);
 
     /* Feed it an ID as string */
 #ifdef OSX
@@ -515,9 +515,9 @@ START_TEST (_getgrnam_gid)
     grp.gr_gid  = -1;
     grp.gr_name = NULL;
     ret = chula_getgrnam_gid (group_name, &grp, buffer, sizeof(buffer));
-    ck_assert (ret == ret_ok);
-    ck_assert (grp.gr_gid >= 0);
-    ck_assert (grp.gr_name != NULL);
+    ch_assert (ret == ret_ok);
+    ch_assert (grp.gr_gid >= 0);
+    ch_assert (grp.gr_name != NULL);
 }
 END_TEST
 
@@ -530,8 +530,8 @@ START_TEST (_gmtime)
 
     t = time(NULL);
     chula_gmtime (&t, &stm);
-    ck_assert (stm.tm_year + 1900 > 1900);
-    ck_assert (stm.tm_year + 1900 < 2100);
+    ch_assert (stm.tm_year + 1900 > 1900);
+    ch_assert (stm.tm_year + 1900 < 2100);
 }
 END_TEST
 
@@ -544,8 +544,8 @@ START_TEST (_localtime)
 
     t = time(NULL);
     chula_localtime (&t, &stm);
-    ck_assert (stm.tm_year + 1900 > 1900);
-    ck_assert (stm.tm_year + 1900 < 2100);
+    ch_assert (stm.tm_year + 1900 > 1900);
+    ch_assert (stm.tm_year + 1900 < 2100);
 }
 END_TEST
 
@@ -555,9 +555,9 @@ START_TEST (_timezone)
     long      *tz     = NULL;
 
     tz = chula_get_timezone_ref();
-    ck_assert (tz != NULL);
-    ck_assert (*tz > -_12h1s);
-    ck_assert (*tz <  _12h1s);
+    ch_assert (tz != NULL);
+    ch_assert (*tz > -_12h1s);
+    ch_assert (*tz <  _12h1s);
 }
 END_TEST
 
@@ -567,26 +567,26 @@ START_TEST (path_short)
     chula_buffer_t path = CHULA_BUF_INIT;
 
     ret = chula_path_short (&path);
-    ck_assert (ret == ret_ok);
-    ck_assert (path.len == 0);
+    ch_assert (ret == ret_ok);
+    ch_assert (path.len == 0);
 
     chula_buffer_clean (&path);
     chula_buffer_add_str (&path, "/../");
     ret = chula_path_short (&path);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (path.buf, "/");
+    ch_assert (ret == ret_ok);
+    ch_assert_str_eq (path.buf, "/");
 
     chula_buffer_clean (&path);
     chula_buffer_add_str (&path, "/dir/second/../file");
     ret = chula_path_short (&path);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (path.buf, "/dir/file");
+    ch_assert (ret == ret_ok);
+    ch_assert_str_eq (path.buf, "/dir/file");
 
     chula_buffer_clean (&path);
     chula_buffer_add_str (&path, "/in/../1/2/../../a/b/c/../../d");
     ret = chula_path_short (&path);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (path.buf, "/a/d");
+    ch_assert (ret == ret_ok);
+    ch_assert_str_eq (path.buf, "/a/d");
 
     chula_buffer_mrproper (&path);
 }
@@ -598,12 +598,12 @@ START_TEST (find_exec)
     chula_buffer_t path = CHULA_BUF_INIT;
 
     ret = chula_path_find_exec ("find", &path);
-    ck_assert (ret == ret_ok);
-    ck_assert (strstr(path.buf, "find") != NULL);
+    ch_assert (ret == ret_ok);
+    ch_assert (strstr((const char*)path.buf, "find") != NULL);
 
     chula_buffer_clean (&path);
     ret = chula_path_find_exec ("it_does_not_exist", &path);
-    ck_assert (ret == ret_not_found);
+    ch_assert (ret == ret_not_found);
 
     chula_buffer_mrproper (&path);
 }
@@ -616,13 +616,13 @@ START_TEST (_gethostbyname)
     struct addrinfo *addr = NULL;
 
     ret = chula_gethostbyname (&host, &addr);
-    ck_assert (ret == ret_error);
+    ch_assert (ret == ret_error);
 
     chula_buffer_add_str (&host, "example.com");
     ret = chula_gethostbyname (&host, &addr);
-    ck_assert (ret == ret_ok);
-    ck_assert (addr != NULL);
-    ck_assert ((addr->ai_family == AF_INET) ||
+    ch_assert (ret == ret_ok);
+    ch_assert (addr != NULL);
+    ch_assert ((addr->ai_family == AF_INET) ||
                (addr->ai_family == AF_INET6));
 
     chula_buffer_mrproper (&host);
@@ -635,8 +635,8 @@ START_TEST (_gethostname)
     chula_buffer_t name = CHULA_BUF_INIT;
 
     ret = chula_gethostname (&name);
-    ck_assert (ret == ret_ok);
-    ck_assert (! chula_buffer_is_empty (&name));
+    ch_assert (ret == ret_ok);
+    ch_assert (! chula_buffer_is_empty (&name));
 
     chula_buffer_mrproper (&name);
 }
@@ -654,8 +654,8 @@ START_TEST (_ntop)
 
     /* Read it */
     ret = chula_ntop (AF_INET, &s, str, INET_ADDRSTRLEN);
-    ck_assert (ret == ret_ok);
-    ck_assert_str_eq (str, ip);
+    ch_assert (ret == ret_ok);
+    ch_assert_str_eq (str, ip);
 }
 END_TEST
 
@@ -670,7 +670,7 @@ START_TEST (_random)
         equal &= (chula_random() == chula_random());
     }
 
-    ck_assert (! equal);
+    ch_assert (! equal);
 }
 END_TEST
 
@@ -678,32 +678,32 @@ START_TEST (formated_time)
 {
     chula_buffer_t s = CHULA_BUF_INIT;
 
-    ck_assert (chula_eval_formated_time(&s) == 0);
+    ch_assert (chula_eval_formated_time(&s) == 0);
 
     chula_buffer_fake_str (&s, "0");
-    ck_assert (chula_eval_formated_time(&s) == 0);
+    ch_assert (chula_eval_formated_time(&s) == 0);
     chula_buffer_fake_str (&s, "0s");
-    ck_assert (chula_eval_formated_time(&s) == 0);
+    ch_assert (chula_eval_formated_time(&s) == 0);
     chula_buffer_fake_str (&s, "0d");
-    ck_assert (chula_eval_formated_time(&s) == 0);
+    ch_assert (chula_eval_formated_time(&s) == 0);
 
     chula_buffer_fake_str (&s, "15");
-    ck_assert (chula_eval_formated_time(&s) == 15);
+    ch_assert (chula_eval_formated_time(&s) == 15);
     chula_buffer_fake_str (&s, "15s");
-    ck_assert (chula_eval_formated_time(&s) == 15);
+    ch_assert (chula_eval_formated_time(&s) == 15);
     chula_buffer_fake_str (&s, "15h");
-    ck_assert (chula_eval_formated_time(&s) == 15*60*60);
+    ch_assert (chula_eval_formated_time(&s) == 15*60*60);
     chula_buffer_fake_str (&s, "15w");
-    ck_assert (chula_eval_formated_time(&s) == 15*60*60*24*7);
+    ch_assert (chula_eval_formated_time(&s) == 15*60*60*24*7);
 
     chula_buffer_fake_str (&s, "111");
-    ck_assert (chula_eval_formated_time(&s) == 111);
+    ch_assert (chula_eval_formated_time(&s) == 111);
     chula_buffer_fake_str (&s, "111s");
-    ck_assert (chula_eval_formated_time(&s) == 111);
+    ch_assert (chula_eval_formated_time(&s) == 111);
     chula_buffer_fake_str (&s, "111m");
-    ck_assert (chula_eval_formated_time(&s) == 111*60);
+    ch_assert (chula_eval_formated_time(&s) == 111*60);
     chula_buffer_fake_str (&s, "111d");
-    ck_assert (chula_eval_formated_time(&s) == 111*60*60*24);
+    ch_assert (chula_eval_formated_time(&s) == 111*60*60*24);
 }
 END_TEST
 
@@ -713,10 +713,10 @@ START_TEST (_backtrace)
     chula_buffer_t s    = CHULA_BUF_INIT;
 
     ret = chula_buf_add_backtrace (&s, 0, "\n", "");
-    ck_assert (ret == ret_ok);
-    ck_assert (s.len > 0);
-    ck_assert (strstr(s.buf, "main") != NULL);
-    ck_assert (strstr(s.buf, "_backtrace") != NULL);
+    ch_assert (ret == ret_ok);
+    ch_assert (s.len > 0);
+    ch_assert (strstr((const char*)s.buf, "main") != NULL);
+    ch_assert (strstr((const char*)s.buf, "_backtrace") != NULL);
 
     chula_buffer_mrproper (&s);
 }
@@ -729,9 +729,9 @@ START_TEST (get_shell)
     const char *bin   = NULL;
 
     ret = chula_get_shell (&shell, &bin);
-    ck_assert (ret == ret_ok);
-    ck_assert (shell != NULL);
-    ck_assert (bin != NULL);
+    ch_assert (ret == ret_ok);
+    ch_assert (shell != NULL);
+    ch_assert (bin != NULL);
 }
 END_TEST
 
@@ -742,7 +742,7 @@ START_TEST (_wait_pid)
     pid_t  pid;
 
     pid = fork();
-    ck_assert (pid >= 0);
+    ch_assert (pid >= 0);
 
     if (pid == 0) {
         chula_reset_signals();
@@ -751,8 +751,8 @@ START_TEST (_wait_pid)
     }
 
     ret = chula_wait_pid (pid, &retcode);
-    ck_assert ((ret == ret_ok) || (ret == ret_not_found));
-    ck_assert (retcode == 123);
+    ch_assert ((ret == ret_ok) || (ret == ret_not_found));
+    ch_assert (retcode == 123);
 }
 END_TEST
 
@@ -762,8 +762,8 @@ START_TEST (_wait_pid2)
     int   retcode = 22;
 
     ret = chula_wait_pid (-11, &retcode);
-    ck_assert (ret == ret_not_found);
-    ck_assert (retcode == 22);
+    ch_assert (ret == ret_not_found);
+    ch_assert (retcode == 22);
 }
 END_TEST
 
@@ -773,19 +773,19 @@ START_TEST (set_nodelay)
     int   fd;
 
     /* Errors */
-    ck_assert (chula_fd_set_nodelay (-1, true) == ret_error);
+    ch_assert (chula_fd_set_nodelay (-1, true) == ret_error);
 
     /* Regular case */
     fd = socket (AF_INET, SOCK_STREAM, 0);
-    ck_assert (fd >= 0);
+    ch_assert (fd >= 0);
 
     ret = chula_fd_set_nodelay (fd, true);
-    ck_assert (ret == ret_ok);
-    ck_assert (fcntl(fd, F_GETFL, 0) & O_NDELAY);
+    ch_assert (ret == ret_ok);
+    ch_assert (fcntl(fd, F_GETFL, 0) & O_NDELAY);
 
     ret = chula_fd_set_nodelay (fd, false);
-    ck_assert (ret == ret_ok);
-    ck_assert (fcntl(fd, F_GETFL, 0) & ~O_NDELAY);
+    ch_assert (ret == ret_ok);
+    ch_assert (fcntl(fd, F_GETFL, 0) & ~O_NDELAY);
 
     chula_fd_close(fd);
 }
@@ -797,19 +797,19 @@ START_TEST (set_nonblocking)
     int   fd;
 
     /* Errors */
-    ck_assert (chula_fd_set_nonblocking(-1, true) == ret_error);
+    ch_assert (chula_fd_set_nonblocking(-1, true) == ret_error);
 
     /* Regular case */
     fd = socket (AF_INET, SOCK_STREAM, 0);
-    ck_assert (fd >= 0);
+    ch_assert (fd >= 0);
 
     ret = chula_fd_set_nonblocking (fd, true);
-    ck_assert (ret == ret_ok);
-    ck_assert (fcntl(fd, F_GETFL, 0) & O_NONBLOCK);
+    ch_assert (ret == ret_ok);
+    ch_assert (fcntl(fd, F_GETFL, 0) & O_NONBLOCK);
 
     ret = chula_fd_set_nonblocking (fd, false);
-    ck_assert (ret == ret_ok);
-    ck_assert (fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
+    ch_assert (ret == ret_ok);
+    ch_assert (fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
 
     chula_fd_close(fd);
 }
@@ -821,15 +821,15 @@ START_TEST (set_closexec)
     int   fd;
 
     /* Errors */
-    ck_assert (chula_fd_set_closexec(-1) == ret_error);
+    ch_assert (chula_fd_set_closexec(-1) == ret_error);
 
     /* Regular case */
     fd = socket (AF_INET, SOCK_STREAM, 0);
-    ck_assert (fd >= 0);
+    ch_assert (fd >= 0);
 
     ret = chula_fd_set_closexec (fd);
-    ck_assert (ret == ret_ok);
-    ck_assert (fcntl(fd, F_GETFD, 0) & FD_CLOEXEC);
+    ch_assert (ret == ret_ok);
+    ch_assert (fcntl(fd, F_GETFD, 0) & FD_CLOEXEC);
 
     chula_fd_close(fd);
 }
@@ -844,19 +844,19 @@ START_TEST (set_reuseaddr)
     socklen_t val_len = sizeof(val);
 
     /* Errors */
-    ck_assert (chula_fd_set_reuseaddr(-1) == ret_error);
+    ch_assert (chula_fd_set_reuseaddr(-1) == ret_error);
 
     /* Regular case */
     fd = socket (AF_INET, SOCK_STREAM, 0);
-    ck_assert (fd >= 0);
+    ch_assert (fd >= 0);
 
     ret = chula_fd_set_reuseaddr (fd);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     re = getsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &val, &val_len);
-    ck_assert (re == 0);
-    ck_assert (val != 0);
-    ck_assert (val_len != 0);
+    ch_assert (re == 0);
+    ch_assert (val != 0);
+    ch_assert (val_len != 0);
 
     chula_fd_close(fd);
 }
@@ -869,18 +869,18 @@ START_TEST (_syslog)
 
     /* Empty */
     ret = chula_syslog (LOG_INFO, &info);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     /* One liner */
     chula_buffer_add_str (&info, "one liner");
     ret = chula_syslog (LOG_INFO, &info);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     /* Multiple lines */
     chula_buffer_clean (&info);
     chula_buffer_add_str (&info, "first line\nsecond one");
     ret = chula_syslog (LOG_INFO, &info);
-    ck_assert (ret == ret_ok);
+    ch_assert (ret == ret_ok);
 
     chula_buffer_mrproper (&info);
 }
