@@ -39,16 +39,16 @@
 #define VLQ_MAX_LEN_INTEGER (SIZEOF_INT + 2)
 
 ret_t
-integer_encode (int            N,        /* Prefix length in bits  */
-                unsigned int  value,     /* Number to encode       */
-                unsigned char *mem,      /* Memory to encode it to */
-                unsigned char *mem_len); /* Memory used            */
+hpack_integer_encode (int            N,        /* Prefix length in bits  */
+                      unsigned int  value,     /* Number to encode       */
+                      unsigned char *mem,      /* Memory to encode it to */
+                      unsigned char *mem_len); /* Memory used            */
 
 ret_t
-integer_decode (int            N,         /* Prefix length in bits  */
-                unsigned char *mem,       /* Memory to read         */
-                unsigned char  mem_len,   /* Length of the memory   */
-                unsigned int  *ret,       /* Value return           */
-                unsigned int  *consumed); /* Length of encoded num  */
+hpack_integer_decode (int            N,         /* Prefix length in bits  */
+                      unsigned char *mem,       /* Memory to read         */
+                      unsigned char  mem_len,   /* Length of the memory   */
+                      unsigned int  *ret,       /* Value return           */
+                      unsigned int  *consumed); /* Length of encoded num  */
 
 #endif /* LIBHPACK_INTEGER_H */

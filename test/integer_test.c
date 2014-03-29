@@ -45,7 +45,7 @@ START_TEST (encode_10_5bits)
 
     /* 4.1.1.1.  Example 1: Encoding 10 using a 5-bit prefix
      */
-    integer_encode (5, 10, tmp, &len);
+    hpack_integer_encode (5, 10, tmp, &len);
 
     /* Check output */
     ch_assert (len == 1);
@@ -60,7 +60,7 @@ START_TEST (encode_1337_5bits)
 
     /* 4.1.1.2.  Example 2: Encoding 1337 using a 5-bit prefix
      */
-    integer_encode (5, 1337, tmp, &len);
+    hpack_integer_encode (5, 1337, tmp, &len);
 
     /* Check output */
     ch_assert (len == 3);
@@ -77,7 +77,7 @@ START_TEST (encode_42_8bits)
 
     /* 4.1.1.3.  Example 3: Encoding 42 starting at an octet-boundary
      */
-    integer_encode (8, 42, tmp, &len);
+    hpack_integer_encode (8, 42, tmp, &len);
 
     /* Check output */
     ch_assert (len == 1);
@@ -90,7 +90,7 @@ START_TEST (encode_12_6bits)
     unsigned char len   = 0xFF;
     unsigned char tmp[] = {0xC0,0};
 
-    integer_encode (6, 12, tmp, &len);
+    hpack_integer_encode (6, 12, tmp, &len);
 
     /* Check output */
     ch_assert (len == 1);
@@ -103,7 +103,7 @@ START_TEST (encode_1338_5bits)
     unsigned char len   = 0xFF;
     unsigned char tmp[] = {0xA0,0,0,0,0};
 
-    integer_encode (5, 1338, tmp, &len);
+    hpack_integer_encode (5, 1338, tmp, &len);
 
     /* Check output */
     ch_assert (len == 3);
@@ -120,7 +120,7 @@ START_TEST (decode_19_6bits)
     unsigned int  con   = 0;
     unsigned char tmp[] = {0x80 | 19};
 
-    ret = integer_decode (6, tmp, 1, &num, &con);
+    ret = hpack_integer_decode (6, tmp, 1, &num, &con);
     ch_assert (ret == ret_ok);
     ch_assert (con == 1);
     ch_assert (num == 19);
@@ -140,7 +140,7 @@ START_TEST (decode_34_6bits)
      * no subsequent bytes are tried to be read (for that, that part
      * should be filled with 1s).
      */
-    ret = integer_decode (6, tmp, 1, &num, &con);
+    ret = hpack_integer_decode (6, tmp, 1, &num, &con);
     ch_assert (ret == ret_ok);
     ch_assert (con == 1);
     ch_assert (num == 34);
@@ -154,7 +154,7 @@ START_TEST (decode_1337_5bits)
     unsigned int  con   = 0;
     unsigned char tmp[] = {31,154,10};
 
-    ret = integer_decode (5, tmp, 3, &num, &con);
+    ret = hpack_integer_decode (5, tmp, 3, &num, &con);
 
     ch_assert (ret == ret_ok);
     ch_assert (num == 1337);
@@ -171,10 +171,10 @@ START_TEST (en_decode_2147483647_5bits)
     uint32_t      num      = 0;
     unsigned int  con      = 0;
 
-    integer_encode (5, 2147483647, tmp, &tmp_len);
+    hpack_integer_encode (5, 2147483647, tmp, &tmp_len);
     ch_assert (tmp_len > 0);
 
-    err = integer_decode (5, tmp, tmp_len, &num, &con);
+    err = hpack_integer_decode (5, tmp, tmp_len, &num, &con);
     ch_assert (err == 0);
     ch_assert (con == 6);
     ch_assert (num == 2147483647);
@@ -198,7 +198,7 @@ START_TEST (decode_too_big_for_int)
      */
     data = sizeof(int) > 32? data64 : data32;
 
-    ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
+    ret = hpack_integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
     ch_assert (ret == ret_ok);
     ch_assert (num >= 0);
     ch_assert (num == (sizeof(int) > 32? 9223372036854776062u : 2952790270u));
@@ -222,7 +222,7 @@ START_TEST (decode_too_big_for_uint)
      * the machine, which should be an error.
      */
     data = sizeof(int) > 32? data64 : data32;
-    ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
+    ret = hpack_integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
     ch_assert (ret != ret_ok);
     ch_assert (con == 0);
 }
@@ -244,7 +244,7 @@ START_TEST (decode_too_big_for_ulong)
      * the machine, which should be an error.
      */
     data = sizeof(int) > 32? data64 : data32;
-    ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
+    ret = hpack_integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
     ch_assert (ret != ret_ok);
     ch_assert (con == 0);
 }
@@ -264,7 +264,7 @@ START_TEST (decode_too_many_zeros)
     memset(data+1, 0x80, sizeof(data)-1);
     data[sizeof(data)-1] |= 1;
 
-    ret = integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
+    ret = hpack_integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
     ch_assert (ret != ret_ok);
     ch_assert (con == 0);
 }
@@ -281,10 +281,10 @@ START_TEST (en_decode_max_uint_5bits)
     /* This test encodes and decodes the maximum unsigned int to confirm that
      * it also works in that end.
      */
-    integer_encode (5, UINT_MAX, tmp, &tmp_len);
+    hpack_integer_encode (5, UINT_MAX, tmp, &tmp_len);
     ch_assert (tmp_len > 0);
 
-    err = integer_decode (5, tmp, tmp_len, &num, &con);
+    err = hpack_integer_decode (5, tmp, tmp_len, &num, &con);
     ch_assert (err == 0);
     ch_assert (con == tmp_len);
     ch_assert (num == UINT_MAX);
@@ -302,10 +302,10 @@ START_TEST (en_decode_2nd_byte_0)
     /* This test encodes and decodes a number that will use the limit of the
      * first byte and have the second byte as zero.
      */
-    integer_encode (8, 255, tmp, &tmp_len);
+    hpack_integer_encode (8, 255, tmp, &tmp_len);
     ch_assert (tmp_len > 0);
 
-    err = integer_decode (8, tmp, tmp_len, &num, &con);
+    err = hpack_integer_decode (8, tmp, tmp_len, &num, &con);
     ch_assert (err == 0);
     ch_assert (con == tmp_len);
     ch_assert (num == 255);
@@ -329,11 +329,11 @@ START_TEST (range_0_65535)
             memset (tmp, 0, sizeof(tmp));
 
             /* Encode */
-            ret = integer_encode (bitsn, num, tmp, &len1);
+            ret = hpack_integer_encode (bitsn, num, tmp, &len1);
             ch_assert (ret == ret_ok);
 
             /* Decode */
-            ret = integer_decode (bitsn, tmp, sizeof(tmp), &val, &len2);
+            ret = hpack_integer_decode (bitsn, tmp, sizeof(tmp), &val, &len2);
             ch_assert (ret == ret_ok);
 
             /* Tests */

@@ -96,7 +96,7 @@ parse_string (chula_buffer_t       *buf,
     huffman = ((uint8_t)buf->buf[n]) & 0x80;
 
     /* Name */
-    ret = integer_decode (7, (unsigned char*)buf->buf + n, buf->len - n, &len, &con);
+    ret = hpack_integer_decode (7, (unsigned char*)buf->buf + n, buf->len - n, &len, &con);
     if (unlikely (ret != ret_ok)) return ret_error;
     n += con;
 
@@ -145,7 +145,7 @@ parse_indexed (chula_buffer_t       *buf,
    +---+---------------------------+
 */
     /* Read number */
-    ret = integer_decode (7, (unsigned char *)buf->buf + n, buf->len - n, &num, &con);
+    ret = hpack_integer_decode (7, (unsigned char *)buf->buf + n, buf->len - n, &num, &con);
     if (ret != ret_ok) return ret_error;
 
     /* Retrieve header table entry */
@@ -202,7 +202,7 @@ parse_header_pair (chula_buffer_t       *buf,
     if (buf->buf[n] & 0x3F) {
         hpack_header_field_t *entry;
 
-        ret = integer_decode (6, (unsigned char *)buf->buf+n, buf->len-n, &len, &con);
+        ret = hpack_integer_decode (6, (unsigned char *)buf->buf+n, buf->len-n, &len, &con);
         if (unlikely (ret != ret_ok)) return ret_error;
         n += con;
 
@@ -250,7 +250,7 @@ parse_context_update (chula_buffer_t       *buf,
     }
 
     /* Set new length */
-    ret = integer_decode (7, (unsigned char *)buf->buf + n, buf->len - n, &num, &con);
+    ret = hpack_integer_decode (7, (unsigned char *)buf->buf + n, buf->len - n, &num, &con);
     if (ret != ret_ok) return ret_error;
 
     ret = hpack_header_block_set_max (&table->dynamic, num);

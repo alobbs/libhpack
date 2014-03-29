@@ -55,10 +55,10 @@ static const unsigned char limits[] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
  * @retval ret_ok  number converted successfully
  */
 ret_t
-integer_encode (int            N,
-                unsigned int   value,
-                unsigned char *mem,
-                unsigned char *mem_len)
+hpack_integer_encode (int            N,
+                      unsigned int   value,
+                      unsigned char *mem,
+                      unsigned char *mem_len)
 {
     int i = 0;
 
@@ -115,15 +115,15 @@ integer_encode (int            N,
  * @retval ret_error Incorrect format
  */
 ret_t
-integer_decode (int            N,
-                unsigned char *mem,
-                unsigned char  mem_len,
-                unsigned int  *ret,
-                unsigned int  *consumed)
+hpack_integer_decode (int            N,
+                      unsigned char *mem,
+                      unsigned char  mem_len,
+                      unsigned int  *ret,
+                      unsigned int  *consumed)
 {
-    const unsigned char limit = limits[N];
-    int M = 0;
-    unsigned long decoded = 0;
+    const unsigned char limit   = limits[N];
+    int                 M       = 0;
+    unsigned long       decoded = 0;
 
     /* Trivial 1 byte number
      */
