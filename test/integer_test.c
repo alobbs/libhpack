@@ -261,10 +261,10 @@ START_TEST (decode_too_many_zeros)
      * decoding error.
      */
     data[0] = 0xFF;
-    memset(data+1, 0x80, sizeof(data)-1);
+    memset (data+1, 0x80, sizeof(data)-1);
     data[sizeof(data)-1] |= 1;
 
-    ret = hpack_integer_decode (8, (unsigned char *)data, strlen(data), &num, &con);
+    ret = hpack_integer_decode (8, (unsigned char *)data, (uint8_t)sizeof(data), &num, &con);
     ch_assert (ret != ret_ok);
     ch_assert (con == 0);
 }
