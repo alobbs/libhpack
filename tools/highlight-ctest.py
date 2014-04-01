@@ -12,6 +12,8 @@ def green (s):
     return ESC + '0;32m' + s + RESET
 def red (s):
     return ESC + '0;31m' + s + RESET
+def yellow (s):
+    return ESC + '0;33m' + s + RESET
 def red_ (s):
     return ESC + '4;31m' + s + RESET
 def _red (s):
@@ -86,18 +88,44 @@ def highlight_ctest_run (f_in, f_out):
 			" "*(3-len(fail_d)), fail_c
 
 
+def highlight_valgrind_run (f_in, f_out):
+	def color_line (line,func):
+		n = line.find("== ")
+		if n == -1:
+			return line
+		return line[:n+3] + func(line[n+3:])
+
+	while True:
+		line = f_in.readline()
+		if not line:
+			break
+
+		if 'Invalid read' in line or \
+		   'Process terminating with' in line:
+			line = color_line(line.strip(), red) + '\n'
+		elif 'definitely lost in' in line:
+			line = color_line(line.strip(), yellow) + '\n'
+
+		f_out.write (line)
+		f_out.flush()
+
 
 def run_ctest (binpath):
-	def threaded_function(stdout):
+	def threaded_ctest(stdout):
 		highlight_ctest_run (stdout, sys.stdout)
 
+	def threaded_valgrind(stdout):
+		highlight_valgrind_run (stdout, sys.stderr)
+
 	proc = subprocess.Popen (binpath, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-	thread = Thread (target = threaded_function, args=((proc.stdout,)))
-	thread.start()
-	thread.join()
+	thread1 = Thread (target = threaded_ctest,    args=((proc.stdout,)))
+	thread2 = Thread (target = threaded_valgrind, args=((proc.stderr,)))
+	thread1.start()
+	thread1.join()
+	thread2.start()
+	thread2.join()
 
 	proc.communicate()
-
 	if proc.returncode != 0:
 		print
 		if proc.returncode < 0:
