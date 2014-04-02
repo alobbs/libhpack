@@ -95,6 +95,7 @@ def highlight_valgrind_run (f_in, f_out):
 			return line
 		return line[:n+3] + func(line[n+3:])
 
+	outbuf = ''
 	while True:
 		line = f_in.readline()
 		if not line:
@@ -106,24 +107,29 @@ def highlight_valgrind_run (f_in, f_out):
 		elif 'definitely lost in' in line:
 			line = color_line(line.strip(), yellow) + '\n'
 
-		f_out.write (line)
-		f_out.flush()
+		outbuf += line
+
+	return outbuf
 
 
 def run_ctest (binpath):
 	def threaded_ctest(stdout):
 		highlight_ctest_run (stdout, sys.stdout)
 
-	def threaded_valgrind(stdout):
-		highlight_valgrind_run (stdout, sys.stderr)
+	def threaded_valgrind(stdout, outbuf):
+		outbuf += [highlight_valgrind_run (stdout, sys.stderr)]
 
+	stderr_out = []
 	proc = subprocess.Popen (binpath, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-	thread1 = Thread (target = threaded_ctest,    args=((proc.stdout,)))
-	thread2 = Thread (target = threaded_valgrind, args=((proc.stderr,)))
+	thread1 = Thread (target=threaded_ctest,    args=((proc.stdout,)))
+	thread2 = Thread (target=threaded_valgrind, args=((proc.stderr, stderr_out)))
 	thread1.start()
-	thread1.join()
 	thread2.start()
+	thread1.join()
 	thread2.join()
+
+	sys.stderr.write(stderr_out[0])
+	sys.stderr.flush()
 
 	proc.communicate()
 	if proc.returncode != 0:
