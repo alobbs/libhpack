@@ -3,7 +3,7 @@
 /* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
- *     * Alvaro Lopez Ortega <alvaro@gnu.org>
+ *     * Alvaro Lopez Ortega <alvaro@alobbs.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,26 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-int avl_tests (void);
-int md5_tests (void);
-int log_tests (void);
-int list_tests (void);
-int util_tests (void);
-int buffer_tests (void);
-int missing_sysfuncs_tests (void);
+#ifndef CHULA_LOGGER_FD_H
+#define CHULA_LOGGER_FD_H
 
-int
-main (void)
-{
-    int ret;
+#include <libchula/log.h>
 
-    ret  = md5_tests();
-    ret += buffer_tests();
-    ret += list_tests();
-    ret += avl_tests();
-    ret += missing_sysfuncs_tests();
-    ret += util_tests();
-    ret += log_tests();
+typedef struct {
+    chula_log_base_t base;
+    int              fd;
+} chula_log_fd_t;
 
-    return ret;
-}
+#define CHULA_LOG_FD(l) ((chula_log_fd_t *)(l))
+
+ret_t chula_log_fd_new (chula_log_fd_t **logger, int fd);
+
+#endif /* CHULA_LOGGER_FD_H */

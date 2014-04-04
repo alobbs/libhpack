@@ -3,7 +3,7 @@
 /* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
- *     * Alvaro Lopez Ortega <alvaro@gnu.org>
+ *     * Alvaro Lopez Ortega <alvaro@alobbs.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,26 +30,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-int avl_tests (void);
-int md5_tests (void);
-int log_tests (void);
-int list_tests (void);
-int util_tests (void);
-int buffer_tests (void);
-int missing_sysfuncs_tests (void);
+#ifndef CHULA_LOG_H
+#define CHULA_LOG_H
 
-int
-main (void)
-{
-    int ret;
+#include <libchula/buffer.h>
 
-    ret  = md5_tests();
-    ret += buffer_tests();
-    ret += list_tests();
-    ret += avl_tests();
-    ret += missing_sysfuncs_tests();
-    ret += util_tests();
-    ret += log_tests();
+typedef enum {
+    CHULA_LOG_ERROR,
+    CHULA_LOG_WARN,
+    CHULA_LOG_INFO,
+    CHULA_LOG_DEBUG,
+    CHULA_LOG_TRACE
+} chula_log_level_t;
 
-    return ret;
-}
+typedef struct {
+    ret_t (*log)  (void *self, chula_log_level_t level, chula_buffer_t *buf);
+    void  (*free) (void *self);
+} chula_log_base_t;
+
+#define HPACK_LOG(l) ((chula_log_base_t*)(l))
+
+ret_t chula_log_init     (chula_log_base_t *log);
+void  chula_log_shutdown (void);
+
+void  chula_log_error (const char *format, ...);
+void  chula_log_warn  (const char *format, ...);
+void  chula_log_info  (const char *format, ...);
+void  chula_log_debug (const char *format, ...);
+void  chula_log_trace (const char *format, ...);
+
+/* Internal */
+void chula_log_buf (chula_log_level_t level, chula_buffer_t *buf);
+
+#endif /* CHULA_LOG_H */

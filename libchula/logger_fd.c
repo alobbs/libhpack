@@ -3,7 +3,7 @@
 /* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
- *     * Alvaro Lopez Ortega <alvaro@gnu.org>
+ *     * Alvaro Lopez Ortega <alvaro@alobbs.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,26 +30,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-int avl_tests (void);
-int md5_tests (void);
-int log_tests (void);
-int list_tests (void);
-int util_tests (void);
-int buffer_tests (void);
-int missing_sysfuncs_tests (void);
+#include "common-internal.h"
+#include "logger_fd.h"
 
-int
-main (void)
+#include <errno.h>
+#include <unistd.h>
+
+static ret_t
+_fd_log (void *self, chula_log_level_t level, chula_buffer_t *buf)
 {
-    int ret;
+    int             re;
+    chula_log_fd_t *log = CHULA_LOG_FD(self);
 
-    ret  = md5_tests();
-    ret += buffer_tests();
-    ret += list_tests();
-    ret += avl_tests();
-    ret += missing_sysfuncs_tests();
-    ret += util_tests();
-    ret += log_tests();
+    UNUSED(level);
 
-    return ret;
+    do {
+        re = write (log->fd, buf->buf, buf->len);
+    } while ((re == -1) && (errno == EAGAIN));
+
+    return ret_ok;
+}
+
+static void
+_fd_free (void *self)
+{
+    free (self);
+}
+
+ret_t
+chula_log_fd_new (chula_log_fd_t **logger, int fd)
+{
+    CHULA_NEW_STRUCT (n, log_fd);
+
+    n->fd              = fd;
+    HPACK_LOG(n)->log  = _fd_log;
+    HPACK_LOG(n)->free = _fd_free;
+
+    *logger = n;
+    return ret_ok;
 }
