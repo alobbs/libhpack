@@ -82,10 +82,16 @@ START_TEST (logger_fd)
     chula_log_info ("%d plus 1 equals %d\n", 2, 3);
     ch_assert (str_in_file ((const char *)path.buf, "2 plus 1 equals 3"));
 
-    chula_log_info ("line %s\nline %s\nline %s", "one", "two", "three");
+    chula_log_warn ("line %s\nline %s\nline %s", "one", "two", "three");
     ch_assert (str_in_file ((const char *)path.buf, "line one"));
     ch_assert (str_in_file ((const char *)path.buf, "line two"));
     ch_assert (str_in_file ((const char *)path.buf, "line three"));
+
+    chula_log_error ("this is an error");
+    chula_log_debug ("and this a debug entry");
+    chula_log_trace ("finally, trace");
+    ch_assert (! str_in_file ((const char *)path.buf, "errorand"));
+    ch_assert (! str_in_file ((const char *)path.buf, "entryfinally"));
 
     /* Shutdown */
     chula_log_shutdown();
