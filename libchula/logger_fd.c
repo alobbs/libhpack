@@ -32,12 +32,43 @@
 
 #include "common-internal.h"
 #include "logger_fd.h"
+#include "util.h"
 
+#include <time.h>
 #include <errno.h>
 #include <unistd.h>
 
 static ret_t
-_fd_log (void *self, chula_log_level_t level, chula_buffer_t *buf)
+do_render (void *self, chula_log_level_t level, chula_buffer_t *buf)
+{
+    size_t         re;
+    time_t         now;
+    struct tm      localtime;
+    char           tmp[30];
+    chula_buffer_t fake;
+
+    UNUSED (self);
+
+    /* Prefix */
+    chula_log_get_level_buf (level, &fake);
+    chula_buffer_prepend_str (buf, " ");
+    chula_buffer_prepend_buf (buf, &fake);
+
+    time (&now);
+    chula_localtime (&now, &localtime);
+    re = strftime (tmp, sizeof(tmp), "[%Y-%m-%d %H:%M:%S] ", &localtime);
+    chula_buffer_prepend (buf, tmp, re);
+
+    /* New line suffix */
+    if (! chula_buffer_is_ending (buf, CHR_LF)) {
+        chula_buffer_add_char (buf, CHR_LF);
+    }
+
+    return ret_ok;
+}
+
+static ret_t
+do_log (void *self, chula_log_level_t level, chula_buffer_t *buf)
 {
     int             re;
     chula_log_fd_t *log = CHULA_LOG_FD(self);
@@ -47,6 +78,21 @@ _fd_log (void *self, chula_log_level_t level, chula_buffer_t *buf)
     do {
         re = write (log->fd, buf->buf, buf->len);
     } while ((re == -1) && (errno == EAGAIN));
+
+    return ret_ok;
+}
+
+
+static ret_t
+_fd_log (void *self, chula_log_level_t level, chula_buffer_t *buf)
+{
+    ret_t ret;
+
+    ret = do_render (self, level, buf);
+    if (unlikely (ret != ret_ok)) return ret;
+
+    ret = do_log (self, level, buf);
+    if (unlikely (ret != ret_ok)) return ret;
 
     return ret_ok;
 }

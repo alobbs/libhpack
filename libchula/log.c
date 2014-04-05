@@ -105,9 +105,6 @@ chula_log_get_level_buf (chula_log_level_t  level,
     va_start (ap, format);                                      \
     chula_buffer_add_va_list (&tmp, format, ap);                \
     va_end (ap);                                                \
-    if (!chula_buffer_is_ending (&tmp, CHR_LF)) {               \
-        chula_buffer_add_char (&tmp, CHR_LF);                   \
-    }                                                           \
                                                                 \
     chula_log_buf (level, &tmp);                                \
     chula_buffer_mrproper (&tmp)                                \
