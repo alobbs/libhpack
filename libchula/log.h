@@ -60,6 +60,7 @@ void  chula_log_debug (const char *format, ...);
 void  chula_log_trace (const char *format, ...);
 
 /* Internal */
-void chula_log_buf (chula_log_level_t level, chula_buffer_t *buf);
+void chula_log_buf           (chula_log_level_t level, chula_buffer_t *buf);
+void chula_log_get_level_buf (chula_log_level_t level, chula_buffer_t *buf);
 
 #endif /* CHULA_LOG_H */

@@ -72,6 +72,31 @@ chula_log_buf (chula_log_level_t  level,
     }
 }
 
+void
+chula_log_get_level_buf (chula_log_level_t  level,
+                         chula_buffer_t    *buf)
+{
+    switch (level) {
+    case CHULA_LOG_ERROR:
+        chula_buffer_fake_str (buf, "ERROR");
+        break;
+    case CHULA_LOG_WARN:
+        chula_buffer_fake_str (buf, "WARN");
+        break;
+    case CHULA_LOG_INFO:
+        chula_buffer_fake_str (buf, "INFO");
+        break;
+    case CHULA_LOG_DEBUG:
+        chula_buffer_fake_str (buf, "DEBUG");
+        break;
+    case CHULA_LOG_TRACE:
+        chula_buffer_fake_str (buf, "TRACE");
+        break;
+    default:
+        SHOULDNT_HAPPEN;
+    }
+}
+
 
 #define chula_log_GUTS(level)                                   \
     va_list        ap;                                          \
