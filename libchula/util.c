@@ -697,12 +697,14 @@ chula_fd_set_nodelay (int fd, bool enable)
 	 */
 
 #ifdef FIONBIO
+    bool e = enable;
+
 	/* Even though the right thing to do would be to use POSIX's
 	 * O_NONBLOCK, we are using FIONBIO here. It requires a single
 	 * syscall, while using O_NONBLOCK would require us to call
 	 * fcntl(F_GETFL) and fcntl(F_SETFL, O_NONBLOCK)
 	 */
-	re = ioctl (fd, FIONBIO, &enable);
+	re = ioctl (fd, FIONBIO, &e);
 
 #else
 	int flags = 0;
