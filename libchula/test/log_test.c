@@ -41,19 +41,20 @@
 
 
 static bool
-str_in_file (const char *filepath,
-             const char *string)
+str_in_file (chula_buffer_t *filepath,
+             const char     *string)
 {
-    struct stat sb;
-    stat (filepath, &sb);
+    ret_t          ret;
+    bool           found;
+    chula_buffer_t tmp    = CHULA_BUF_INIT;
 
-    char tmp[sb.st_size + 1];
-    FILE *f = fopen (filepath, "r");
+    ret = chula_buffer_read_file (&tmp, (char *)filepath->buf);
+    if (unlikely(ret != ret_ok)) return false;
 
-    fread (tmp, 1, sb.st_size, f);
-    fclose (f);
+    found = (strnstr ((char *)tmp.buf, string, tmp.len) != NULL);
 
-    return (strnstr (tmp, string, sb.st_size) != NULL);
+    chula_buffer_mrproper (&tmp);
+    return found;
 }
 
 START_TEST (logger_fd)
@@ -80,18 +81,24 @@ START_TEST (logger_fd)
 
     /* Testing */
     chula_log_info ("%d plus 1 equals %d\n", 2, 3);
-    ch_assert (str_in_file ((const char *)path.buf, "2 plus 1 equals 3"));
+    ch_assert (str_in_file (&path, "2 plus 1 equals 3"));
 
     chula_log_warn ("line %s\nline %s\nline %s", "one", "two", "three");
-    ch_assert (str_in_file ((const char *)path.buf, "line one"));
-    ch_assert (str_in_file ((const char *)path.buf, "line two"));
-    ch_assert (str_in_file ((const char *)path.buf, "line three"));
+    ch_assert (str_in_file (&path, "line one"));
+    ch_assert (str_in_file (&path, "line two"));
+    ch_assert (str_in_file (&path, "line three"));
 
     chula_log_error ("this is an error");
     chula_log_debug ("and this a debug entry");
     chula_log_trace ("finally, trace");
-    ch_assert (! str_in_file ((const char *)path.buf, "errorand"));
-    ch_assert (! str_in_file ((const char *)path.buf, "entryfinally"));
+    ch_assert (! str_in_file (&path, "errorand"));
+    ch_assert (! str_in_file (&path, "entryfinally"));
+
+    /* Report */
+    chula_buffer_t tmp = CHULA_BUF_INIT;
+    chula_buffer_read_file (&tmp, (char *)path.buf);
+    chula_print_repr (chula, buffer, &tmp);
+    chula_buffer_mrproper (&tmp);
 
     /* Shutdown */
     chula_log_shutdown();
