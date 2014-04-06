@@ -36,12 +36,12 @@
 #include <unistd.h>
 #include "buffer.h"
 
-#define chula_print_repr(scope,type,obj)				\
-	   do {										\
-			 chula_buffer_t tmp = CHULA_BUF_INIT;		\
-			 scope ## _ ## type ## _repr (obj, &tmp);	\
-			 write (1, tmp.buf, tmp.len);		          \
-			 chula_buffer_mrproper (&tmp);			\
-	   } while(false)
+#define chula_print_repr(scope,type,obj)                              \
+    do {                                                              \
+        chula_buffer_t __repr_tmp = CHULA_BUF_INIT;                   \
+        scope ## _ ## type ## _repr ((obj), &__repr_tmp);             \
+        write (STDOUT_FILENO, __repr_tmp.buf, __repr_tmp.len);		  \
+        chula_buffer_mrproper (&__repr_tmp);                          \
+    } while(false)
 
 #endif /* CHULA_DEBUG_H */
