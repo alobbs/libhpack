@@ -129,6 +129,7 @@ START_TEST (literal_w_index_false_len) {
     ch_assert (consumed == 0);
 
     hpack_header_parser_mrproper (&parser);
+    hpack_header_field_mrproper (&field);
 }
 END_TEST
 
@@ -156,6 +157,7 @@ START_TEST (literal_wo_index) {
     ch_assert_str_eq (field.value.buf, "/sample/path");
 
     hpack_header_parser_mrproper (&parser);
+    hpack_header_field_mrproper (&field);
 }
 END_TEST
 
@@ -207,6 +209,7 @@ START_TEST (indexed_big_value) {
     ch_assert (consumed == 0);
 
     hpack_header_parser_mrproper (&parser);
+    hpack_header_field_mrproper (&field);
 }
 END_TEST
 
@@ -238,6 +241,7 @@ START_TEST (indexed_many_zeroes) {
     ch_assert (consumed == 0);
 
     hpack_header_parser_mrproper (&parser);
+    hpack_header_field_mrproper (&field);
 }
 END_TEST
 
