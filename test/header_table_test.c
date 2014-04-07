@@ -138,6 +138,9 @@ START_TEST (field_get_len) {
     ret = hpack_header_field_get_size (&field, &len);
     ch_assert (ret == ret_ok);
     ch_assert (len == 42);
+
+    ret = hpack_header_field_mrproper (&field);
+    ch_assert (ret == ret_ok);
 }
 END_TEST
 
