@@ -1326,12 +1326,11 @@ chula_buffer_repr (chula_buffer_t *buf,
                    chula_buffer_t *output)
 {
     uint32_t  i;
-    char      text[67];
     uint8_t   tmp;
+    char      text[67]   = {[0 ... 66] = 0};
     char     *hex_text   = NULL;
     char     *ascii_text = NULL;
 
-    memset(text, 0, sizeof(text));
     for (i=0; i < buf->len; i++) {
         if (i%16 == 0) {
             if (text[0] != 0){
