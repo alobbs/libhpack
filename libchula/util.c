@@ -32,6 +32,7 @@
 
 #include "common-internal.h"
 #include "util.h"
+#include "log.h"
 #include "missing_sysfuncs.h"
 
 #include <signal.h>
@@ -1883,7 +1884,7 @@ chula_wait_pid (pid_t pid, int *retcode)
 			continue;
 
 		} else {
-			PRINT_ERROR ("ERROR: waiting PID %d, error %d\n", pid, errno);
+			chula_log_error ("ERROR: waiting PID %d, error %d\n", pid, errno);
 			return ret_error;
 		}
 	}

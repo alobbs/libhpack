@@ -39,6 +39,7 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include "macros.h"
+#include "log.h"
 
 #if defined HAVE_ENDIAN_H
 # include <endian.h>

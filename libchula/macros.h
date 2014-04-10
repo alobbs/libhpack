@@ -38,7 +38,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdbool.h>
-//#include "consts.h"
 
 #define __chula_func__ __func__
 
@@ -166,9 +165,9 @@
 
 /* Temporal vars pair
  */
-#define CHULA_TEMP_VARS(obj, size)             \
-        const unsigned int obj ## _size = size; \
-        char obj[size]
+#define CHULA_TEMP_VARS(obj, size)              \
+    const unsigned int obj ## _size = size;     \
+    char obj[size]
 
 /* Macros
  */
@@ -180,43 +179,44 @@
 #define CHULA_MK_NEW(obj,type)      CHULA_GEN_MK_NEW(chula,obj,type)
 #define CHULA_DCL_POINTER(obj,type) CHULA_GEN_DCL_POINTER(chula,obj,type)
 
-#define RETURN_IF_FAIL(expr,ret)					\
-	do {								\
-		if (!(expr)) {						\
-			PRINT_ERROR ("assertion `%s' failed\n", #expr);	\
-			return (ret);					\
-		}							\
+#define RETURN_IF_FAIL(expr,ret)                                \
+	do {                                                        \
+		if (!(expr)) {                                          \
+            chula_log_error ("assertion `%s' failed\n", #expr); \
+			return (ret);                                       \
+		}                                                       \
 	} while(0)
 
-#define SHOULDNT_HAPPEN							    \
-	do {							   	    \
-		fprintf (stderr,					    \
-			 "file %s:%d (%s): this shouldn't have happened\n", \
-			 __FILE__, __LINE__, __chula_func__);	            \
-		fflush (stderr);					    \
+#define SHOULDNT_HAPPEN                                             \
+	do {                                                            \
+		fprintf (stderr,                                            \
+                 "file %s:%d (%s): this shouldn't have happened\n", \
+                 __FILE__, __LINE__, __chula_func__);	            \
+		fflush (stderr);                                            \
 	} while (0)
 
-#define RET_TO_STR(r)  (r == ret_no_sys)?         "ret_no_sys"         : \
-		       (r == ret_nomem)?          "ret_nomem"          : \
-		       (r == ret_deny)?           "ret_deny"           : \
-		       (r == ret_error)?          "ret_error"          : \
-		       (r == ret_ok)?             "ret_ok"             : \
-		       (r == ret_eof)?            "ret_eof"            : \
-		       (r == ret_eof_have_data)?  "ret_eof_have_data"  : \
-		       (r == ret_not_found)?      "ret_not_found"      : \
-		       (r == ret_file_not_found)? "ret_file_not_found" : \
-		       (r == ret_eagain)?         "ret_eagain"         : \
-		       (r == ret_ok_and_sent)?    "ret_ok_and_sent"    : \
-		       "ret_???"
+#define RET_TO_STR(r)                                                   \
+    (r == ret_no_sys)?         "ret_no_sys"         :                   \
+    (r == ret_nomem)?          "ret_nomem"          :                   \
+    (r == ret_deny)?           "ret_deny"           :                   \
+    (r == ret_error)?          "ret_error"          :                   \
+    (r == ret_ok)?             "ret_ok"             :                   \
+    (r == ret_eof)?            "ret_eof"            :                   \
+    (r == ret_eof_have_data)?  "ret_eof_have_data"  :                   \
+    (r == ret_not_found)?      "ret_not_found"      :                   \
+    (r == ret_file_not_found)? "ret_file_not_found" :                   \
+    (r == ret_eagain)?         "ret_eagain"         :                   \
+    (r == ret_ok_and_sent)?    "ret_ok_and_sent"    :                   \
+    "ret_???"
 
 
-#define RET_UNKNOWN(ret)		       			     \
-	do {					      		     \
-		fprintf (stderr,			   	     \
-			 "file %s:%d (%s): unknown ret code: %s\n",  \
-			 __FILE__, __LINE__,                         \
-		        __chula_func__, RET_TO_STR(ret));	     \
-		fflush (stderr);				     \
+#define RET_UNKNOWN(ret)                                    \
+	do {                                                    \
+		fprintf (stderr,                                    \
+                 "file %s:%d (%s): unknown ret code: %s\n", \
+                 __FILE__, __LINE__,                        \
+                 __chula_func__, RET_TO_STR(ret));          \
+		fflush (stderr);                                    \
 	} while (0)
 
 #define UNUSED(x) ((void)(x))
@@ -272,34 +272,6 @@
 
 #define CHULA_ADD_FUNC_NEW(klass)  CHULA_GEN_ADD_FUNC_NEW(chula,klass)
 #define CHULA_ADD_FUNC_FREE(klass) CHULA_GEN_ADD_FUNC_FREE(chula,klass)
-
-
-/* Printing macros
- */
-#if defined(__GNUC__) || ( defined(__SUNPRO_C) && __SUNPRO_C > 0x590 )
-# define PRINT_MSG(fmt,arg...)    do { fprintf(stderr, fmt, ##arg); fflush(stderr); } while(0)
-# define PRINT_ERROR(fmt,arg...)  do { fprintf(stderr, "%s:%d - "fmt, __FILE__, __LINE__, ##arg); fflush(stderr); } while(0)
-#else
-# define PRINT_MSG(fmt,...)       do { fprintf(stderr, fmt, __VA_ARGS__); fflush(stderr); } while(0)
-# define PRINT_ERROR(fmt,...)     do { fprintf(stderr, "%s:%d - "fmt, __FILE__, __LINE__, __VA_ARGS__); fflush(stderr); } while(0)
-#endif
-
-#ifdef DEBUG
-# ifdef __GNUC__
-#  define PRINT_DEBUG(fmt,arg...) do { fprintf(stdout, "%s:%d - " fmt,__FILE__,__LINE__,##arg); fflush(stdout); } while (0)
-# else
-#  define PRINT_DEBUG(fmt,...)    do { fprintf(stdout, "%s:%d - " fmt,__FILE__,__LINE__,__VA_ARGS__); fflush(stdout); } while (0)
-# endif
-#else
-# ifdef __GNUC__
-#  define PRINT_DEBUG(fmt,arg...) do { } while(0)
-# else
-#  define PRINT_DEBUG(fmt,...)    do { } while(0)
-# endif
-#endif
-
-#define PRINT_ERROR_S(str)        PRINT_ERROR("%s",str)
-#define PRINT_MSG_S(str)          PRINT_MSG("%s",str)
 
 /* Tracing facility
  */
