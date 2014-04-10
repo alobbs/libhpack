@@ -139,9 +139,9 @@ node_rotate_left (chula_avl_generic_node_t *node)
 	if (right->left_child)
 		node->right = right->left;
 	else {
-		node->right_child = FALSE;
+		node->right_child = false;
 		node->right = right;
-		right->left_child = TRUE;
+		right->left_child = true;
 	}
 	right->left = node;
 
@@ -177,9 +177,9 @@ node_rotate_right (chula_avl_generic_node_t *node)
 	if (left->right_child)
 		node->left = left->right;
 	else {
-		node->left_child = FALSE;
+		node->left_child = false;
 		node->left = left;
-		left->right_child = TRUE;
+		left->right_child = true;
 	}
 	left->right = node;
 
@@ -515,10 +515,10 @@ chula_avl_generic_del (chula_avl_generic_t *avl, chula_avl_generic_node_t *key, 
 				if (next->right_child)
 					nextp->left = next->right;
 				else
-					nextp->left_child = FALSE;
+					nextp->left_child = false;
 
 				nextp->balance    += 1;
-				next->right_child  = TRUE;
+				next->right_child  = true;
 				next->right        = node->right;
 
 			} else {
@@ -531,7 +531,7 @@ chula_avl_generic_del (chula_avl_generic_t *avl, chula_avl_generic_node_t *key, 
 			prev->right = next;
 
 			/* prepare 'next' to replace 'node' */
-			next->left_child = TRUE;
+			next->left_child = true;
 			next->left = node->left;
 			next->balance = node->balance;
 

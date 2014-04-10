@@ -42,15 +42,6 @@
 
 #define __chula_func__ __func__
 
-/* Booleans
- */
-#ifndef TRUE
-#  define TRUE 1
-#endif
-#ifndef FALSE
-#  define FALSE 0
-#endif
-
 /* NULL
  */
 #ifndef NULL
