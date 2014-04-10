@@ -30,28 +30,54 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-int avl_tests (void);
-int md5_tests (void);
-int log_tests (void);
-int list_tests (void);
-int util_tests (void);
-int macro_tests (void);
-int buffer_tests (void);
-int missing_sysfuncs_tests (void);
+#include "libchula/testing_macros.h"
+
+typedef struct {
+    int foo;
+} test_obj1_t;
+
+static ret_t
+test_obj1_new (test_obj1_t **obj, int val)
+{
+    *obj = INT_TO_POINTER(val);
+    return ret_ok;
+}
+
+static ret_t
+gen_new_obj_w_ret (void)
+{
+    test_obj1_t *obj = CHULA_GEN_NEW_OBJ(test,obj1,1234);
+    ch_assert (POINTER_TO_INT(obj) == 1234);
+    return ret_ok;
+}
+
+static ret_t
+gen_new_obj_3_w_ret (void)
+{
+    test_obj1_t *a = CHULA_GEN_NEW_OBJ(test,obj1,123);
+    test_obj1_t *b = CHULA_GEN_NEW_OBJ(test,obj1,456);
+    test_obj1_t *c = CHULA_GEN_NEW_OBJ(test,obj1,789);
+    ch_assert (POINTER_TO_INT(a) == 123);
+    ch_assert (POINTER_TO_INT(b) == 456);
+    ch_assert (POINTER_TO_INT(c) == 789);
+    return ret_ok;
+}
+
+
+START_TEST (gen_new_obj) {
+    gen_new_obj_w_ret();
+}
+END_TEST
+START_TEST (gen_new_obj_3) {
+    gen_new_obj_3_w_ret();
+}
+END_TEST
 
 int
-main (void)
+macro_tests (void)
 {
-    int ret;
-
-    ret  = md5_tests();
-    ret += macro_tests();
-    ret += buffer_tests();
-    ret += list_tests();
-    ret += avl_tests();
-    ret += missing_sysfuncs_tests();
-    ret += util_tests();
-    ret += log_tests();
-
-    return ret;
+    Suite *s1 = suite_create("Macros");
+    check_add (s1, gen_new_obj);
+    check_add (s1, gen_new_obj_3);
+    run_test (s1);
 }
