@@ -41,4 +41,6 @@
 #define HPACK_ADD_FUNC_NEW(klass)  CHULA_GEN_ADD_FUNC_NEW(hpack,klass)
 #define HPACK_ADD_FUNC_FREE(klass) CHULA_GEN_ADD_FUNC_FREE(hpack,klass)
 
+#define HPACK_NEW_OBJ(klass,...)   CHULA_GEN_NEW_OBJ(hpack,klass,__VA_ARGS__)
+
 #endif /* HPACK_MACROS_H */

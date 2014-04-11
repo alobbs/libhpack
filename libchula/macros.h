@@ -273,12 +273,16 @@
 #define CHULA_ADD_FUNC_NEW(klass)  CHULA_GEN_ADD_FUNC_NEW(chula,klass)
 #define CHULA_ADD_FUNC_FREE(klass) CHULA_GEN_ADD_FUNC_FREE(chula,klass)
 
+/* Class instantiation
+ */
 #define CHULA_GEN_NEW_OBJ(pre,klass,...) ({                             \
     pre ## _ ## klass ## _t *__obj = NULL;                              \
     ret_t __ret = pre ## _ ## klass ## _new (&__obj, __VA_ARGS__);      \
     if (unlikely (__ret != ret_ok)) return __ret;                       \
     __obj;                                                              \
 })
+
+#define CHULA_NEW_OBJ(klass,...) CHULA_GEN_NEW_OBJ(chula,klass,__VA_ARGS__)
 
 /* Tracing facility
  */
