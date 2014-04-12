@@ -753,7 +753,7 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
      */
     estimation = chula_estimate_va_length (format, args);
     if (unlikely (estimation) < 0) {
-//      LOG_ERROR (CHULA_ERROR_BUFFER_NEG_ESTIMATION, format, estimation);
+        chula_log_error ("Buffer: Bad memory estimation. The format '%s' estimated a negative length: %d", format, estimation);
         ret = ret_error;
         goto error;
     }
@@ -768,7 +768,7 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
      */
     size = buf->size - buf->len;
     if (unlikely (size < 1)) {
-//      LOG_ERROR (CHULA_ERROR_BUFFER_NO_SPACE, format, size, estimation);
+        chula_log_error ("Buffer: No target memory. The format '%s' got a free size of %d (estimated %d).", size, estimation);
         ret = ret_error;
         goto error;
     }
@@ -776,8 +776,8 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
     len = vsnprintf ((char *)buf->buf + buf->len, size, format, args2);
 #if 0
     if (unlikely (estimation < len)) {
-//      LOG_ERROR (CHULA_ERROR_BUFFER_BAD_ESTIMATION,
-//             format, buf->buf + buf->len, estimation, len, size);
+        chula_log_error ("Buffer: Bad estimation. Too few memory: '%s' -> '%s', esti=%d real=%d size=%d.",
+                         format, buf->buf + buf->len, estimation, len, size););
     }
 #endif
 
@@ -789,8 +789,7 @@ chula_buffer_add_va_list (chula_buffer_t *buf, const char *format, va_list args)
     /* At this point buf-size is always greater than buf-len, thus size > 0.
      */
     if (len >= size) {
-//      LOG_ERROR (CHULA_ERROR_BUFFER_AVAIL_SIZE,
-//             estimation, len, size, format);
+        chula_log_error ("Buffer: Bad estimation: Estimation=%d, needed=%d available size=%d: %s.", estimation, len, size, format);
 
         ret = chula_buffer_ensure_size (buf, buf->len + len + 2);
         if (unlikely (ret != ret_ok)) goto error;
@@ -1208,7 +1207,8 @@ chula_buffer_read_file (chula_buffer_t *buf, char *filename)
      */
     f = chula_open (filename, O_RDONLY | O_BINARY, 0);
     if (f < 0) {
-//      LOG_ERRNO(errno, chula_err_error, CHULA_ERROR_BUFFER_OPEN_FILE, filename);
+        CHULA_TEMP_VARS (tmp, 256);
+        chula_log_error ("Could not open the file: %s, %s", filename, chula_strerror_r(errno, tmp, tmp_size));
         return ret_error;
     }
 
