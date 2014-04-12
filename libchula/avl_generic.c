@@ -32,6 +32,7 @@
 
 #include "common-internal.h"
 #include "avl_generic.h"
+#include "log.h"
 
 #define MAX_HEIGHT 45
 
@@ -349,7 +350,7 @@ node_check (chula_avl_generic_node_t *node)
 	if (node->left_child) {
 		tmp = node_prev (node);
 		if (tmp->right != node) {
-//			LOG_ERROR_S (CHULA_ERROR_AVL_PREVIOUS);
+            chula_log_error ("AVL Tree inconsistency: Right child");
 			return ret_error;
 		}
 	}
@@ -357,7 +358,7 @@ node_check (chula_avl_generic_node_t *node)
 	if (node->right_child) {
 		tmp = node_next (node);
 		if (tmp->left != node) {
-//			LOG_ERROR_S (CHULA_ERROR_AVL_NEXT);
+            chula_log_error ("AVL Tree inconsistency: Left child");
 			return ret_error;
 		}
 	}
@@ -372,7 +373,7 @@ node_check (chula_avl_generic_node_t *node)
 
 	balance = right_height - left_height;
 	if (balance != node->balance) {
-//		LOG_ERROR_S (CHULA_ERROR_AVL_BALANCE);
+        chula_log_error ("AVL Tree inconsistency: Balance");
 		return ret_error;
 	}
 
