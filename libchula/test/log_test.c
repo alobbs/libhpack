@@ -94,6 +94,11 @@ START_TEST (logger_fd)
     ch_assert (! str_in_file (&path, "errorand"));
     ch_assert (! str_in_file (&path, "entryfinally"));
 
+    /* Testing errno */
+    chula_log_errno (ERANGE, CHULA_LOG_DEBUG, "Ohoh, %s: ${errno}!", "surprise");
+    ch_assert (str_in_file (&path, "Ohoh, surprise:"));
+    ch_assert (! str_in_file (&path, "${errno}"));
+
     /* Report */
     chula_buffer_t tmp = CHULA_BUF_INIT;
     chula_buffer_read_file (&tmp, (char *)path.buf);
