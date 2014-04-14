@@ -551,7 +551,9 @@ chula_mkdir_p (chula_buffer_t *path, int mode)
 				err = errno;
 				*p = (uint8_t) '/';
 
-//				LOG_ERRNO (err, chula_err_error, CHULA_ERROR_UTIL_MKDIR, path->buf, getuid());
+                chula_log_errno (err, CHULA_LOG_ERROR,
+                                 "Could not mkdir '%s' (UID %d): ${errno}",
+                                 path->buf, getuid());
 				return ret_error;
 			}
 		}
@@ -567,7 +569,9 @@ chula_mkdir_p (chula_buffer_t *path, int mode)
 	if ((re != 0) && (errno != EEXIST)) {
 		err = errno;
 
-//		LOG_ERRNO (err, chula_err_error, CHULA_ERROR_UTIL_MKDIR, path->buf, getuid());
+        chula_log_errno (err, CHULA_LOG_ERROR,
+                         "Could not mkdir '%s' (UID %d): ${errno}",
+                         path->buf, getuid());
 		return ret_error;
 	}
 
@@ -688,6 +692,7 @@ ret_t
 chula_fd_set_nodelay (int fd, bool enable)
 {
 	int re;
+	int flags = 0;
 
 	/* Disable the Nagle algorithm. This means that segments are
      * always sent as soon as possible, even if there is only a
@@ -708,13 +713,11 @@ chula_fd_set_nodelay (int fd, bool enable)
 	re = ioctl (fd, FIONBIO, &e);
 
 #else
-	int flags = 0;
-
 	/* Use POSIX's O_NONBLOCK
 	 */
  	flags = fcntl (fd, F_GETFL, 0);
 	if (unlikely (flags == -1)) {
-//		LOG_ERRNO (errno, chula_err_warning, CHULA_ERROR_UTIL_F_GETFL, fd);
+        chula_log_errno (errno, CHULA_LOG_ERROR, "fcntl (F_GETFL, fd=%d, 0): ${errno}", fd);
 		return ret_error;
 	}
 
@@ -727,7 +730,7 @@ chula_fd_set_nodelay (int fd, bool enable)
 #endif
 
 	if (unlikely (re < 0)) {
-//		LOG_ERRNO (errno, chula_err_warning, CHULA_ERROR_UTIL_F_SETFL, fd, flags, "O_NDELAY");
+        chula_log_errno (errno, CHULA_LOG_ERROR, "fcntl (F_SETFL, fd=%d, flags=%d (+%s)): ${errno}", fd, flags, "O_NDELAY");
 		return ret_error;
 	}
 
@@ -742,7 +745,7 @@ chula_fd_set_nonblocking (int fd, bool enable)
 
 	flags = fcntl (fd, F_GETFL, 0);
 	if (flags < 0) {
-//		LOG_ERRNO (errno, chula_err_warning, CHULA_ERROR_UTIL_F_GETFL, fd);
+        chula_log_errno (errno, CHULA_LOG_ERROR, "fcntl (F_GETFL, fd=%d, 0): ${errno}", fd);
 		return ret_error;
 	}
 
@@ -753,7 +756,7 @@ chula_fd_set_nonblocking (int fd, bool enable)
 
 	re = fcntl (fd, F_SETFL, flags);
 	if (re < 0) {
-//		LOG_ERRNO (errno, chula_err_warning, CHULA_ERROR_UTIL_F_SETFL, fd, flags, "O_NONBLOCK");
+        chula_log_errno (errno, CHULA_LOG_ERROR, "fcntl (F_SETFL, fd=%d, flags=%d (+%s)): ${errno}", fd, flags, "O_NONBLOCK");
 		return ret_error;
 	}
 
@@ -768,7 +771,7 @@ chula_fd_set_closexec (int fd)
 
 	flags = fcntl (fd, F_GETFD, 0);
 	if (flags < 0) {
-//		LOG_ERRNO (errno, chula_err_warning, CHULA_ERROR_UTIL_F_GETFD, fd);
+        chula_log_errno (errno, CHULA_LOG_ERROR, "fcntl (F_GETFD, fd=%d, 0): ${errno}", fd);
 		return ret_error;
 	}
 
@@ -776,7 +779,7 @@ chula_fd_set_closexec (int fd)
 
 	re = fcntl (fd, F_SETFD, flags);
 	if (re < 0) {
-//		LOG_ERRNO (errno, chula_err_warning, CHULA_ERROR_UTIL_F_SETFD, fd, flags, "FD_CLOEXEC");
+        chula_log_errno (errno, CHULA_LOG_ERROR, "fcntl (F_SETFD, fd=%d, flags=%d (+%s)): ${errno}", fd, flags, "FD_CLOEXEC");
 		return ret_error;
 	}
 
