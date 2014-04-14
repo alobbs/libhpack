@@ -50,14 +50,19 @@ typedef struct {
 
 #define HPACK_LOG(l) ((chula_log_base_t*)(l))
 
+/* Init & Shutdown */
 ret_t chula_log_init     (chula_log_base_t *log);
 void  chula_log_shutdown (void);
 
+/* Regular logging */
 void  chula_log_error (const char *format, ...);
 void  chula_log_warn  (const char *format, ...);
 void  chula_log_info  (const char *format, ...);
 void  chula_log_debug (const char *format, ...);
 void  chula_log_trace (const char *format, ...);
+
+/* Utilities */
+void  chula_log_errno (int errorno, chula_log_level_t level, const char *format, ...);
 
 /* Internal */
 void chula_log_buf           (chula_log_level_t level, chula_buffer_t *buf);

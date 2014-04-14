@@ -31,6 +31,7 @@
  */
 
 #include "log.h"
+#include "util.h"
 
 static chula_log_base_t *logger = NULL;
 
@@ -138,4 +139,32 @@ void
 chula_log_trace (const char *format, ...)
 {
     chula_log_GUTS (CHULA_LOG_TRACE);
+}
+
+
+void
+chula_log_errno (int                errorno,
+                 chula_log_level_t  level,
+                 const char        *format, ...)
+{
+    va_list         ap;
+    char           *estr;
+    chula_buffer_t  tmp   = CHULA_BUF_INIT;
+
+    /* Format log entry */
+    va_start (ap, format);
+    chula_buffer_add_va_list (&tmp, format, ap);
+    va_end (ap);
+
+    /* errno */
+    CHULA_TEMP_VARS(error,128);
+
+    estr = chula_strerror_r (errorno, error, error_size);
+    if (likely (estr != NULL)) {
+        chula_buffer_replace_string (&tmp, "${error}", 8, estr, strlen(estr));
+    }
+
+    /* Log */
+    chula_log_buf (level, &tmp);
+    chula_buffer_mrproper (&tmp);
 }
