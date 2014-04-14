@@ -161,7 +161,7 @@ chula_log_errno (int                errorno,
 
     estr = chula_strerror_r (errorno, error, error_size);
     if (likely (estr != NULL)) {
-        chula_buffer_replace_string (&tmp, "${error}", 8, estr, strlen(estr));
+        chula_buffer_replace_string (&tmp, "${errno}", 8, estr, strlen(estr));
     }
 
     /* Log */
