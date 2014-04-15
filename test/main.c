@@ -29,19 +29,23 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <stdio.h>
+#include <libhpack/header_table.h>
 
 int header_table_tests (void);
 int integer_tests (void);
 int huffman_tests (void);
 int header_tests (void);
+int bitmap_set_tests (void);
 
 int
 main (void)
 {
     int ret;
 
-    ret  = integer_tests();
-    ret += huffman_tests();
+    //ret  = integer_tests();
+    ret = huffman_tests();
+    ret += bitmap_set_tests();
     ret += header_table_tests();
     ret += header_tests();
 

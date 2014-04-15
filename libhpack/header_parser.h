@@ -4,6 +4,7 @@
  *
  *   Authors:
  *     * Alvaro Lopez Ortega <alvaro@gnu.org>
+ *     * Gorka Eguileor <gorka@eguileor.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,6 +31,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file      header_parser.h
+ * @brief     Header Parser implementation for HPACK.
+ *
+ * This contains the prototypes for the Header Field implementation used in HPACK
+ * parser/decoder as specified in [HPACK - Header Compression for HTTP/2](http://http2.github.io/http2-spec/compression.html).
+ *
+.* Also contains any macros, constants, or global variables you will need.
+ *
+ * @author    Alvaro Lopez Ortega <alvaro@gnu.org>
+ * @author    Gorka Eguileor <gorka@eguileor.com>
+ * @date      April, 2014
+ */
+
 #ifndef LIBHPACK_HEADER_PARSER_H
 #define LIBHPACK_HEADER_PARSER_H
 
@@ -37,28 +52,54 @@
 #include <libhpack/header_field.h>
 #include <libhpack/header_table.h>
 #include <libhpack/header_store.h>
+#include <libhpack/bitmap_set.h>
 
+
+/**
+ * Decoder context table structure.
+ */
 typedef struct {
-    hpack_header_table_t  table;
-    hpack_header_store_t *store;
+    hpack_header_table_t table;            /**< Header Table. */
+    hpack_set_t          reference_set;    /**< Reference Set for differential encoding. */
+    hpack_set_t          ref_not_emitted;  /**< References from the reference set we haven't emmited yet. */
+    hpack_set_iterator_t iter_not_emitted; /**< Iterator to emit remaining headers from the reference set. */
+    bool                 b_finished;       /**< Marks when we will receive no more data to decode. */
+} hpack_header_parser_context_t;
+
+/**
+ * Header Parser Structure.
+ */
+typedef struct {
+    hpack_header_parser_context_t context;  /**< Decoding context. */
+    hpack_header_store_t          *store;   /**< Storage to return decoded fields. */
 } hpack_header_parser_t;
 
-ret_t hpack_header_parser_init      (hpack_header_parser_t *parser);
-ret_t hpack_header_parser_mrproper  (hpack_header_parser_t *parser);
 
-ret_t hpack_header_parser_reg_store (hpack_header_parser_t *parser,
-                                     hpack_header_store_t  *store);
+/** @brief Reserves memory for a new Header Parser and initializes it. */
+ret_t hpack_header_parser_new       (hpack_header_parser_t **parser);
 
-ret_t hpack_header_parser_field     (hpack_header_parser_t *parser,
-                                     chula_buffer_t        *buf,
-                                     unsigned int           offset,
-                                     hpack_header_field_t  *field,
-                                     unsigned int          *consumed);
+/** @brief Header Parser initializer. */
+ret_t hpack_header_parser_init      (hpack_header_parser_t  *parser);
 
-ret_t hpack_header_parser_all       (hpack_header_parser_t *parser,
-                                     chula_buffer_t        *buf,
-                                     unsigned int           offset,
-                                     unsigned int          *consumed);
+/** @brief Clean up all memory used by the Header parser. */
+ret_t hpack_header_parser_mrproper  (hpack_header_parser_t **parser);
+
+/** @brief Register a Storage for decoded Header Fields. */
+ret_t hpack_header_parser_reg_store (hpack_header_parser_t  *parser,
+                                     hpack_header_store_t   *store);
+
+/** @brief Parse data for 1 field. */
+ret_t hpack_header_parser_field     (hpack_header_parser_t  *parser,
+                                     chula_buffer_t         *buf,
+                                     unsigned int            offset,
+                                     hpack_header_field_t   *field,
+                                     unsigned int           *consumed);
+
+/** @brief Parse complete Header Block. */
+ret_t hpack_header_parser_all       (hpack_header_parser_t  *parser,
+                                     chula_buffer_t         *buf,
+                                     unsigned int            offset,
+                                     unsigned int           *consumed);
 
 
 #endif /* LIBHPACK_HEADER_PARSER_H */

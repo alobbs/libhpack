@@ -43,4 +43,12 @@
 
 #define HPACK_NEW_OBJ(klass,...)   CHULA_GEN_NEW_OBJ(hpack,klass,__VA_ARGS__)
 
+#define SETTINGS_HEADER_TABLE_SIZE       4096
+
+// By doing this we can optimize the circular buffer calculations of the headers table. We'll have space for 127 entries instead of 125.
+#define HPACK_MAX_HEADER_TABLE_ENTRIES   128
+#define HPACK_CB_HEADER_OFFSETS_MASK (HPACK_MAX_HEADER_TABLE_ENTRIES - 1)
+#define HPACK_CB_HEADER_DATA_SIZE SETTINGS_HEADER_TABLE_SIZE
+#define HPACK_CB_HEADER_DATA_MASK (HPACK_CB_HEADER_DATA_SIZE -1)
+
 #endif /* HPACK_MACROS_H */
