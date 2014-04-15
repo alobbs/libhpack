@@ -43,8 +43,8 @@ main (void)
 {
     int ret;
 
-    //ret  = integer_tests();
-    ret = huffman_tests();
+    ret  = integer_tests();
+    ret += huffman_tests();
     ret += bitmap_set_tests();
     ret += header_table_tests();
     ret += header_tests();
