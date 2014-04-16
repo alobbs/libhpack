@@ -118,10 +118,10 @@ class BruteParser():
 		"""
 
 		# We force the retrieval to have 257 entries, otherwise the huffman table is not complete
-		r = re.search("(?P<data>(\s*?.+?\s*\(\s*\d+\s*\)\s*[01\|]+\s*\[\s*(?P<bit_len>\d+)\s*\]\s*[\da-fA-F]+\s*\[\s*(?P=bit_len)\s*\](.|\n)*?){257,257})",data,re.MULTILINE)
+		r = re.search("(?P<data>(\s*?.+?\s*\(\s*\d+\s*\)\s*[01\|]+\s*(\[\s*(?P<opt_bit_len>\d+)\s*\]\s*)?[\da-fA-F]+\s*\[\s*(?P<bit_len>(?(opt_bit_len)(?P=opt_bit_len)|\d+))\s*\](.|\n)*?){257,257})",data,re.MULTILINE)
 
 		# We'll use another regex to retrieve only the lines with data and to split its contents.
-		re_data = re.compile("\s*?((?P<symb>(\'.+?\'|[^.\s]+?))|\s)\s*?\(\s*(?P<symb_N>\d+?)\)\s*?(?P<MSB_bits>[01\|]+?)\s*?\[(?P<bit_len>\d+?)\]\s*?(?P<LSB_hex>[\da-f]+?)\s*?\[(?P=bit_len)\]")
+		re_data = re.compile("\s*?((?P<symb>(\'.+?\'|[^.\s]+?))|\s)\s*?\(\s*(?P<symb_N>\d+?)\)\s*?(?P<MSB_bits>[01\|]+)\s*?(\[(?P<opt_bit_len>\d+)\]\s*?)?(?P<LSB_hex>[\da-f]+?)\s*?\[\s*(?P<bit_len>(?(opt_bit_len)(?P=opt_bit_len)|\d+))\s*\]")
 
 		if r:
 			# Split lines for processing
@@ -547,7 +547,7 @@ def get_data(cfg):
 	# Get current data from the output file
 	current_data = get_current_data(cfg)
 
-	up_to_date = current_data and ((etag and (etag == current_data['etag'])) or ((source_date == current_data['date']) and (source_size == current_data['size'])))
+	up_to_date = current_data and ((etag and (etag != '""') and (etag == current_data['etag'])) or ((source_date == current_data['date']) and (source_size == current_data['size'])))
 
 	if cfg.force or not up_to_date:
 		if 'Content-Type' in headers.keys() and '=' in headers['Content-Type']:
@@ -648,7 +648,7 @@ def main():
 	decode_table = gen_decode_table(data['data'], args.verbosity)
 
 	if hpack_huffman[1] == data['current_data']['hpack_huffman'] and decode_table == data['current_data']['decode_table'] and not args.force:
-		verbosity(args.verbosity, 0, green("File " + args.output + " is up to date. Nothing to do."))
+		verbosity(args.verbosity, 0, green("File " + args.output + " has same contents as source. Nothing to do."))
 		return
 
 	verbosity(args.verbosity, 1, "Rendering output")
