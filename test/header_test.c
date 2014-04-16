@@ -4,6 +4,7 @@
  *
  *   Authors:
  *     * Alvaro Lopez Ortega <alvaro@gnu.org>
+ *     * Gorka Eguileor <gorka@eguileor.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -62,11 +63,21 @@
 
 START_TEST (literal_w_index) {
 /*
-   00                                      | == Literal indexed ==
+   http://http2.github.io/http2-spec/compression.html#rfc.section.D.2.1
+
+   40                                      | == Literal indexed ==
    0a                                      |   Literal name (len = 10)
    6375 7374 6f6d 2d6b 6579                | custom-key
    0d                                      |   Literal value (len = 13)
    6375 7374 6f6d 2d68 6561 6465 72        | custom-header
+                                           | -> custom-key: custom-header
+
+   Header Table (after decoding):
+     [  1] (s =  55) custom-key: custom-header
+           Table size:  55
+
+   Decoded header set:
+     custom-key: custom-header
 */
     ret_t                  ret;
     chula_buffer_t         raw;
@@ -76,7 +87,7 @@ START_TEST (literal_w_index) {
 
     hpack_header_parser_new (&parser);
     hpack_header_field_init  (&field);
-    chula_buffer_fake_str (&raw, "\x00\x0a\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\x0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72");
+    chula_buffer_fake_str (&raw, "\x40\x0a\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\x0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72");
 
     ret = hpack_header_parser_field (parser, &raw, 0, &field, &consumed);
     ch_assert (ret == ret_ok);
@@ -97,29 +108,28 @@ END_TEST
 
 START_TEST (literal_w_index_false_len) {
 /*
-    This test tries to break the header field parsing by sending string
-    literals with a string length field too big to be hold by a signed integer
-    (works with 32bit and 64bit machines). Since it's too big, and given the
-    algorithm of the VLQ it gets transformed into a negative number if this has
-    not been taken into account.
+   This test tries to break the header field parsing by sending string
+   literals with a string length field too big to be hold by a signed integer
+   (works with 32bit and 64bit machines). Since it's too big, and given the
+   algorithm of the VLQ it gets transformed into a negative number if this has
+   not been taken into account.
 
-    As a negative number it would pass many of the test conditions for sizes.
+   As a negative number it would pass many of the test conditions for sizes.
 
-    For a 32 bits machine:
-   00                                      | == Literal indexed ==
+   For a 32 bits machine:
+   40                                      | == Literal indexed ==
    ffff ffff ff0a                          |   Literal name (len = 2952790270). Since it's bigger than INT_MAX (2147483647) it results in a negative number.
    6375 7374 6f6d 2d6b 6579                | custom-key
    0d                                      |   Literal value (len = 13)
    6375 7374 6f6d 2d68 6561 6465 72        | custom-header
 
 
-    For a 64 bits machine:
-   00                                      | == Literal indexed ==
+   For a 64 bits machine:
+   40                                      | == Literal indexed ==
    ffff ffff ffff ffff ffff                |   Literal name (len = 9223372036854776062). Since it's bigger than INT_MAX (9223372036854775807) it results in a negative number
    6375 7374 6f6d 2d6b 6579                | custom-key
    0d                                      |   Literal value (len = 13)
    6375 7374 6f6d 2d68 6561 6465 72        | custom-header
-
 */
     ret_t                  ret;
     chula_buffer_t         raw;
@@ -127,8 +137,8 @@ START_TEST (literal_w_index_false_len) {
     hpack_header_field_t   field;
     unsigned int           consumed = 0;
 
-    const char *data64 = "\x00\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\x0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72";
-    const char *data32 = "\x00\xFF\xFF\xFF\xFF\xFF\x0A\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72";
+    const char *data64 = "\x40\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\x0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72";
+    const char *data32 = "\x40\xFF\xFF\xFF\xFF\xFF\x0A\x63\x75\x73\x74\x6f\x6d\x2d\x6b\x65\x79\0d\x63\x75\x73\x74\x6f\x6d\x2d\x68\x65\x61\x64\x65\x72";
 
     hpack_header_parser_new (&parser);
     hpack_header_field_init (&field);
@@ -147,21 +157,28 @@ START_TEST (literal_w_index_false_len) {
 END_TEST
 
 START_TEST (literal_wo_index) {
+/*
+   http://http2.github.io/http2-spec/compression.html#rfc.section.D.2.2
+
+   04                                      | == Literal not indexed ==
+                                           |   Indexed name (idx = 4) :path
+   0c                                      | Literal value (len = 12)
+   2f73 616d 706c 652f 7061 7468           |   /sample/path
+
+   Header table (after decoding): empty.
+
+   Decoded header set:
+     :path: /sample/path
+*/
     ret_t                  ret;
     chula_buffer_t         raw;
     hpack_header_parser_t *parser;
     hpack_header_field_t   field;
     unsigned int           consumed = 0;
-/*
-   44                                      | == Literal not indexed ==
-                                           |   Indexed name (idx = 4) :path
-   0c                                      | Literal value (len = 12)
-   2f73 616d 706c 652f 7061 7468           |   /sample/path
-*/
 
     hpack_header_parser_new (&parser);
     hpack_header_field_init (&field);
-    chula_buffer_fake_str (&raw, "\x44\x0c\x2f\x73\x61\x6d\x70\x6c\x65\x2f\x70\x61\x74\x68");
+    chula_buffer_fake_str (&raw, "\x04\x0c\x2f\x73\x61\x6d\x70\x6c\x65\x2f\x70\x61\x74\x68");
 
     ret = hpack_header_parser_field (parser, &raw, 0, &field, &consumed);
     ch_assert (ret == ret_ok);
@@ -181,6 +198,20 @@ START_TEST (literal_wo_index) {
 END_TEST
 
 START_TEST (indexed) {
+/*
+   http://http2.github.io/http2-spec/compression.html#rfc.section.D.2.3
+
+   82                                      | == Indexed - Add ==
+                                           |   idx = 2
+                                           | -> :method: GET
+
+   Header Table (after decoding):
+     [  1] (s =  42) :method: GET
+           Table size:  42
+
+   Decoded header set:
+     :method: GET
+ */
     ret_t                  ret;
     chula_buffer_t         raw;
     hpack_header_parser_t *parser;
@@ -275,14 +306,9 @@ START_TEST (indexed_many_zeroes) {
 END_TEST
 
 START_TEST (request1) {
-    ret_t                  ret;
-    chula_buffer_t         raw;
-    hpack_header_parser_t *parser;
-    hpack_header_field_t   field;
-    unsigned int           offset   = 0;
-    unsigned int           consumed = 0;
-
 /*
+   http://http2.github.io/http2-spec/compression.html#rfc.section.D.3.1
+
    82                                      | == Indexed - Add ==
                                            |   idx = 2
                                            | -> :method: GET
@@ -292,15 +318,33 @@ START_TEST (request1) {
    86                                      | == Indexed - Add ==
                                            |   idx = 6
                                            | -> :path: /
-   04                                      | == Literal indexed ==
+   44                                      | == Literal indexed ==
                                            |   Indexed name (idx = 4)
                                            |     :authority
    0f                                      |   Literal value (len = 15)
    7777 772e 6578 616d 706c 652e 636f 6d   | www.example.com
                                            | -> :authority: www.example.com
-*/
+   Header Table (after decoding):
+     [  1] (s =  57) :authority: www.example.com
+     [  2] (s =  38) :path: /
+     [  3] (s =  43) :scheme: http
+     [  4] (s =  42) :method: GET
+           Table size: 180
 
-    chula_buffer_fake_str (&raw, "\x82\x87\x86\x04\x0f\x77\x77\x77\x2e\x65\x78\x61\x6d\x70\x6c\x65\x2e\x63\x6f\x6d");
+   Decoded header set:
+     :method: GET
+     :scheme: http
+     :path: /
+     :authority: www.example.com
+*/
+    ret_t                  ret;
+    chula_buffer_t         raw;
+    hpack_header_parser_t *parser;
+    hpack_header_field_t   field;
+    unsigned int           offset   = 0;
+    unsigned int           consumed = 0;
+
+    chula_buffer_fake_str (&raw, "\x82\x87\x86\x44\x0f\x77\x77\x77\x2e\x65\x78\x61\x6d\x70\x6c\x65\x2e\x63\x6f\x6d");
     hpack_header_field_init (&field);
     hpack_header_parser_new (&parser);
 
@@ -380,6 +424,37 @@ request1_full_TEST (hpack_header_parser_t *parser)
 }
 
 START_TEST (request1_full) {
+/*
+   http://http2.github.io/http2-spec/compression.html#rfc.section.D.3.1
+
+   82                                      | == Indexed - Add ==
+                                           |   idx = 2
+                                           | -> :method: GET
+   87                                      | == Indexed - Add ==
+                                           |   idx = 7
+                                           | -> :scheme: http
+   86                                      | == Indexed - Add ==
+                                           |   idx = 6
+                                           | -> :path: /
+   44                                      | == Literal indexed ==
+                                           |   Indexed name (idx = 4)
+                                           |     :authority
+   0f                                      |   Literal value (len = 15)
+   7777 772e 6578 616d 706c 652e 636f 6d   | www.example.com
+                                           | -> :authority: www.example.com
+   Header Table (after decoding):
+     [  1] (s =  57) :authority: www.example.com
+     [  2] (s =  38) :path: /
+     [  3] (s =  43) :scheme: http
+     [  4] (s =  42) :method: GET
+           Table size: 180
+
+   Decoded header set:
+     :method: GET
+     :scheme: http
+     :path: /
+     :authority: www.example.com
+*/
     ret_t                  ret;
     chula_buffer_t         raw;
     hpack_header_store_t   store;
@@ -387,7 +462,7 @@ START_TEST (request1_full) {
     unsigned int           offset   = 0;
     unsigned int           consumed = 0;
 
-    chula_buffer_fake_str (&raw, "\x82\x87\x86\x04\x0f\x77\x77\x77\x2e\x65\x78\x61\x6d\x70\x6c\x65\x2e\x63\x6f\x6d");
+    chula_buffer_fake_str (&raw, "\x82\x87\x86\x44\x0f\x77\x77\x77\x2e\x65\x78\x61\x6d\x70\x6c\x65\x2e\x63\x6f\x6d");
 
     hpack_header_store_init (&store);
     hpack_header_parser_new (&parser);
@@ -423,7 +498,7 @@ START_TEST (request1_full_huffman) {
     /* First Request
      */
 
-    chula_buffer_fake_str (&raw, "\x82\x87\x86\x04\x8b\xdb\x6d\x88\x3e\x68\xd1\xcb\x12\x25\xba\x7f");
+    chula_buffer_fake_str (&raw, "\x82\x87\x86\x44\x8c\xe7\xcf\x9b\xeb\xe8\x9b\x6f\xb1\x6f\xa9\xb6\xff");
 
     hpack_header_store_init (&store);
     hpack_header_parser_new (&parser);
@@ -449,7 +524,8 @@ START_TEST (request1_full_huffman) {
     offset   = 0;
     consumed = 0;
 
-    chula_buffer_fake_str (&raw, "\x1b\x86\x63\x65\x4a\x13\x98\xff");
+    chula_buffer_fake_str (&raw, "\x5c\x86\xb9\xb9\x94\x95\x56\xbf");
+
     hpack_header_store_init (&store);
 
     /* Full header parse */
@@ -483,7 +559,8 @@ START_TEST (request1_full_huffman) {
     offset   = 0;
     consumed = 0;
 
-    chula_buffer_fake_str (&raw, "\x80\x80\x85\x8c\x8b\x84\x00\x88\x4e\xb0\x8b\x74\x97\x90\xfa\x7f\x89\x4e\xb0\x8b\x74\x97\x9a\x17\xa8\xff");
+    chula_buffer_fake_str (&raw, "\x30\x85\x8c\x8b\x84\x40\x88\x57\x1c\x5c\xdb\x73\x7b\x2f\xaf\x89\x57\x1c\x5c\xdb\x73\x72\x4d\x9c\x57");
+
     hpack_header_store_init (&store);
 
     /* Full header parse */
@@ -520,6 +597,66 @@ END_TEST
 
 
 START_TEST (request2_full_huffman) {
+/*
+   http://http2.github.io/http2-spec/compression.html#rfc.section.D.6.1
+
+   Decoding process:
+
+   48                                      | == Literal indexed ==
+                                           |   Indexed name (idx = 8)
+                                           |     :status
+   82                                      |   Literal value (len = 3)
+                                           |     Huffman encoded:
+   4017                                    | @.
+                                           |     Decoded:
+                                           | 302
+                                           | -> :status: 302
+   59                                      | == Literal indexed ==
+                                           |   Indexed name (idx = 25)
+                                           |     cache-control
+   85                                      |   Literal value (len = 7)
+                                           |     Huffman encoded:
+   bf06 724b 97                            | ..rK.
+                                           |     Decoded:
+                                           | private
+                                           | -> cache-control: private
+   63                                      | == Literal indexed ==
+                                           |   Indexed name (idx = 35)
+                                           |     date
+   93                                      |   Literal value (len = 29)
+                                           |     Huffman encoded:
+   d6db b298 84de 2a71 8805 0620 9851 3109 | ......*q... .Q1.
+   b56b a3                                 | .k.
+                                           |     Decoded:
+                                           | Mon, 21 Oct 2013 20:13:21 \
+                                           | GMT
+                                           | -> date: Mon, 21 Oct 2013 \
+                                           |   20:13:21 GMT
+   71                                      | == Literal indexed ==
+                                           |   Indexed name (idx = 49)
+                                           |     location
+   91                                      |   Literal value (len = 23)
+                                           |     Huffman encoded:
+   adce bf19 8e7e 7cf9 bebe 89b6 fb16 fa9b | ......|.........
+   6f                                      | o
+                                           |     Decoded:
+                                           | https://www.example.com
+                                           | -> location: https://www.e\
+                                           |   xample.com
+
+   Header Table (after decoding):
+     [  1] (s =  63) location: https://www.example.com
+     [  2] (s =  65) date: Mon, 21 Oct 2013 20:13:21 GMT
+     [  3] (s =  52) cache-control: private
+     [  4] (s =  42) :status: 302
+           Table size: 222
+
+   Decoded header set:
+     :status: 302
+     cache-control: private
+     date: Mon, 21 Oct 2013 20:13:21 GMT
+     location: https://www.example.com
+*/
     ret_t                  ret;
     chula_buffer_t         raw;
     hpack_header_store_t   store;
@@ -527,47 +664,7 @@ START_TEST (request2_full_huffman) {
     unsigned int           offset   = 0;
     unsigned int           consumed = 0;
 
-/*
-   08                                      | == Literal indexed ==
-                                           |   Indexed name (idx = 8)
-                                           |     :status
-   82                                      |   Literal value (len = 3)
-                                           |     Huffman encoded:
-   98a7                                    | ..
-                                           |     Decoded:
-                                           | 302
-                                           | -> :status: 302
-   18                                      | == Literal indexed ==
-                                           |   Indexed name (idx = 24)
-                                           |     cache-control
-   85                                      |   Literal value (len = 7)
-                                           |     Huffman encoded:
-   73d5 cd11 1f                            | s....
-                                           |     Decoded:
-                                           | private
-                                           | -> cache-control: private
-   22                                      | == Literal indexed ==
-                                           |   Indexed name (idx = 34)
-                                           |     date
-   98                                      |   Literal value (len = 29)
-                                           |     Huffman encoded:
-   ef6b 3a7a 0e6e 8fa2 63d0 729a 6e83 97d8 | .k:z.n..c.r.n...
-   69bd 8737 47bb bfc7                     | i..7G...
-                                           |     Decoded:
-                                           | Mon, 21 Oct 2013 20:13:21 GMT
-                                           | -> date: Mon, 21 Oct 2013 20:13:21 GMT
-   30                                      | == Literal indexed ==
-                                           |   Indexed name (idx = 48)
-                                           |     location
-   90                                      |   Literal value (len = 23)
-                                           |     Huffman encoded:
-   ce31 743d 801b 6db1 07cd 1a39 6244 b74f | .1t=..m....9bD.O
-                                           |     Decoded:
-                                           | https://www.example.com
-                                           | -> location: https://www.example.com
-*/
-
-    chula_buffer_fake_str (&raw, "\x08\x82\x98\xa7\x18\x85\x73\xd5\xcd\x11\x1f\x22\x98\xef\x6b\x3a\x7a\x0e\x6e\x8f\xa2\x63\xd0\x72\x9a\x6e\x83\x97\xd8\x69\xbd\x87\x37\x47\xbb\xbf\xc7\x30\x90\xce\x31\x74\x3d\x80\x1b\x6d\xb1\x07\xcd\x1a\x39\x62\x44\xb7\x4f");
+    chula_buffer_fake_str (&raw, "\x48\x82\x40\x17\x59\x85\xbf\x06\x72\x4b\x97\x63\x93\xd6\xdb\xb2\x98\x84\xde\x2a\x71\x88\x05\x06\x20\x98\x51\x31\x09\xb5\x6b\xa3\x71\x91\xad\xce\xbf\x19\x8e\x7e\x7c\xf9\xbe\xbe\x89\xb6\xfb\x16\xfa\x9b\x6f");
 
     hpack_header_store_init (&store);
     hpack_header_parser_new (&parser);
