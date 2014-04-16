@@ -111,7 +111,7 @@ typedef struct {
 /**
  * The number of entries in the static table.
  */
-#define STATIC_ENTRIES 60
+#define STATIC_ENTRIES 61u
 
 
 /** @brief Reserves memory for a new Header Table and initializes the Header Table. */

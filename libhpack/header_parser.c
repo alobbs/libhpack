@@ -38,13 +38,11 @@
  * Implementation of a parser/decoder for HPACK Header Blocks as specified in
  * [HPACK - Header Compression for HTTP/2](http://http2.github.io/http2-spec/compression.html).
  *
- * Current implementation is only up to date with Draft 6.
+ * Current implementation is up to date with Draft 7.
  *
  * @author    Alvaro Lopez Ortega <alvaro@gnu.org>
  * @author    Gorka Eguileor <gorka@eguileor.com>
  * @date      April, 2014
- *
- * @todo      Update to latest specifications.
  */
 
 
@@ -387,29 +385,86 @@ parse_indexed (chula_buffer_t                *buf,
  * This function parses an [HPACK's Literal Header Field Representation](http://http2.github.io/http2-spec/compression.html#literal.header.representation).
  *
  @verbatim
-            With Indexing                       Without Indexing
+  LITERAL HEADER FIELD WITH INCREMENTAL INDEXING
 
-    0   1   2   3   4   5   6   7        0   1   2   3   4   5   6   7
-  +---+---+---+---+---+---+---+---+    +---+---+---+---+---+---+---+---+
-  | 0 | 0 |      Index (6+)       |    | 0 | 1 |      Index (6+)       |
-  +---+---+---+-------------------+    +---+---+---+-------------------+
-  | H |     Value Length (7+)     |    | H |     Value Length (7+)     |
-  +-------------------------------+    +-------------------------------+
-  | Value String (Length octets)  |    | Value String (Length octets)  |
-  +-------------------------------+    +-------------------------------+
+    0   1   2   3   4   5   6   7
+  +---+---+---+---+---+---+---+---+
+  | 0 | 1 |      Index (6+)       |
+  +---+---+---+-------------------+
+  | H |     Value Length (7+)     |
+  +-------------------------------+
+  | Value String (Length octets)  |
+  +-------------------------------+
+             Indexed Name
 
-    0   1   2   3   4   5   6   7        0   1   2   3   4   5   6   7
-  +---+---+---+---+---+---+---+---+    +---+---+---+---+---+---+---+---+
-  | 0 | 0 |           0           |    | 0 | 1 |           0           |
-  +---+---+---+-------------------+    +---+---+---+-------------------+
-  | H |     Value Length (7+)     |    | H |     Value Length (7+)     |
-  +-------------------------------+    +-------------------------------+
-  |  Name String (Length octets)  |    |  Name String (Length octets)  |
-  +-------------------------------+    +-------------------------------+
-  | H |     Value Length (7+)     |    | H |     Value Length (7+)     |
-  +-------------------------------+    +-------------------------------+
-  | Value String (Length octets)  |    | Value String (Length octets)  |
-  +-------------------------------+    +-------------------------------+
+    0   1   2   3   4   5   6   7
+  +---+---+---+---+---+---+---+---+
+  | 0 | 1 |           0           |
+  +---+---+---+-------------------+
+  | H |     Value Length (7+)     |
+  +-------------------------------+
+  |  Name String (Length octets)  |
+  +-------------------------------+
+  | H |     Value Length (7+)     |
+  +-------------------------------+
+  | Value String (Length octets)  |
+  +-------------------------------+
+              New Name
+
+
+  LITERAL HEADER FIELD WITHOUT INDEXING
+
+    0   1   2   3   4   5   6   7
+  +---+---+---+---+---+---+---+---+
+  | 0 | 0 | 0 | 0 |  Index (4+)   |
+  +---+---+-----------------------+
+  | H |     Value Length (7+)     |
+  +---+---------------------------+
+  | Value String (Length octets)  |
+  +-------------------------------+
+             Indexed Name
+
+    0   1   2   3   4   5   6   7
+  +---+---+---+---+---+---+---+---+
+  | 0 | 0 | 0 | 0 |       0       |
+  +---+---+-----------------------+
+  | H |     Name Length (7+)      |
+  +---+---------------------------+
+  |  Name String (Length octets)  |
+  +---+---------------------------+
+  | H |     Value Length (7+)     |
+  +---+---------------------------+
+  | Value String (Length octets)  |
+  +-------------------------------+
+              New Name
+
+
+  LITERAL HEADER FIELD NEVER INDEXED
+
+    0   1   2   3   4   5   6   7
+  +---+---+---+---+---+---+---+---+
+  | 0 | 0 | 0 | 1 |  Index (4+)   |
+  +---+---+-----------------------+
+  | H |     Value Length (7+)     |
+  +---+---------------------------+
+  | Value String (Length octets)  |
+  +-------------------------------+
+             Indexed Name
+
+    0   1   2   3   4   5   6   7
+  +---+---+---+---+---+---+---+---+
+  | 0 | 0 | 0 | 1 |       0       |
+  +---+---+-----------------------+
+  | H |     Name Length (7+)      |
+  +---+---------------------------+
+  |  Name String (Length octets)  |
+  +---+---------------------------+
+  | H |     Value Length (7+)     |
+  +---+---------------------------+
+  | Value String (Length octets)  |
+  +-------------------------------+
+              New Name
+
  @endverbatim
  * Not only returns the Header Field decoded from the buffer, but also how many
  * bytes were consumed to decode the Representation.
@@ -442,11 +497,15 @@ parse_header_pair (chula_buffer_t                *buf,
     *consumed = 0;
 
     /* If The Name is indexed */
-    if (buf->buf[n] & 0x3F) {
+    if (buf->buf[n] & 0x0F) {
         bool is_static;
+        int  prefix;
+
+        /* We have 2 possible prefixes 6 and 4. */
+        prefix = buf->buf[n] & 0xC0? 6 : 4;
 
         /* Decode the Index. */
-        ret = hpack_integer_decode (6, (unsigned char *)buf->buf+n, buf->len-n, &len, &con);
+        ret = hpack_integer_decode (prefix, (unsigned char *)buf->buf+n, buf->len-n, &len, &con);
         if (unlikely (ret != ret_ok)) return ret_error;
         n += con;
 
@@ -486,13 +545,13 @@ parse_header_pair (chula_buffer_t                *buf,
  @verbatim
     0   1   2   3   4   5   6   7
   +---+---+---+---+---+---+---+---+
-  | 1 |             0             |
+  | 0 | 0 | 1 | 1 |       0       |
   +---+---------------------------+
        Reference Set Emptying
 
     0   1   2   3   4   5   6   7
   +---+---+---+---+---+---+---+---+
-  | 0 |   New maximum size (7+)   |
+  | 0 | 0 | 1 | 0 | Max size (7+) |
   +---+---------------------------+
    Maximum Header Table Size Change
  @endverbatim
@@ -517,23 +576,22 @@ parse_context_update (chula_buffer_t                *buf,
     ret_t        ret;
     uint32_t     num;
     unsigned int con  = 0;
-    int          n    = offset + 1;
     hpack_set_t  evicted_set;
 
     /* Unless everything goes OK we haven't consumed any bytes */
     *consumed = 0;
 
     /* Requested Reference Set Emptying */
-    if ((uint8_t)buf->buf[n] == 0x80) {
+    if ((uint8_t)buf->buf[offset] == 0x30) {
         hpack_header_table_set_clear (context->reference_set);
         hpack_header_table_set_clear (context->ref_not_emitted);
 
-        *consumed = 2;
+        *consumed = 1;
         return ret_ok;
     }
 
     /* Get new max length. */
-    ret = hpack_integer_decode (7, (unsigned char *)buf->buf + n, buf->len - n, &num, &con);
+    ret = hpack_integer_decode (4, (unsigned char *)buf->buf + offset, buf->len - offset, &num, &con);
     if (ret != ret_ok) return ret_error;
 
     /* Set the new size and get the set of evicted elements. */
@@ -546,7 +604,7 @@ parse_context_update (chula_buffer_t                *buf,
     hpack_header_table_set_relative_comp (context->reference_set, evicted_set);
     hpack_header_table_set_relative_comp (context->ref_not_emitted, evicted_set);
 
-    *consumed = 1 + con;
+    *consumed = con;
     return ret_ok;
 }
 
@@ -666,7 +724,7 @@ hpack_header_parser_field (hpack_header_parser_t *parser,
                            unsigned int          *consumed)
 {
     ret_t          ret;
-    bool           skip_indexing;
+    bool           do_indexing;
     unsigned char  c              = buf->buf[offset];
 
     /* Field is empty unless we emit a header. */
@@ -681,7 +739,7 @@ hpack_header_parser_field (hpack_header_parser_t *parser,
 
     /* Parse field
      */
-    if (c == 0x80) {
+    if ((c & 0xE0) == 0x20) {
         /* Context update */
         ret = parse_context_update (buf, offset, &parser->context, consumed);
         return ret;
@@ -697,12 +755,12 @@ hpack_header_parser_field (hpack_header_parser_t *parser,
 
         /* Add to header table
          */
-        skip_indexing = ((c & 0xc0) == 0x40u);
-        field->flags.rep = skip_indexing? rep_wo_indexing : rep_inc_indexed;
+        do_indexing = ((c & 0xc0) == 0x40u);
 
-        if (!skip_indexing) {
+        if (do_indexing) {
             bool added;
 
+            field->flags.rep = rep_inc_indexed;
             ret = add_field_process_evictions (&parser->context, field, &added);
             if (ret_ok != ret) return ret;
 
@@ -713,6 +771,9 @@ hpack_header_parser_field (hpack_header_parser_t *parser,
                 hpack_header_table_set_add (&parser->context.table, parser->context.reference_set, 1);
                 hpack_header_table_set_remove (&parser->context.table, parser->context.ref_not_emitted, 1);
             }
+
+        } else {
+            field->flags.rep = c & 0xF0 ? rep_never_indx : rep_wo_indexing;
         }
     }
 
