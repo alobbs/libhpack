@@ -1,6 +1,7 @@
 # Library
 set(LIB_NAME hpack)
 file(GLOB hpack_SRCS *.c *.h)
+LIST (APPEND hpack_SRCS huffman_tables.c)
 file(GLOB hpack_HDRS *.h)
 
 add_library (
@@ -17,9 +18,10 @@ set_target_properties (
 )
 
 add_custom_command (
-    TARGET ${LIB_NAME}
-    PRE_BUILD
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/huffman-gen.py -v
+    OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/huffman_tables.c
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/huffman-gen.py
+    ARGS    -v -o ${CMAKE_CURRENT_SOURCE_DIR}/huffman_tables.c
+    COMMENT "Generating the huffman_tables.c file..."
 )
 
 target_link_libraries (${LIB_NAME} ${LIBM})
