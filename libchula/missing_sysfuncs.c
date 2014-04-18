@@ -186,12 +186,20 @@ strlcat (char *dst, const char *src, size_t siz)
 #endif
 
 #ifndef HAVE_MALLOC
-void *
-rpl_malloc (size_t n)
+inline void *
+malloc (size_t n)
 {
 	if (unlikely (n == 0))
 		n = 1;
 
-	return malloc (n);
+	return rpl_malloc(n);
+}
+#endif
+
+#ifndef HAVE_REALLOC
+inline void *
+realloc (void *ptr, size_t n)
+{
+	return rpl_realloc (ptr,n);
 }
 #endif

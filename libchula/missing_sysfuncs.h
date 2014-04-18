@@ -49,7 +49,10 @@ char *strcasestr (const char *s, const char *find);
 size_t strlcat (char *dst, const char *src, size_t siz);
 #endif
 #ifndef HAVE_MALLOC
-void *rpl_malloc (size_t n);
+void *malloc (size_t n);
+#endif
+#ifndef HAVE_REALLOC
+void *realloc (void *ptr, size_t n);
 #endif
 
 char *strncasestr  (const char *s, const char *find, size_t slen);
