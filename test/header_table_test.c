@@ -51,7 +51,7 @@ START_TEST (_init) {
     ch_assert (table->max_data == SETTINGS_HEADER_TABLE_SIZE);
     check_table_empty (table);
 
-    hpack_header_table_mrproper (&table);
+    hpack_header_table_free (table);
 }
 END_TEST
 
@@ -69,7 +69,7 @@ START_TEST (_clear)
     ch_assert (table->max_data == SETTINGS_HEADER_TABLE_SIZE);
     check_table_empty (table);
 
-    hpack_header_table_mrproper (&table);
+    hpack_header_table_free (table);
 }
 END_TEST
 
@@ -89,7 +89,7 @@ START_TEST (_set_max_no_table) {
     ch_assert (table->max_data == 0);
     check_table_empty (table);
 
-    hpack_header_table_mrproper (&table);
+    hpack_header_table_free (table);
 }
 END_TEST
 
@@ -123,7 +123,7 @@ START_TEST (_set_max_no_table_evict_all) {
     check_table_empty (table);
 
     hpack_header_field_mrproper (&field);
-    hpack_header_table_mrproper (&table);
+    hpack_header_table_free (table);
 }
 END_TEST
 
@@ -204,7 +204,7 @@ START_TEST (_set_max_no_table_evict_some) {
     ch_assert (table->headers_data.head == table->headers_data.tail - (size * 3));
 
     hpack_header_field_mrproper (&field);
-    hpack_header_table_mrproper (&table);
+    hpack_header_table_free (table);
 }
 END_TEST
 
@@ -298,7 +298,7 @@ START_TEST (_add_fits) {
     for (int i=0; i<6; ++i) {
         hpack_header_field_mrproper (&fields[i]);
     }
-    hpack_header_table_mrproper (&table);
+    hpack_header_table_free (table);
 }
 END_TEST
 
@@ -375,7 +375,8 @@ START_TEST (_add_some_evacs) {
     for (int i=0; i<6; ++i) {
         hpack_header_field_mrproper (&fields[i]);
     }
-    hpack_header_table_mrproper (&table);
+
+    hpack_header_table_free (table);
 }
 END_TEST
 
@@ -410,7 +411,7 @@ START_TEST (_add_doesnt_fit) {
 
     /* Clean up */
     hpack_header_field_mrproper (&field);
-    hpack_header_table_mrproper (&table);
+    hpack_header_table_free (table);
 }
 END_TEST
 

@@ -113,10 +113,11 @@ typedef struct {
  */
 #define STATIC_ENTRIES 61u
 
-
 ret_t hpack_header_table_new         (hpack_header_table_t **table);
-ret_t hpack_header_table_mrproper    (hpack_header_table_t **table);
+ret_t hpack_header_table_free        (hpack_header_table_t  *table);
+
 ret_t hpack_header_table_init        (hpack_header_table_t  *table);
+ret_t hpack_header_table_mrproper    (hpack_header_table_t  *table);
 ret_t hpack_header_table_clear       (hpack_header_table_t  *table);
 ret_t hpack_header_table_set_max     (hpack_header_table_t  *table, uint16_t max, hpack_set_t evicted_set);
 ret_t hpack_header_table_add         (hpack_header_table_t  *table, hpack_header_field_t *field, hpack_set_t evicted_set);

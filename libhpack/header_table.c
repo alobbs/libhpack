@@ -118,6 +118,7 @@
  */
 
 #include <assert.h>
+#include <libchula/log.h>
 #include <libhpack/macros.h>
 #include <libhpack/header_table.h>
 #include <libhpack/header_field.h>
@@ -499,16 +500,9 @@ header_data_add (hpack_headers_data_cb *h_data,
  * @retval ret_nomem  There's no memory for the new Header Table.
  * @retval ret_ok     Created successfully.
  */
-ret_t
-hpack_header_table_new (hpack_header_table_t **table)
-{
-    *table = (hpack_header_table_t *) malloc (sizeof(hpack_header_table_t));
+HPACK_ADD_FUNC_NEW(header_table);
+HPACK_ADD_FUNC_FREE(header_table);
 
-    if (NULL == *table)
-        return ret_nomem;
-
-    return (hpack_header_table_init (*table));
-}
 
 /** Clean up all memory used by the Header Table
  *
@@ -525,10 +519,13 @@ hpack_header_table_new (hpack_header_table_t **table)
  * @retval ret_ok  Only possible value returned.
  */
 ret_t
-hpack_header_table_mrproper (hpack_header_table_t **table)
+hpack_header_table_mrproper (hpack_header_table_t *table)
 {
-    free (*table);
-    *table = NULL;
+    ret_t ret;
+
+    ret = hpack_header_table_clear (table);
+    if (unlikely (ret != ret_ok)) return ret;
+
     return ret_ok;
 }
 
@@ -546,9 +543,12 @@ hpack_header_table_mrproper (hpack_header_table_t **table)
 ret_t
 hpack_header_table_init (hpack_header_table_t *table)
 {
-    table->max_data = SETTINGS_HEADER_TABLE_SIZE;
+    ret_t ret;
 
-    return (hpack_header_table_clear(table));
+    ret = hpack_header_table_clear (table);
+    if (unlikely (ret != ret_ok)) return ret;
+
+    return ret_ok;
 }
 
 
@@ -565,10 +565,13 @@ hpack_header_table_init (hpack_header_table_t *table)
 ret_t
 hpack_header_table_clear (hpack_header_table_t *table)
 {
-    table->num_headers = 0;
-    table->used_data = 0;
-    table->headers_offsets.head = table->headers_offsets.tail = 0;
-    table->headers_data.head = table->headers_data.tail = 0;
+    table->num_headers          = 0;
+    table->used_data            = 0;
+    table->headers_offsets.head = 0;
+    table->headers_offsets.tail = 0;
+    table->headers_data.head    = 0;
+    table->headers_data.tail    = 0;
+    table->max_data             = SETTINGS_HEADER_TABLE_SIZE;
 
     return ret_ok;
 }
