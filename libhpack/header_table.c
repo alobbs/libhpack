@@ -488,7 +488,8 @@ header_data_add (hpack_headers_data_cb *h_data,
  */
 
 
-/**
+/** Reserves memory for a new Header Table and initializes the Header Table
+ *
  * Creates a new Header Table by reserving the memory needed for it and
  * initializes it.
  *
@@ -509,7 +510,8 @@ hpack_header_table_new (hpack_header_table_t **table)
     return (hpack_header_table_init (*table));
 }
 
-/**
+/** Clean up all memory used by the Header Table
+ *
  * Clean up all memory used by a Header Table previously created with the
  * [new](@ref hpack_header_table_new) function.
  *
@@ -526,13 +528,12 @@ ret_t
 hpack_header_table_mrproper (hpack_header_table_t **table)
 {
     free (*table);
-
     *table = NULL;
-
     return ret_ok;
 }
 
-/**
+/** Initialize the Header Table
+ *
  * Initializer function for a Header Table that basically clears everything.
  * It can be used with Header Tables created with the [new](@ref hpack_header_table_new)
  * function and those created directly in the stack i.e. `hpack_header_table_t ht_variable;`
@@ -551,7 +552,8 @@ hpack_header_table_init (hpack_header_table_t *table)
 }
 
 
-/**
+/** Empty the Header Table
+ *
  * Clears all the header field entries, but does not change the Maximum header
  * size field.
  *
@@ -571,7 +573,8 @@ hpack_header_table_clear (hpack_header_table_t *table)
     return ret_ok;
 }
 
-/**
+/** Add a new Header Field
+ *
  * Add a Header Field to the Header Table as specified in [HPACK specifications](http://http2.github.io/http2-spec/compression.html#entry.addition)
  * Header Fields evicted when adding this new Header Field to the Header Table
  * are returned as a set with all Indexes in the internal format, not HPACK index
@@ -669,7 +672,8 @@ hpack_header_table_add (hpack_header_table_t *table,
 }
 
 
-/**
+/** Set a new maximum size
+ *
  * Set a new Maximum Table Size and process evictions as specified in [HPACK specifications](http://http2.github.io/http2-spec/compression.html#entry.eviction)
  * Header Fields evicted when setting the new Maximum size of the Header Table
  * are returned as a set with all Indexes in the internal format, not HPACK index
@@ -718,7 +722,8 @@ hpack_header_table_set_max (hpack_header_table_t *table,
 }
 
 
-/**
+/** Get an entry from the Header Table using a non HPACK index
+ *
  * Get a Header Field data from the Header Table using an Index from the internal
  * reference (one used in a set).
  *
@@ -777,7 +782,8 @@ hpack_header_table_get_set_idx (hpack_header_table_t *table,
 
 
 
-/**
+/** Get an entry from the Header Table and the Static Table
+ *
  * Get a Header Field data from the Header Table or Static Table using an HPACK
  * Index.
  *
@@ -844,7 +850,8 @@ hpack_header_table_get (hpack_header_table_t *table,
 }
 
 
-/**
+/** Returns the next existing element in the set
+ *
  * Gets the next HPACK index from the Set continuing where it left of in the
  * previous call.
  *
@@ -898,7 +905,8 @@ hpack_header_table_iter_next (hpack_header_table_t *table,
 }
 
 
-/**
+/** Creates a string representation
+ *
  * Generates a string representation of the supplied Header Table.
  *
  * The format used to represent the Header Table is:

@@ -108,8 +108,7 @@ typedef uint32_t hpack_set_entry_t;
 typedef hpack_set_entry_t hpack_set_t [HPACK_SET_NUM_ENTRIES];
 
 
-/**
- * @brief   Iterator for a bitmap set
+/** Iterator for a bitmap set
  *
  * The iterator type allows getting the elements of a bitmap set one at a time to
  * avoid having to check for the existence of each possible index or needing an
@@ -128,63 +127,27 @@ typedef struct {
 } hpack_set_iterator_t;
 
 
-/** @brief Set initializer */
-void     hpack_set_init          (hpack_set_t b_set,  bool fill_set);
+void    hpack_set_init          (hpack_set_t b_set,  bool fill_set);
+ret_t   hpack_set_add           (hpack_set_t b_set,  unsigned int idx);
+ret_t   hpack_set_remove        (hpack_set_t b_set,  unsigned int idx);
+bool    hpack_set_exists        (hpack_set_t b_set,  unsigned int idx);
+void    hpack_set_union         (hpack_set_t b_set1, hpack_set_t b_set2);
+void    hpack_set_relative_comp (hpack_set_t b_set1, hpack_set_t b_set2);
+void    hpack_set_intersection  (hpack_set_t bset_1, hpack_set_t b_set2);
+bool    hpack_set_equals        (hpack_set_t b_set1, hpack_set_t b_set2);
+void    hpack_set_set           (hpack_set_t b_set1, hpack_set_t b_set2);
+void    hpack_set_complement    (hpack_set_t b_set);
+void    hpack_set_clear         (hpack_set_t b_set);
+void    hpack_set_fill          (hpack_set_t b_set);
+bool    hpack_set_is_empty      (hpack_set_t b_set);
+bool    hpack_set_is_full       (hpack_set_t b_set);
 
-/** @brief Adds an index to the set. */
-ret_t    hpack_set_add           (hpack_set_t b_set,  unsigned int idx);
-
-/** @brief Removes an index from the set. */
-ret_t    hpack_set_remove        (hpack_set_t b_set,  unsigned int idx);
-
-/** @brief Checks if an index is in a set. */
-bool     hpack_set_exists        (hpack_set_t b_set,  unsigned int idx);
-
-
-/** @brief Performs the union of the sets. */
-void     hpack_set_union         (hpack_set_t b_set1, hpack_set_t b_set2);
-
-/** @brief Performs the relative complement of the sets. */
-void     hpack_set_relative_comp (hpack_set_t b_set1, hpack_set_t b_set2);
-
-/** @brief Performs the intersection of the sets. */
-void     hpack_set_intersection  (hpack_set_t bset_1, hpack_set_t b_set2);
-
-/** @brief Compares two sets to see if they have the same indexes. */
-bool     hpack_set_equals        (hpack_set_t b_set1, hpack_set_t b_set2);
-
-/** @brief Clones a set. */
-void     hpack_set_set           (hpack_set_t b_set1, hpack_set_t b_set2);
-
-
-/** @brief Turns a set into its complement. */
-void     hpack_set_complement    (hpack_set_t b_set);
-
-/** @brief Clears a set from all its indexes. */
-void     hpack_set_clear         (hpack_set_t b_set);
-
-/** @brief Fills a set with all possible indexes. */
-void     hpack_set_fill          (hpack_set_t b_set);
-
-
-/** @brief Checks if a set is empty. */
-bool     hpack_set_is_empty      (hpack_set_t b_set);
-
-/** @brief Checks if a set if complete. */
-bool     hpack_set_is_full       (hpack_set_t b_set);
-
-
-/** @brief Initializes an iterator for a set. */
-void     hpack_set_iter_init     (hpack_set_iterator_t *iter, hpack_set_t b_set);
+void    hpack_set_iter_init     (hpack_set_iterator_t *iter, hpack_set_t b_set);
+int16_t hpack_set_iter_next     (hpack_set_iterator_t *iter);
+void    hpack_set_iter_reset    (hpack_set_iterator_t *iter);
 
 /** @brief Changes the working set for an iterator. */
 #define  hpack_set_iter_set      hpack_set_iter_init
-
-/** @brief Returns the next existing element in the set. */
-int16_t  hpack_set_iter_next     (hpack_set_iterator_t *iter);
-
-/** @brief Restarts the iterator without changing the refererd set. */
-void     hpack_set_iter_reset    (hpack_set_iterator_t *iter);
 
 #endif /* LIBHPACK_BITMAP_SET_H */
 

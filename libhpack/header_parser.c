@@ -51,7 +51,8 @@
 #include "huffman.h"
 
 
-/**
+/** Reserves memory for a new Header Parser and initializes it
+ *
  * Creates a new Header Parser by reserving the memory needed for it and
  * initializes it.
  *
@@ -72,7 +73,8 @@ ret_t hpack_header_parser_new (hpack_header_parser_t **parser)
 }
 
 
-/**
+/** Header Parser initializer
+ *
  * Initializer function for an HPACK parser.
  * It can be used with Header Parsers created with the [new](@ref hpack_header_parser_new)
  * function and those created directly in the stack i.e. `hpack_header_parser_t hp_variable;`
@@ -101,7 +103,8 @@ hpack_header_parser_init (hpack_header_parser_t *parser)
 }
 
 
-/**
+/** Clean up all memory used by the Header parser
+ *
  * Clean up all memory used by a Header Parser previously created with the
  * [new](@ref hpack_header_parser_new) function.
  *
@@ -118,14 +121,13 @@ ret_t
 hpack_header_parser_mrproper (hpack_header_parser_t **parser)
 {
     free (*parser);
-
     *parser = NULL;
-
     return ret_ok;
 }
 
 
-/**
+/** Register a Storage for decoded Header Fields
+ *
  * Register a new Storage to keep decoded Header Fields when using
  * [hpack_header_parser_all](@ref hpack_header_parser_all).
  *
@@ -672,7 +674,8 @@ final_reference_set_process (hpack_header_parser_context_t *context,
 }
 
 
-/**
+/** Parse data for 1 field
+ *
  * This function processes the next Header Field from the buffer as defined in
  * [HPACK's Header Block Decoding](http://http2.github.io/http2-spec/compression.html#header.block.decoding)
  * and if this processing produces the emission of a new Header Field it will be
@@ -781,7 +784,8 @@ hpack_header_parser_field (hpack_header_parser_t *parser,
 }
 
 
-/**
+/** Parse complete Header Block
+ *
  * This function processes a full [HPACK Header Block](http://http2.github.io/http2-spec/compression.html#header.block.decoding)
  * and if a storage has been registered all emitted fields will be added to the
  * storage.

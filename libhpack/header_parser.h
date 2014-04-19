@@ -75,31 +75,22 @@ typedef struct {
 } hpack_header_parser_t;
 
 
-/** @brief Reserves memory for a new Header Parser and initializes it. */
 ret_t hpack_header_parser_new       (hpack_header_parser_t **parser);
-
-/** @brief Header Parser initializer. */
 ret_t hpack_header_parser_init      (hpack_header_parser_t  *parser);
-
-/** @brief Clean up all memory used by the Header parser. */
 ret_t hpack_header_parser_mrproper  (hpack_header_parser_t **parser);
 
-/** @brief Register a Storage for decoded Header Fields. */
 ret_t hpack_header_parser_reg_store (hpack_header_parser_t  *parser,
                                      hpack_header_store_t   *store);
 
-/** @brief Parse data for 1 field. */
 ret_t hpack_header_parser_field     (hpack_header_parser_t  *parser,
                                      chula_buffer_t         *buf,
                                      unsigned int            offset,
                                      hpack_header_field_t   *field,
                                      unsigned int           *consumed);
 
-/** @brief Parse complete Header Block. */
 ret_t hpack_header_parser_all       (hpack_header_parser_t  *parser,
                                      chula_buffer_t         *buf,
                                      unsigned int            offset,
                                      unsigned int           *consumed);
-
 
 #endif /* LIBHPACK_HEADER_PARSER_H */

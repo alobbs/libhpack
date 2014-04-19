@@ -71,7 +71,8 @@
 #define HPACK_SET_BITS_IN_ENTRY   (sizeof(hpack_set_entry_t) * 8)
 
 
-/**
+/** Set initializer
+ *
  * Initializes a Set to an empty or full et. If the set already has content this
  * will be lost.
  *
@@ -94,7 +95,8 @@ hpack_set_init (hpack_set_t b_set,
 }
 
 
-/**
+/** Adds an index to the set
+ *
  * Ensures that an index is included in a Set by adding it in if it isn't already
  * there.
  *
@@ -122,7 +124,8 @@ hpack_set_add (hpack_set_t  b_set,
 }
 
 
-/**
+/** Performs the union of the sets
+ *
  * Performs the union of the supplied Sets and returns the value in the first
  * Set.
  * This could be considered as adding the indexes from the second Set to the
@@ -142,7 +145,8 @@ hpack_set_union (hpack_set_t b_set1,
 }
 
 
-/**
+/** Removes an index from the set
+ *
  * Ensures that an index is not in a Set by removing it from it if it's in it.
  *
  * @param[in,out] b_set  Set to remove the index from.
@@ -166,7 +170,8 @@ hpack_set_remove (hpack_set_t  b_set,
 }
 
 
-/**
+/** Performs the relative complement of the sets
+ *
  * Performs the relative complement of the supplied Sets and returns the value in
  * the first Set.
  * Doing this removes from the first Set all indexes that are in common between
@@ -186,7 +191,8 @@ hpack_set_relative_comp (hpack_set_t b_set1,
 }
 
 
-/**
+/** Performs the intersection of the sets
+ *
  * Performs the intersection of the supplied Sets and returns the value in the
  * first Set.
  * Doing this leaves in the first Set only those indexes that are in common
@@ -206,7 +212,8 @@ hpack_set_intersection (hpack_set_t b_set1,
 }
 
 
-/**
+/** Turns a set into its complement
+ *
  * Performs the complement of a Set and returns the result of the operation in
  * itself.
  *
@@ -222,7 +229,8 @@ hpack_set_complement (hpack_set_t b_set)
 }
 
 
-/**
+/** Clears a set from all its indexes
+ *
  * Removes all indexes from a Set and returns an empty set in its place.
  *
  * @param[out] b_set  Set to be emptied.
@@ -237,7 +245,8 @@ hpack_set_clear (hpack_set_t b_set)
 }
 
 
-/**
+/** Fills a set with all possible indexes
+ *
  * Fills  the set will all the indexes from the domain.
  * This means that you will have indexes ranging from 0 to
  * [HPACK_SET_NUM_ENTRIES-1](@ref HPACK_SET_NUM_ENTRIES) in the set.
@@ -254,8 +263,7 @@ hpack_set_fill (hpack_set_t b_set)
 }
 
 
-/**
- * @brief Checks if an index is in a set.
+/** Checks if an index is in a set
  *
  * @param[in] b_set  Set to look into.
  * @param[in] idx    Index to look for.
@@ -277,8 +285,7 @@ hpack_set_exists (hpack_set_t  b_set,
 }
 
 
-/**
- * @brief Check if a set is empty.
+/** Checks if a set is empty
  *
  * @param[in] b_set  Set to check.
  *
@@ -299,8 +306,7 @@ hpack_set_is_empty (hpack_set_t b_set)
 }
 
 
-/**
- * @brief Check if a set is complete.
+/** Checks if a set if complete
  *
  * @param[in] b_set  Set to check.
  *
@@ -321,8 +327,7 @@ hpack_set_is_full (hpack_set_t b_set)
 }
 
 
-/**
- * @brief Compares two sets to see if they have the same indexes.
+/** Compares two sets to see if they have the same indexes
  *
  * @param[in] b_set1  Set to compare.
  * @param[in] b_set2  Set to compare to.
@@ -345,8 +350,7 @@ hpack_set_equals (hpack_set_t b_set1,
 }
 
 
-/**
- * @brief Clones a set.
+/** Clones a set
  *
  * @param[out] b_set1  Set to clone to.
  * @param[in]  b_set2  Set to clone from.
@@ -362,7 +366,8 @@ hpack_set_set (hpack_set_t b_set1,
 }
 
 
-/**
+/** Initializes an iterator for a set
+ *
  * Given a Set it initializes an interator to sequentially retrieve all items
  * from the set.
  *
@@ -403,8 +408,7 @@ hpack_set_iter_init (hpack_set_iterator_t *iter,
 }
 
 
-/**
- * @brief Restarts the iterator without changing the refererd set.
+/** Restarts the iterator without changing the refererd set
  *
  * @pre @a iter must have been previously initialized with [hpack_set_iter_init](@ref hpack_set_iter_init)
  *
@@ -421,7 +425,8 @@ hpack_set_iter_reset (hpack_set_iterator_t *iter)
 }
 
 
-/**
+/** Returns the next existing element in the set
+ *
  * Gets the next index from the Set continuing where it left of in the previous
  * call.
  *

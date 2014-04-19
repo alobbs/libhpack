@@ -71,11 +71,12 @@ const char *hpack_header_field_field_type_repr[4] = {"Indexed Header Table",
                                                      "New Huffman literal"};
 
 
-/**
+/** Header Field initializer
+ *
  * Initializes a Header Field to an empty header: No name or value and flags set
  * to empty representation and indexed from Header Table both name and value.
  *
- * @param[out] header    Header Field to initialize
+ * @param[out] header Header Field to initialize
  *
  * @return Result of the initialization
  * @retval ret_ok    Currently the only value this function will return
@@ -97,7 +98,8 @@ hpack_header_field_init (hpack_header_field_t *header)
 }
 
 
-/**
+/** Empties a Header Field
+ *
  * Cleans a Header Field leaving it empty: No name or value and flag set to empty
  * representation.
  *
@@ -105,10 +107,10 @@ hpack_header_field_init (hpack_header_field_t *header)
  *
  * @pre @a header needs to have at the very least been [initialized](@ref hpack_header_field_init)
  *
- * @param[out] header    Header Field to empty.
+ * @param[out] header Header Field to empty.
  *
- * @return Result of the operation.
- * @retval ret_ok    Currently the only possible result of the operation.
+ * @return     Result of the operation.
+ * @retval     ret_ok    Currently the only possible result of the operation.
  *
  */
 ret_t
@@ -125,7 +127,8 @@ hpack_header_field_clean (hpack_header_field_t *header)
 }
 
 
-/**
+/** Clean up all memory used by the Header Field
+ *
  * Frees all memory used by the Header Field, which currently is the memory used
  * by the name and value buffers.
  *
@@ -133,8 +136,8 @@ hpack_header_field_clean (hpack_header_field_t *header)
  *
  * @param[out] header    Header Field's memory to free.
  *
- * @return Result of the operation.
- * @retval ret_ok    Currently the only possible result of the operation.
+ * @return     Result of the operation.
+ * @retval     ret_ok    Currently the only possible result of the operation.
  *
  */
 ret_t
@@ -149,15 +152,16 @@ hpack_header_field_mrproper (hpack_header_field_t *header)
 }
 
 
-/**
+/** Clones a Header Field
+ *
  * Copies the contents of one Header Field to another. If the destination buffer
  * already has data in the name or value fields the new content will be simply
  * attached to previous data.
  *
  * @pre @a header and @a tocopy need to have at the very least been [initialized](@ref hpack_header_field_init)
  *
- * @param[in,out] header    Header Field destination.
- * @param[in]     tocopy    Header Field source.
+ * @param[in,out] header Header Field destination.
+ * @param[in]     tocopy Header Field source.
  *
  * @return Result of the operation.
  * @retval ret_ok     The operation was completed.
@@ -179,15 +183,15 @@ hpack_header_field_copy (hpack_header_field_t *header,
 }
 
 
-/**
+/** Check if the Header Field has any contents
+ *
  * Checks whether the Header Field is empty or not.
  * The response is based on the name and value fields and not on the flags.
  *
  * @pre @a header needs to have at the very least been [initialized](@ref hpack_header_field_init)
  *
- * @param[in] header    Header Field to check.
- *
- * @return  Whether the Header Field is empty or not.
+ * @param[in] header Header Field to check.
+ * @return           Whether the Header Field is empty or not.
  *
  */
 bool
@@ -200,8 +204,7 @@ hpack_header_field_is_empty (hpack_header_field_t *header)
 }
 
 
-/**
- * Generates a string representation of the supplied Header Field.
+/** Creates a string representation of a Header Field
  *
  * The format used to represent the field is:
  * hpack_header_field@@@e POINTER @e NAME: @e VALUE [ @e REPRESENTATION | Name: @e TYPE_OF_NAME | Value: @e TYPE_OF_VALUE ]
@@ -223,7 +226,7 @@ hpack_header_field_repr (hpack_header_field_t *header,
 {
     ret_t ret;
 
-    ret  = chula_buffer_add_va     (output, "hpack_header_field@%x - ", POINTER_TO_INT(header));
+    ret = chula_buffer_add_va (output, "hpack_header_field@%x - ", POINTER_TO_INT(header));
 
     /* Represent the name-value pair. */
     ret += chula_buffer_add_buffer (output, &header->name);
@@ -232,25 +235,26 @@ hpack_header_field_repr (hpack_header_field_t *header,
     ret += chula_buffer_add_str    (output, " [");
 
     /* Represent the flags. */
-    ret += chula_buffer_add        (output,
-                                    hpack_header_field_representations_repr[header->flags.rep],
-                                    strlen(hpack_header_field_representations_repr[header->flags.rep]));
-    ret += chula_buffer_add_str    (output, " | Name: ");
-    ret += chula_buffer_add        (output,
-                                    hpack_header_field_field_type_repr[header->flags.name],
-                                    strlen(hpack_header_field_field_type_repr[header->flags.name]));
-    ret += chula_buffer_add_str    (output, " | Value: ");
-    ret += chula_buffer_add        (output,
-                                    hpack_header_field_field_type_repr[header->flags.value],
-                                    strlen(hpack_header_field_field_type_repr[header->flags.value]));
-    ret += chula_buffer_add_str    (output, "]");
-    ret += chula_buffer_add_str    (output, CRLF);
+    ret += chula_buffer_add     (output,
+                                 hpack_header_field_representations_repr[header->flags.rep],
+                                 strlen(hpack_header_field_representations_repr[header->flags.rep]));
+    ret += chula_buffer_add_str (output, " | Name: ");
+    ret += chula_buffer_add     (output,
+                                 hpack_header_field_field_type_repr[header->flags.name],
+                                 strlen(hpack_header_field_field_type_repr[header->flags.name]));
+    ret += chula_buffer_add_str (output, " | Value: ");
+    ret += chula_buffer_add     (output,
+                                 hpack_header_field_field_type_repr[header->flags.value],
+                                 strlen(hpack_header_field_field_type_repr[header->flags.value]));
+    ret += chula_buffer_add_str (output, "]");
+    ret += chula_buffer_add_str (output, CRLF);
 
     return ret;
 }
 
 
-/**
+/** Returns the used size of the field in the Header Table
+ *
  * Returns the number of bytes used by this field in the Header Table as
  * described in the HPACK specification.
  *

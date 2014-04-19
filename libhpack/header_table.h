@@ -114,39 +114,21 @@ typedef struct {
 #define STATIC_ENTRIES 61u
 
 
-/** @brief Reserves memory for a new Header Table and initializes the Header Table. */
-ret_t    hpack_header_table_new      (hpack_header_table_t **table);
-
-/** @brief Initialize the Header Table. */
-ret_t    hpack_header_table_init     (hpack_header_table_t  *table);
-
-/** @brief Empty the Header Table. */
-ret_t    hpack_header_table_clear    (hpack_header_table_t  *table);
-
-/** @brief Set a new maximum size. */
-ret_t    hpack_header_table_set_max  (hpack_header_table_t  *table, uint16_t max, hpack_set_t evicted_set);
-
-/** @brief Add a new Header Field. */
-ret_t    hpack_header_table_add      (hpack_header_table_t  *table, hpack_header_field_t *field, hpack_set_t evicted_set);
-
-/** @brief Get an entry from the Header Table and the Static Table. */
-ret_t    hpack_header_table_get      (hpack_header_table_t  *table, uint16_t n, bool only_name, hpack_header_field_t *f, bool *is_static);
-
-/** @brief Get an entry from the Header Table using a non HPACK index. */
-ret_t hpack_header_table_get_set_idx (hpack_header_table_t *table, uint16_t n, bool only_name, hpack_header_field_t *f);
-
-/** @brief Clean up all memory used by the Header Table. */
-ret_t    hpack_header_table_mrproper (hpack_header_table_t **table);
-
-/** @brief Creates a string representation */
-void     hpack_header_table_repr     (hpack_header_table_t  *table, chula_buffer_t *output);
+ret_t hpack_header_table_new         (hpack_header_table_t **table);
+ret_t hpack_header_table_mrproper    (hpack_header_table_t **table);
+ret_t hpack_header_table_init        (hpack_header_table_t  *table);
+ret_t hpack_header_table_clear       (hpack_header_table_t  *table);
+ret_t hpack_header_table_set_max     (hpack_header_table_t  *table, uint16_t max, hpack_set_t evicted_set);
+ret_t hpack_header_table_add         (hpack_header_table_t  *table, hpack_header_field_t *field, hpack_set_t evicted_set);
+ret_t hpack_header_table_get         (hpack_header_table_t  *table, uint16_t n, bool only_name, hpack_header_field_t *f, bool *is_static);
+ret_t hpack_header_table_get_set_idx (hpack_header_table_t  *table, uint16_t n, bool only_name, hpack_header_field_t *f);
+void  hpack_header_table_repr        (hpack_header_table_t  *table, chula_buffer_t *output);
 
 /** Get the current size of the Header Table. */
 #define  hpack_header_table_get_size(table_ptr) ((table_ptr)->used_data)
 
 /** Check if the Header Table is empty. */
 #define  hpack_header_table_is_empty(table_ptr) (0 == ((table_ptr)->used_data))
-
 
 /** Convert an HPACK index to an index from our internal representation and the other way array */
 #define INDEX_SWITCH_HT_HPACK(T,I) ((uint16_t) (((T)->headers_offsets.tail - (I) + HPACK_MAX_HEADER_TABLE_ENTRIES) & HPACK_CB_HEADER_OFFSETS_MASK))
@@ -202,12 +184,10 @@ void     hpack_header_table_repr     (hpack_header_table_t  *table, chula_buffer
 /** Changes the working set for an iterator. */
 #define hpack_header_table_iter_set(I,S)             hpack_set_iter_set(I,S)
 
-/** @brief Returns the next existing element in the set. */
 int     hpack_header_table_iter_next                 (hpack_header_table_t *table, hpack_set_iterator_t *iterA);
 
 /** Restarts the iterator without changing the refererd set. */
 #define hpack_header_table_iter_reset(I)             hpack_set_iter_reset(I)
-
 
 #endif /* LIBHPACK_HEADER_TABLE_H */
 

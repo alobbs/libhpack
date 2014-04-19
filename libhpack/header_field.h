@@ -119,25 +119,12 @@ typedef struct {
 } hpack_header_field_t;
 
 
-/** @brief Header Field initializer. */
 ret_t hpack_header_field_init     (hpack_header_field_t *header);
-
-/** @brief Empties a Header Field. */
 ret_t hpack_header_field_clean    (hpack_header_field_t *header);
-
-/** @brief Clean up all memory used by the Header Field. */
 ret_t hpack_header_field_mrproper (hpack_header_field_t *header);
-
-/** @brief Check if the Header Field has any contents. */
 bool  hpack_header_field_is_empty (hpack_header_field_t *header);
-
-/** @brief Clones a Header Field. */
 ret_t hpack_header_field_copy     (hpack_header_field_t *header, hpack_header_field_t *tocopy);
-
-/** @brief Creates a string representation of a Header Field. */
 ret_t hpack_header_field_repr     (hpack_header_field_t *header, chula_buffer_t       *output);
-
-/** @brief Returns the used size of the field in the Header Table. */
 ret_t hpack_header_field_get_size (hpack_header_field_t *header, uint64_t             *size);
 
 #endif /* LIBHPACK_HEADER_FIELD_H */
