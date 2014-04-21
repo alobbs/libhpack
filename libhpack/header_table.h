@@ -173,7 +173,7 @@ void  hpack_header_table_repr        (hpack_header_table_t  *table, chula_buffer
 #define hpack_header_table_set_fill(S)               hpack_set_fill(S)
 
 /** Checks if a set is empty. */
-#define hpack_header_table_set_is_empty(S)           hpack_set_is_empty(E)
+#define hpack_header_table_set_is_empty(S)           hpack_set_is_empty(S)
 
 /** Checks if a set if complete. */
 #define hpack_header_table_set_is_full(S)            hpack_set_is_full(S)
