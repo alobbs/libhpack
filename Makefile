@@ -1,11 +1,10 @@
 .PHONY: all clean test doc
 
 BUILD_DOCS=ON
-BUILD_TESTS=ON
 
 define run-cmake
 	mkdir -p build
-	cd build ; cmake -DBUILD_DOCS=$(BUILD_DOCS) -DBUILD_TESTS=$(BUILD_TESTS) $(1) .. ; cd ..
+	cd build ; cmake -DBUILD_DOCS=$(BUILD_DOCS) $(1) .. ; cd ..
 endef
 
 all:
@@ -26,4 +25,4 @@ endif
 	$(MAKE) -C build doc
 
 test: all
-	tools/highlight-ctest.py $(MAKE) -C build test ARGS='-V'
+	tools/highlight-ctest.py '$(MAKE) -C build test ARGS="-V"'

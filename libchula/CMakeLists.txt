@@ -1,7 +1,5 @@
 # Subdirectories
-if(BUILD_TESTS)
-  add_subdirectory(test)
-endif(BUILD_TESTS)
+add_subdirectory(test)
 
 if(BUILD_DOCS)
   add_subdirectory(doc)
