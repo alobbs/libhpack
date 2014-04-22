@@ -27,11 +27,12 @@ run ("make doc")
 run ("cp -rv doc/html ../doc")
 
 # Dist
-for line in os.popen ("make package_source", 'r'):
-	print line,
-	tmp = re.findall (r' (/.*/libhpack-.+\.tar\.bz2)', line)
-	if tmp:
-		src_tgz = tmp[0]
+with os.popen ("make package_source", 'r') as f:
+	for line in f:
+		print line,
+		tmp = re.findall (r' (/.*/libhpack-.+\.tar\.bz2)', line)
+		if tmp:
+			src_tgz = tmp[0]
 
 # Build test
 os.chdir (tmp_bin)
