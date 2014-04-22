@@ -25,4 +25,4 @@ endif
 	$(MAKE) -C build doc
 
 test: all
-	tools/highlight-ctest.py '$(MAKE) -C build test ARGS="-V"'
+	cd build ; ../tools/highlight-ctest.py '$(MAKE) test ARGS="-V"' ; cd ..
