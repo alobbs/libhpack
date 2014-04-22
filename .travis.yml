@@ -24,7 +24,7 @@ install: |
 script:
  - if [ x$BUILD == xcmake ]; then \
       set -e -o pipefail -o errtrace -o functrace \
-	 mkdir -p build \
+      mkdir -p build \
       cd build \
       cmake $CMAKE_OPTION -DCMAKE_BUILD_TYPE:STRING=Debug .. \
       make VERBOSE=1 \
@@ -33,7 +33,7 @@ script:
       cd .. \
    fi
  - if [ x$BUILD == xtarball-dist ]; then \
-      python tools/make-dist.py
+      python tools/make-dist.py \
    fi
 
 after_success: |
