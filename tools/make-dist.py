@@ -20,7 +20,7 @@ run ("git clone --recursive https://github.com/alobbs/libhpack.git")
 # Configure
 os.makedirs ("libhpack/build")
 os.chdir ("libhpack/build")
-run ("cmake ..")
+run ("cmake -DUSE_VALGRIND=NO ..")
 
 # Copy html doc to source tree
 run ("make doc")
