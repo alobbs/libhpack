@@ -1,10 +1,22 @@
+#!/usr/bin/env python
+
 import os
 import re
 import shutil
+import argparse
 import tempfile
 import subprocess
 
+# Parse command line parameters
+parser = argparse.ArgumentParser()
+parser.add_argument ('--no-tests', action="store_true", default=False, help="Skip the QA test bench execution")
+ns = parser.parse_args()
+if not ns:
+    print ("ERROR: Couldn't parse parameters")
+    raise SystemExit
+
 def run (cmd, fatal=True):
+	print "+ %s"%(cmd),
 	re = os.system(cmd)
 	if fatal:
 		assert (re == 0)
@@ -41,7 +53,9 @@ run ("tar xfvj %s"%(src_tgz))
 src_dir = os.path.basename(src_tgz).replace('.tar.bz2','')
 os.chdir (src_dir)
 run ("make debug")
-run ("make test")
+
+if not ns.no_tests:
+	run ("make test")
 
 shutil.rmtree (tmp_bin)
 print ("\n%s is ready" %(src_tgz))
