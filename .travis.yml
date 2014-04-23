@@ -23,17 +23,17 @@ install: |
 # Run the Build script
 script:
  - if [ x$BUILD == xcmake ]; then \
-      set -e -o pipefail -o errtrace -o functrace \
-      mkdir -p build \
-      cd build \
-      cmake $CMAKE_OPTION -DCMAKE_BUILD_TYPE:STRING=Debug .. \
-      make VERBOSE=1 \
-      make doc \
-      ../tools/highlight-ctest.py "make test ARGS='-V'" \
-      cd .. \
+      set -e -o pipefail -o errtrace -o functrace ;\
+      mkdir -p build ;\
+      cd build ;\
+      cmake $CMAKE_OPTION -DCMAKE_BUILD_TYPE:STRING=Debug .. ;\
+      make VERBOSE=1 ;\
+      make doc ;\
+      ../tools/highlight-ctest.py "make test ARGS='-V'" ;\
+      cd .. ;\
    fi
  - if [ x$BUILD == xtarball-dist ]; then \
-      python tools/make-dist.py \
+      python tools/make-dist.py ;\
    fi
 
 after_success: |
