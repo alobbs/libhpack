@@ -117,7 +117,6 @@
  * @date      April, 2014
  */
 
-#include <assert.h>
 #include <libchula/log.h>
 #include <libhpack/macros.h>
 #include <libhpack/header_table.h>
@@ -252,20 +251,9 @@ static hpack_header_field_t static_table[STATIC_ENTRIES] = {
 /*
  * HEADER TABLE INTERNAL FUNCTIONS
  */
-
-/** @brief Evict a header field from the table. */
-static int   header_table_evict    (hpack_header_table_t *table);
-
-/** @brief Add an offset to the offset Circular Buffer. */
 static ret_t header_offs_add       (hpack_headers_offs_cb *offsets, uint16_t offset);
-
-/** @brief Get data from the Header Table data Circular Buffer. */
 static ret_t header_data_get       (hpack_headers_data_cb *h_data, uint16_t offset, char *dst, unsigned int num_bytes);
-
-/** @brief Get data from the Header Table data Circular Buffer into a Chula Buffer. */
 static ret_t header_data_get_chula (hpack_headers_data_cb *h_data, uint16_t offset, chula_buffer_t *dst, unsigned int num_bytes);
-
-/** @brief Add data to the Header Table data Circular Buffer. */
 static ret_t header_data_add       (hpack_headers_data_cb *h_data, char *data, unsigned int data_size);
 
 
@@ -273,32 +261,36 @@ static ret_t header_data_add       (hpack_headers_data_cb *h_data, char *data, u
  * Evict 1 Header Field from the Header Table.
  * Since it's a FIFO you'll alway remove the oldest element which is the one at the Head.
  *
- * @param[in,out] table  Table from where to evict the Header Field.
+ * @param[in,out] table       Table from where to evict the Header Field.
+ * @param[out]    ret_evicted Index of evicted Header Field
  *
- * @return Index of evicted Header Field
- * @retval   -1  There were no headers in the Header Table
- * @retval !=-1  Index (internal representacion) that was evicted.
+ * @return Result of the operation.
+ * @retval re_error  There is no room for this new offset.
+ * @retval re_ok     The element has been added.
  */
-static int
-header_table_evict (hpack_header_table_t *table)
+static ret_t
+header_table_evict (hpack_header_table_t *table,
+                    int                  *ret_evicted)
 {
     int                             evicted;
     hpack_header_table_field_info_t info;
 
-    assert (NULL != table);
+    if (unlikely (table == NULL))
+        return ret_error;
 
     /*
      * Remove oldest element (FIFO): We remove the first element in both circular
      *  buffers because they both belong to the same header field.
      */
 
-    if (unlikely(0 == table->num_headers))
-        return -1;
+    if (unlikely (0 == table->num_headers))
+        return ret_ok;
 
     evicted = table->headers_offsets.head;
 
     /* Both elements must belong to the same header field. */
-    assert (table->headers_data.head == table->headers_offsets.buffer[evicted]);
+    if (unlikely (table->headers_data.head != table->headers_offsets.buffer[evicted]))
+        return ret_error;
 
     /* Advance offsets head. */
     header_cb_move (table->headers_offsets.head, 1, HPACK_MAX_HEADER_TABLE_ENTRIES, HPACK_CB_HEADER_OFFSETS_MASK);
@@ -317,11 +309,14 @@ header_table_evict (hpack_header_table_t *table)
     --table->num_headers;
     table->used_data -= info.name_length + info.value_length + HPACK_HEADER_ENTRY_OVERHEAD;
 
-    return evicted;
+    /* Return */
+    *ret_evicted = evicted;
+    return ret_ok;
 }
 
 
-/**
+/** Add an offset to the offset Circular Buffer
+ *
  * Add an element to the Header Offsets Circular Buffer.
  *
  * This element is the offset in the Header Data Circular Buffer to the
@@ -341,7 +336,8 @@ static ret_t
 header_offs_add (hpack_headers_offs_cb *offsets,
                  uint16_t               offset)
 {
-    assert (NULL != offsets);
+    if (unlikely(offsets == NULL))
+        return ret_error;
 
     if (unlikely(header_offsets_free(offsets) < 1))
         return ret_error;
@@ -354,7 +350,8 @@ header_offs_add (hpack_headers_offs_cb *offsets,
 }
 
 
-/**
+/** Get data from the Header Table data Circular Buffer
+ *
  * Get requested number of bytes from the Header Table Data Circular Buffer
  * starting at an offset.
  *
@@ -379,8 +376,8 @@ header_data_get (hpack_headers_data_cb *h_data,
 {
     unsigned int to_end;
 
-    assert (NULL != h_data);
-    assert (NULL != dst);
+    if (unlikely ((h_data == NULL) || (dst == NULL)))
+        return ret_error;
 
     /* It is unlikely we'll try to read more data than what's available. */
     if (unlikely(num_bytes > HPACK_CB_HEADER_DATA_SIZE))
@@ -398,7 +395,8 @@ header_data_get (hpack_headers_data_cb *h_data,
 }
 
 
-/**
+/** Get data from the Header Table data Circular Buffer into a Chula Buffer
+ *
  * Add requested number of bytes from the Header Table Data Circular Buffer
  * starting at an offset to a Chula buffer.
  *
@@ -421,11 +419,11 @@ header_data_get_chula (hpack_headers_data_cb *h_data,
                        chula_buffer_t        *dst,
                        unsigned int           num_bytes)
 {
-    ret_t ret;
+    ret_t        ret;
     unsigned int to_end;
 
-    assert (NULL != h_data);
-    assert (NULL != dst);
+    if (unlikely ((h_data == NULL) || (dst == NULL)))
+        return ret_error;
 
     /* It is unlikely we'll try to read more data than what's available. */
     if (unlikely(num_bytes > HPACK_CB_HEADER_DATA_SIZE))
@@ -442,7 +440,8 @@ header_data_get_chula (hpack_headers_data_cb *h_data,
     return ret;
 }
 
-/**
+/** Add data to the Header Table data Circular Buffer
+ *
  * Add data to the Header Table Data Circular Buffer.
  *
  * Checks if there's enough room to add the data.
@@ -462,8 +461,8 @@ header_data_add (hpack_headers_data_cb *h_data,
 {
     unsigned int to_end;
 
-    assert (NULL != h_data);
-    assert (NULL != data);
+    if (unlikely ((h_data == NULL) || (data == NULL)))
+        return ret_error;
 
     if (unlikely(header_data_free(h_data) < data_size))
         return ret_error;
@@ -600,11 +599,12 @@ hpack_header_table_add (hpack_header_table_t *table,
                         hpack_header_field_t *field,
                         hpack_set_t           evicted_set)
 {
-    ret_t ret;
-    int evicted;
+    ret_t                           ret;
+    int                             evicted;
+    uint64_t                        field_size;
+    uint16_t                        tail_headers;
+    uint16_t                        tail_offsets;
     hpack_header_table_field_info_t info;
-    uint64_t field_size;
-    uint16_t tail_headers, tail_offsets;
 
 
     /* Initially evicted set is empty. */
@@ -624,15 +624,16 @@ hpack_header_table_add (hpack_header_table_t *table,
 
     /* Here we know it fits, so we create enought room for it. */
     while ((int) field_size > (int) table->max_data - table->used_data) {
-        evicted = header_table_evict (table);
+        ret = header_table_evict (table, &evicted);
+        if (unlikely (ret != ret_ok)) return ret;
 
         /* We know there are elements, otherwise this new element would have fitted. */
-        assert (-1 != evicted);
         hpack_set_add (evicted_set, (unsigned int)evicted);
     }
 
     /* We know beforehand there's going to be enough room in the offsets Circ. Buf. */
-    assert(!header_offs_is_full (&table->headers_offsets));
+    if (unlikely (header_offs_is_full (&table->headers_offsets)))
+        return ret_error;
 
     /* Now we add the Header_Field to the Header Table (offset and the data). */
 
@@ -657,7 +658,8 @@ hpack_header_table_add (hpack_header_table_t *table,
     if (0 < info.value_length)
         ret += header_data_add (&table->headers_data, (char *)field->value.buf, info.value_length);
 
-    assert (ret_ok == ret);
+    if (unlikely (ret != ret_ok))
+        return ret_error;
 
     /* If there was an error, which is impossible because we checked that we
      * could add all the data, undo add.
@@ -695,7 +697,8 @@ hpack_header_table_set_max (hpack_header_table_t *table,
                             uint16_t              max,
                             hpack_set_t           evicted_set)
 {
-    int evicted;
+    ret_t ret;
+    int   evicted;
 
     /* Initially evicted set is empty. */
     hpack_set_init (evicted_set, false);
@@ -711,10 +714,10 @@ hpack_header_table_set_max (hpack_header_table_t *table,
     /* Decrease and lose data. Evict entries until we don't use more than the new max. */
     } else {
         while (max < table->used_data) {
-            evicted = header_table_evict (table);
+            ret = header_table_evict (table, &evicted);
+            if (unlikely (ret != ret_ok)) return ret;
 
             /* We know there are elements, otherwise we wouldn't have more than max data. */
-            assert (-1 != evicted);
             hpack_set_add (evicted_set, (unsigned int) evicted);
         }
     }
@@ -757,7 +760,8 @@ hpack_header_table_get_set_idx (hpack_header_table_t *table,
     if (n >= HPACK_MAX_HEADER_TABLE_ENTRIES)
         return ret_not_found;
 
-    assert (hpack_header_offset_has_data(table, n));
+    if (unlikely (! hpack_header_offset_has_data(table, n)))
+        return ret_error;
 
     /* Get the position of the header */
     offset = table->headers_offsets.buffer [n];
@@ -816,8 +820,8 @@ hpack_header_table_get (hpack_header_table_t *table,
 {
     ret_t ret;
 
-    assert (NULL != f);
-    assert (NULL != is_static);
+    if (unlikely ((f == NULL) || (is_static == NULL)))
+        return ret_error;
 
     if (n > STATIC_ENTRIES + table->num_headers)
         return ret_not_found;

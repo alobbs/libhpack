@@ -142,7 +142,7 @@ void    hpack_set_fill          (hpack_set_t b_set);
 bool    hpack_set_is_empty      (hpack_set_t b_set);
 bool    hpack_set_is_full       (hpack_set_t b_set);
 
-void    hpack_set_iter_init     (hpack_set_iterator_t *iter, hpack_set_t b_set);
+ret_t   hpack_set_iter_init     (hpack_set_iterator_t *iter, hpack_set_t b_set);
 int16_t hpack_set_iter_next     (hpack_set_iterator_t *iter);
 void    hpack_set_iter_reset    (hpack_set_iterator_t *iter);
 
