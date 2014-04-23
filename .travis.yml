@@ -13,6 +13,8 @@ matrix:
     - env: BUILD=tarball-dist
     - env: BUILD=arm
 
+cache: apt
+
 before_install: |
   sudo apt-get update -qq
 
