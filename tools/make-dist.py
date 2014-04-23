@@ -16,7 +16,7 @@ if not ns:
     raise SystemExit
 
 def run (cmd, fatal=True):
-	print "+ %s"%(cmd),
+	print "+ %s"%(cmd)
 	re = os.system(cmd)
 	if fatal:
 		assert (re == 0)
@@ -25,20 +25,27 @@ def run (cmd, fatal=True):
 tmp_git = tempfile.mkdtemp()
 tmp_bin = tempfile.mkdtemp()
 
+print ("Temp Git: %s"%(tmp_git))
+print ("Temp Bin: %s"%(tmp_bin))
+
 # Checkout
 os.chdir (tmp_git);
 run ("git clone --recursive https://github.com/alobbs/libhpack.git")
 
+# Generate the Huffman table file
+os.chdir ("libhpack")
+run ("./libhpack/huffman-gen.py -v")
+
 # Configure
-os.makedirs ("libhpack/build")
-os.chdir ("libhpack/build")
+os.makedirs ("build")
+os.chdir ("build")
 run ("cmake -DUSE_VALGRIND=NO ..")
 
 # Copy html doc to source tree
 run ("make doc")
 run ("cp -rv doc/html ../doc")
 
-# Dist
+# Build tarball
 with os.popen ("make package_source", 'r') as f:
 	for line in f:
 		print line,
@@ -46,14 +53,16 @@ with os.popen ("make package_source", 'r') as f:
 		if tmp:
 			src_tgz = tmp[0]
 
-# Build test
+# Test: Unpack
 os.chdir (tmp_bin)
 run ("tar xfvj %s"%(src_tgz))
 
+# Test: Build
 src_dir = os.path.basename(src_tgz).replace('.tar.bz2','')
 os.chdir (src_dir)
 run ("make debug")
 
+# Test: QA
 if not ns.no_tests:
 	run ("make test")
 
