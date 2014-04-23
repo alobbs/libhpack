@@ -11,6 +11,7 @@ matrix:
     - compiler: gcc
       env: BUILD=cmake CMAKE_OPTION="-DENABLE_GCOV=no -DUSE_VALGRIND=yes"
     - env: BUILD=tarball-dist
+    - env: BUILD=arm
 
 before_install: |
   sudo apt-get update -qq
@@ -24,6 +25,7 @@ install: |
 script:
  - if [ x$BUILD == xcmake ]; then ./CI/build.sh; fi
  - if [ x$BUILD == xtarball-dist ]; then ./CI/tarball.sh; fi
+ - if [ x$BUILD == xarm ]; then ./CI/debian-arm.sh; fi
 
 after_success: |
   if [ x$COVERALLS == xyes ]; then \
