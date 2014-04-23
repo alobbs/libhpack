@@ -7,7 +7,7 @@ set -e -o pipefail -o errtrace -o functrace
 mkdir -p build
 cd build
 cmake $CMAKE_OPTION -DCMAKE_BUILD_TYPE:STRING=Debug ..
-make VERBOSE=1
+make VERBOSE=1 $MAKE_OPTION
 make doc
 
 # Run tests
