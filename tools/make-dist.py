@@ -19,7 +19,7 @@ def run (cmd, fatal=True):
 	print "+ %s"%(cmd)
 	re = os.system(cmd)
 	if fatal:
-		assert (re == 0)
+		assert re==0, cmd
 
 # Temporary directory
 tmp_git = tempfile.mkdtemp()
@@ -60,7 +60,7 @@ run ("tar xfvj %s"%(src_tgz))
 # Test: Build
 src_dir = os.path.basename(src_tgz).replace('.tar.bz2','')
 os.chdir (src_dir)
-run ("make debug")
+run ("make BUILD_DOCS=OFF debug")
 
 # Test: QA
 if not ns.no_tests:
