@@ -53,21 +53,25 @@
  * String representation of the different header field representations we may
  * encounter as enumerated in hpack_header_field_representation_t.
  */
-const char *hpack_header_field_representations_repr[6] = {"Empty",
-                                                          "User supplied",
-                                                          "Indexed",
-                                                          "Incremental indexing",
-                                                          "Without indexing",
-                                                          "Never indexed"};
+chula_buffer_t hpack_header_field_representations_repr[6] = {
+    CHULA_BUF_INIT_FAKE("Empty"),
+    CHULA_BUF_INIT_FAKE("User supplied"),
+    CHULA_BUF_INIT_FAKE("Indexed"),
+    CHULA_BUF_INIT_FAKE("Incremental indexing"),
+    CHULA_BUF_INIT_FAKE("Without indexing"),
+    CHULA_BUF_INIT_FAKE("Never indexed")
+};
 
 /**
  * String representation of the different header field types we may encounter as
  * enumerated in [hpack_header_field_type_t](@ref hpack_header_field_type_t).
  */
-const char *hpack_header_field_field_type_repr[4] = {"Indexed Header Table",
-                                                     "Indexed Static Table",
-                                                     "New literal",
-                                                     "New Huffman literal"};
+chula_buffer_t hpack_header_field_field_type_repr[4] = {
+    CHULA_BUF_INIT_FAKE("Indexed Header Table"),
+    CHULA_BUF_INIT_FAKE("Indexed Static Table"),
+    CHULA_BUF_INIT_FAKE("New literal"),
+    CHULA_BUF_INIT_FAKE("New Huffman literal")
+};
 
 
 /** Header Field initializer
@@ -234,19 +238,16 @@ hpack_header_field_repr (hpack_header_field_t *header,
     ret += chula_buffer_add_str    (output, " [");
 
     /* Represent the flags. */
-    ret += chula_buffer_add     (output,
-                                 hpack_header_field_representations_repr[header->flags.rep],
-                                 strlen(hpack_header_field_representations_repr[header->flags.rep]));
-    ret += chula_buffer_add_str (output, " | Name: ");
-    ret += chula_buffer_add     (output,
-                                 hpack_header_field_field_type_repr[header->flags.name],
-                                 strlen(hpack_header_field_field_type_repr[header->flags.name]));
-    ret += chula_buffer_add_str (output, " | Value: ");
-    ret += chula_buffer_add     (output,
-                                 hpack_header_field_field_type_repr[header->flags.value],
-                                 strlen(hpack_header_field_field_type_repr[header->flags.value]));
-    ret += chula_buffer_add_str (output, "]");
-    ret += chula_buffer_add_str (output, CRLF);
+    ret += chula_buffer_add_buffer (output,
+                                    &hpack_header_field_representations_repr[header->flags.rep]);
+    ret += chula_buffer_add_str    (output, " | Name: ");
+    ret += chula_buffer_add_buffer (output,
+                                    &hpack_header_field_field_type_repr[header->flags.name]);
+    ret += chula_buffer_add_str    (output, " | Value: ");
+    ret += chula_buffer_add_buffer (output,
+                                    &hpack_header_field_field_type_repr[header->flags.value]);
+    ret += chula_buffer_add_str    (output, "]");
+    ret += chula_buffer_add_str    (output, CRLF);
 
     return ret;
 }

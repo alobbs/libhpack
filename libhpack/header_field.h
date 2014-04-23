@@ -76,7 +76,7 @@ typedef enum {
  * String representation of the different header field types we may encounter as
  * enumerated in [hpack_header_field_type_t](@ref hpack_header_field_type_t).
  */
-const char *hpack_header_field_field_type_repr[4];
+chula_buffer_t hpack_header_field_field_type_repr[4];
 
 
 /**
@@ -96,8 +96,7 @@ typedef enum {
  * String representation of the different header field representations we may
  * encounter as enumerated in [hpack_header_field_representation_t](@ref hpack_header_field_representation_t).
  */
-const char *hpack_header_field_representations_repr[6];
-
+chula_buffer_t hpack_header_field_representations_repr[6];
 
 /**
  * Flags representing how this field was encoded.

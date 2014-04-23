@@ -956,17 +956,14 @@ hpack_header_table_repr (hpack_header_table_t *table,
         chula_buffer_add_str    (output, " [");
 
         /* Represent the flags. */
-        chula_buffer_add        (output,
-                                 hpack_header_field_representations_repr[field.flags.rep],
-                                 strlen(hpack_header_field_representations_repr[field.flags.rep]));
+        chula_buffer_add_buffer (output,
+                                 &hpack_header_field_representations_repr[field.flags.rep]);
         chula_buffer_add_str    (output, " | Name: ");
-        chula_buffer_add        (output,
-                                 hpack_header_field_field_type_repr[field.flags.name],
-                                 strlen(hpack_header_field_field_type_repr[field.flags.name]));
+        chula_buffer_add_buffer (output,
+                                 &hpack_header_field_field_type_repr[field.flags.name]);
         chula_buffer_add_str    (output, " | Value: ");
-        chula_buffer_add        (output,
-                                 hpack_header_field_field_type_repr[field.flags.value],
-                                 strlen(hpack_header_field_field_type_repr[field.flags.value]));
+        chula_buffer_add_buffer (output,
+                                 &hpack_header_field_field_type_repr[field.flags.value]);
         chula_buffer_add_str    (output, "]");
 
         chula_buffer_add_str    (output, CRLF);
