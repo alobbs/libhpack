@@ -24,7 +24,6 @@ function setup_arm_chroot {
     sudo sbuild-createchroot --arch=${CHROOT_ARCH} --foreign --setup-only ${VERSION} ${CHROOT_DIR} ${MIRROR}
 
     # Create file with environment variables which will be used inside chrooted environment
-    echo "export ARCH=${ARCH}" > envvars.sh
     echo "export TRAVIS_BUILD_DIR=${TRAVIS_BUILD_DIR}" >> envvars.sh
     chmod a+x envvars.sh
 
@@ -46,14 +45,11 @@ function setup_arm_chroot {
 if [ -e "/.chroot_is_done" ]; then
   # We are inside ARM chroot
   echo "Running inside chrooted environment"
-
   . ./envvars.sh
 else
-  if [ "${ARCH}" = "arm" ]; then
-    # ARM test run, need to set up chrooted environment first
-    echo "Setting up chrooted ARM environment"
-    setup_arm_chroot
-  fi
+  # ARM test run, need to set up chrooted environment first
+  echo "Setting up chrooted ARM environment"
+  setup_arm_chroot
 fi
 
 echo "Running tests"
