@@ -6,6 +6,9 @@ MIRROR=http://archive.raspbian.org/raspbian
 VERSION=wheezy
 CHROOT_ARCH=armhf
 
+# Play it safe: exit if something fails
+set -e -o pipefail -o errtrace -o functrace
+
 # Debian package dependencies for the host
 HOST_DEPENDENCIES="debootstrap qemu-user-static binfmt-support sbuild"
 
