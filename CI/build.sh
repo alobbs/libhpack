@@ -8,7 +8,7 @@ mkdir -p build
 cd build
 cmake $CMAKE_OPTION -DCMAKE_BUILD_TYPE:STRING=Debug ..
 make VERBOSE=1 $MAKE_OPTION
-make doc
+make $MAKE_OPTION doc
 
 # Run tests
 ../tools/highlight-ctest.py "make test ARGS='-V'"
