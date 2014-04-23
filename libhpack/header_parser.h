@@ -63,7 +63,7 @@ typedef struct {
     hpack_set_t          reference_set;    /**< Reference Set for differential encoding. */
     hpack_set_t          ref_not_emitted;  /**< References from the reference set we haven't emmited yet. */
     hpack_set_iterator_t iter_not_emitted; /**< Iterator to emit remaining headers from the reference set. */
-    bool                 b_finished;       /**< Marks when we will receive no more data to decode. */
+    bool                 finished;         /**< Marks when we will receive no more data to decode. */
 } hpack_header_parser_context_t;
 
 /**

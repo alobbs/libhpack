@@ -95,7 +95,7 @@ hpack_header_parser_init (hpack_header_parser_t *parser)
     hpack_header_table_set_init (parser->context.ref_not_emitted, false);
     hpack_header_table_iter_init (&parser->context.iter_not_emitted, parser->context.ref_not_emitted);
 
-    parser->context.b_finished = false;
+    parser->context.finished = false;
 
     ret = hpack_header_table_init (&parser->context.table);
 
@@ -644,7 +644,7 @@ final_reference_set_process (hpack_header_parser_context_t *context,
 
     *consumed = 0;
 
-    if (context->b_finished)
+    if (context->finished)
         return ret_eof;
 
     /* Get the next index that is pending emission. */
@@ -653,7 +653,7 @@ final_reference_set_process (hpack_header_parser_context_t *context,
     /* We have finished with the references, so we set it all up for the next header block. */
     if (-1 == idx) {
         /* Mark the block as finished in case they call us again. */
-        context->b_finished = true;
+        context->finished = true;
 
         /* Set the not emitted set and reset the iterator. */
         hpack_header_table_set_set (context->ref_not_emitted, context->reference_set);
@@ -737,8 +737,8 @@ hpack_header_parser_field (hpack_header_parser_t *parser,
     if (offset == buf->len)
         return (final_reference_set_process (&parser->context, field, consumed));
 
-    /** @todo It's not nice to be setting @a context.b_finished on every iteration */
-    parser->context.b_finished = false;
+    /** @todo It's not nice to be setting @a context.finished on every iteration */
+    parser->context.finished = false;
 
     /* Parse field
      */
