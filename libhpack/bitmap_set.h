@@ -127,7 +127,7 @@ typedef struct {
 } hpack_set_iterator_t;
 
 
-void    hpack_set_init          (hpack_set_t b_set,  bool fill_set);
+ret_t   hpack_set_init          (hpack_set_t b_set,  bool fill_set);
 ret_t   hpack_set_add           (hpack_set_t b_set,  unsigned int idx);
 ret_t   hpack_set_remove        (hpack_set_t b_set,  unsigned int idx);
 bool    hpack_set_exists        (hpack_set_t b_set,  unsigned int idx);

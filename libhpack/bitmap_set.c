@@ -57,7 +57,6 @@
  * @date      April, 2014
  */
 
-#include <assert.h>
 #include <libhpack/bitmap_set.h>
 
 /**
@@ -396,15 +395,18 @@ hpack_set_set (hpack_set_t b_set1,
  * @see hpack_set_iter_reset()
  * @see hpack_set_iter_next()
  */
-void
+ret_t
 hpack_set_iter_init (hpack_set_iterator_t *iter,
-                     hpack_set_t b_set)
+                     hpack_set_t           b_set)
 {
-    assert (NULL != iter);
+    if (unlikely (NULL == iter))
+        return ret_error;
 
     iter->set = b_set;
     iter->bit = 0;
     iter->entry = 0;
+
+    return ret_ok;
 }
 
 
@@ -471,7 +473,8 @@ hpack_set_iter_next (hpack_set_iterator_t *iter)
 {
     int16_t result = -1;
 
-    assert (NULL != iter);
+    if (unlikely (iter == NULL))
+        return -1;
 
     while ((HPACK_SET_NUM_ENTRIES > iter->entry) && (-1 == result)) {
 
