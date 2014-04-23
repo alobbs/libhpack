@@ -47,7 +47,6 @@
  * @date      April, 2014
  */
 
-#include <assert.h>
 #include "header_field.h"
 
 /**
