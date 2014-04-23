@@ -78,7 +78,7 @@ typedef struct {
  * header entry in the header's data array.
  */
 typedef struct {
-    uint16_t buffer [HPACK_MAX_HEADER_TABLE_ENTRIES]; /**< Array of offsets for the Header Entries. */
+    uint16_t buffer[HPACK_MAX_HEADER_TABLE_ENTRIES];  /**< Array of offsets for the Header Entries. */
     uint16_t head;                                    /**< Head of the Circular Buffer. */
     uint16_t tail;                                    /**< Tail of the Circular Buffer. */
 } hpack_headers_offs_cb;
@@ -88,9 +88,9 @@ typedef struct {
  * Structure for the Circular Buffer used to store the data of the Header Fields.
  */
 typedef struct {
-    char buffer [HPACK_CB_HEADER_DATA_SIZE]; /**< Header Fields information. */
-    uint16_t head;                           /**< Head of the Circular Buffer. */
-    uint16_t tail;                           /**< Tail of the Circular Buffer. */
+    char     buffer[HPACK_CB_HEADER_DATA_SIZE];  /**< Header Fields information. */
+    uint16_t head;                               /**< Head of the Circular Buffer. */
+    uint16_t tail;                               /**< Tail of the Circular Buffer. */
 } hpack_headers_data_cb;
 
 

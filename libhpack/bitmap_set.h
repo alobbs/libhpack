@@ -76,15 +76,12 @@
  * position (13) and the remaining bits (1b) are the entry in the array (second
  *  entry).
  */
-
-//#if defined(_LP64) || defined(__LP64__) || (8 == sizeof(void*)) || (64 == __WORDSIZE)
 #if (64 == __WORDSIZE)
-typedef uint64_t hpack_set_entry_t;
-#define BITMAP_SET_SHIFT 6
-
+  typedef uint64_t hpack_set_entry_t;
+# define BITMAP_SET_SHIFT 6
 #else
-typedef uint32_t hpack_set_entry_t;
-#define BITMAP_SET_SHIFT 5
+  typedef uint32_t hpack_set_entry_t;
+# define BITMAP_SET_SHIFT 5
 #endif
 
 
@@ -105,7 +102,7 @@ typedef uint32_t hpack_set_entry_t;
  * Representation of a set for the indexes of an HPACK context.
  * Each array entry holds 32 or 64 indexes, depending on the machine,
  */
-typedef hpack_set_entry_t hpack_set_t [HPACK_SET_NUM_ENTRIES];
+typedef hpack_set_entry_t hpack_set_t[HPACK_SET_NUM_ENTRIES];
 
 
 /** Iterator for a bitmap set
