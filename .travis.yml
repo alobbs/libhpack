@@ -7,10 +7,15 @@ matrix:
     - compiler: clang
       env: BUILD=cmake CMAKE_OPTION="-DUSE_VALGRIND=no" CFLAGS=-fsanitize=address
     - compiler: gcc
-      env: BUILD=cmake CMAKE_OPTION="-DENABLE_GCOV=yes -DUSE_VALGRIND=no" COVERALLS=yes
+      env: BUILD=cmake CMAKE_OPTION="-DUSE_VALGRIND=no -DENABLE_GCOV=yes" COVERALLS=yes
     - compiler: gcc
-      env: BUILD=cmake CMAKE_OPTION="-DENABLE_GCOV=no -DUSE_VALGRIND=yes"
+      env: BUILD=cmake CMAKE_OPTION="-DUSE_VALGRIND=yes -DENABLE_GCOV=no"
     - env: BUILD=tarball-dist
+    - env: BUILD=arm
+  allow_failures:
+    - env: BUILD=arm
+
+cache: apt
 
 before_install: |
   sudo apt-get update -qq
@@ -24,6 +29,7 @@ install: |
 script:
  - if [ x$BUILD == xcmake ]; then ./CI/build.sh; fi
  - if [ x$BUILD == xtarball-dist ]; then ./CI/tarball.sh; fi
+ - if [ x$BUILD == xarm ]; then ./CI/debian-arm.sh; fi
 
 after_success: |
   if [ x$COVERALLS == xyes ]; then \
