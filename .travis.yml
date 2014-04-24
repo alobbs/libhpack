@@ -12,6 +12,7 @@ matrix:
       env: BUILD=cmake CMAKE_OPTION="-DUSE_VALGRIND=yes -DENABLE_GCOV=no"
     - env: BUILD=tarball-dist
     - env: BUILD=arm
+    - env: BUILD=lib-usage
   allow_failures:
     - env: BUILD=arm
     - env: BUILD=lib-usage
