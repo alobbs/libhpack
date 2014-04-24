@@ -14,6 +14,7 @@ matrix:
     - env: BUILD=arm
   allow_failures:
     - env: BUILD=arm
+    - env: BUILD=lib-usage
 
 cache: apt
 
@@ -30,6 +31,7 @@ script:
  - if [ x$BUILD == xcmake ]; then ./CI/build.sh; fi
  - if [ x$BUILD == xtarball-dist ]; then ./CI/tarball.sh; fi
  - if [ x$BUILD == xarm ]; then ./CI/debian-arm.sh; fi
+ - if [ x$BUILD == xlib-usage ]; then ./CI/lib-usage.sh; fi
 
 after_success: |
   if [ x$COVERALLS == xyes ]; then \
