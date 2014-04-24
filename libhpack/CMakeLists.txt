@@ -37,3 +37,10 @@ install (
   FILES ${hpack_HDRS}
   DESTINATION include/libhpack
 )
+
+# libhpack.pc
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libhpack.pc.in
+               ${CMAKE_CURRENT_BINARY_DIR}/libhpack.pc @ONLY)
+
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/libhpack.pc
+         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)

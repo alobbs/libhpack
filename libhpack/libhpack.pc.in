@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@/libhpack
+
+Name: libhpack
+Description: HPACK library
+Version: @hpack_VERSION@
+Requires: libchula
+Libs: -L${libdir} -lhpack
+Libs.private: @LIBS@
+Cflags: -I${includedir}
