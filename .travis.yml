@@ -11,6 +11,7 @@ matrix:
     - compiler: gcc
       env: BUILD=cmake CMAKE_OPTION="-DUSE_VALGRIND=yes -DENABLE_GCOV=no"
     - env: BUILD=tarball-dist
+  allow_failures:
     - env: BUILD=arm
 
 cache: apt
