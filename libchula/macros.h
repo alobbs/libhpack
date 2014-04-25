@@ -33,7 +33,6 @@
 #ifndef CHULA_MACROS_H
 #define CHULA_MACROS_H
 
-#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
