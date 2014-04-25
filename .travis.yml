@@ -12,8 +12,10 @@ matrix:
       env: BUILD=cmake CMAKE_OPTION="-DUSE_VALGRIND=yes -DENABLE_GCOV=no"
     - env: BUILD=tarball-dist
     - env: BUILD=arm
+    - env: BUILD=lib-usage
   allow_failures:
     - env: BUILD=arm
+    - env: BUILD=lib-usage
 
 cache: apt
 
@@ -23,13 +25,14 @@ before_install: |
 install: |
   sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu/ precise main universe"
   sudo apt-get install -y cmake doxygen python-sphinx gcc make check valgrind
-  sudo pip install cpp-coveralls --use-mirrors
+  sudo pip install cpp-coveralls
 
 # Run the Build script
 script:
  - if [ x$BUILD == xcmake ]; then ./CI/build.sh; fi
  - if [ x$BUILD == xtarball-dist ]; then ./CI/tarball.sh; fi
  - if [ x$BUILD == xarm ]; then ./CI/debian-arm.sh; fi
+ - if [ x$BUILD == xlib-usage ]; then ./CI/lib-usage.sh; fi
 
 after_success: |
   if [ x$COVERALLS == xyes ]; then \
