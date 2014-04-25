@@ -12,8 +12,10 @@ matrix:
       env: BUILD=cmake CMAKE_OPTION="-DUSE_VALGRIND=yes -DENABLE_GCOV=no"
     - env: BUILD=lib-usage
     - env: BUILD=tarball-dist
+    - env: BUILD=headers-check
     - env: BUILD=arm
   allow_failures:
+    - env: BUILD=lib-usage
     - env: BUILD=arm
 
 cache: apt
@@ -32,6 +34,7 @@ script:
  - if [ x$BUILD == xtarball-dist ]; then ./CI/tarball.sh; fi
  - if [ x$BUILD == xarm ]; then ./CI/debian-arm.sh; fi
  - if [ x$BUILD == xlib-usage ]; then ./CI/lib-usage.sh; fi
+ - if [ x$BUILD == xheaders-check ]; then ./CI/headers-check.py libchula libhpack; fi
 
 after_success: |
   if [ x$COVERALLS == xyes ]; then \
