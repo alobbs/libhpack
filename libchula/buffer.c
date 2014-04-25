@@ -1327,7 +1327,7 @@ chula_buffer_repr (chula_buffer_t *buf,
 {
     uint32_t  i;
     uint8_t   tmp;
-    char      text[67]   = {[0 ... 66] = 0};
+    char      text[71]   = {[0 ... 66] = 0};
     char     *hex_text   = NULL;
     char     *ascii_text = NULL;
 
@@ -1337,13 +1337,15 @@ chula_buffer_repr (chula_buffer_t *buf,
                 chula_buffer_add (output, text, strlen(text));
                 chula_buffer_add_str (output, CRLF);
             }
-            sprintf (text, "%08x%57c", i*2, ' ');
-            hex_text = text + 9;
-            ascii_text = text + 49;
+            sprintf (text, "%08x%61c", i, ' ');
+            hex_text = text + 10;
+            ascii_text = text + 51;
+            ascii_text[-1] = '|';
+            ascii_text[16] = '|';
         }
 
         tmp = buf->buf[i];
-        sprintf (hex_text, "%02x",  tmp & 0xFF);
+        sprintf (hex_text, "%02x", tmp & 0xFF);
         hex_text += 2;
         *hex_text = ' ';
         if ((i+1)%2 == 0) {
