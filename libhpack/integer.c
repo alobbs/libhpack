@@ -34,6 +34,7 @@
  * http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-05
  */
 
+#include "config.h"
 #include "integer.h"
 #include <stdio.h>
 #include <math.h>
