@@ -35,13 +35,14 @@ import re
 import sys
 import fnmatch
 
-def _find_files (paths, match_filter):
+def _find_files (paths, match_filter, match_postskip):
 	h_files = []
 	for d in paths:
 		for root, dirnames, filenames in os.walk(d):
 			for filename in fnmatch.filter(filenames, match_filter):
-				if not '-internal' in filename:
-					h_files.append(os.path.join(root, filename))
+				fp = os.path.join(root, filename)
+				if not match_postskip in fp:
+					h_files.append (fp)
 	return h_files
 
 def check_ifdef_HAVE():
@@ -69,7 +70,7 @@ def check_ifdef_HAVE():
 		print
 
 	offenders = {}
-	for h_path in _find_files (sys.argv[1:], '*.h'):
+	for h_path in _find_files (sys.argv[1:], '*.h', '-internal'):
 		errors = _check_header(h_path)
 		if errors:
 			offenders[h_path] = errors
@@ -101,7 +102,7 @@ def check_common_internal():
 			print "\t%s" %("\n\t".join (offenders))
 
 	offenders = []
-	for c_path in _find_files (sys.argv[1:], '*.c'):
+	for c_path in _find_files (sys.argv[1:], '*.c', '/test/'):
 		error = _check_header(c_path)
 		if error:
 			offenders += [c_path]
