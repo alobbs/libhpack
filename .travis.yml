@@ -15,7 +15,7 @@ matrix:
     - env: BUILD=headers-check
     - env: BUILD=arm
   allow_failures:
-    - env: BUILD=lib-usage
+    - env: BUILD=headers-check
     - env: BUILD=arm
 
 cache: apt
