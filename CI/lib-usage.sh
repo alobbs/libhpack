@@ -4,7 +4,7 @@
 set -e -o pipefail -o errtrace -o functrace
 
 # Install libhpack
-make all doc -j
+make all doc
 sudo make -C build install
 
 # Compile tests
