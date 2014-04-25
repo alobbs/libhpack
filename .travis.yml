@@ -13,9 +13,11 @@ matrix:
     - env: BUILD=tarball-dist
     - env: BUILD=arm
     - env: BUILD=lib-usage
+    - env: BUILD=headers-check
   allow_failures:
     - env: BUILD=arm
     - env: BUILD=lib-usage
+    - env: BUILD=headers-check
 
 cache: apt
 
@@ -33,6 +35,7 @@ script:
  - if [ x$BUILD == xtarball-dist ]; then ./CI/tarball.sh; fi
  - if [ x$BUILD == xarm ]; then ./CI/debian-arm.sh; fi
  - if [ x$BUILD == xlib-usage ]; then ./CI/lib-usage.sh; fi
+ - if [ x$BUILD == xheaders-check ]; then ./CI/headers-check.py libchula libhpack; fi
 
 after_success: |
   if [ x$COVERALLS == xyes ]; then \
