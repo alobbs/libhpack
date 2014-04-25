@@ -29,41 +29,94 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
 import os
 import re
 import sys
 import fnmatch
 
-def _find_h_files (paths):
+def _find_files (paths, match_filter):
 	h_files = []
 	for d in paths:
 		for root, dirnames, filenames in os.walk(d):
-			for filename in fnmatch.filter(filenames, '*.h'):
+			for filename in fnmatch.filter(filenames, match_filter):
 				if not '-internal' in filename:
 					h_files.append(os.path.join(root, filename))
 	return h_files
 
-def _check_header (h_path):
-	with open(h_path,'r') as f:
-		return re.findall(r'\#ifdef\s+(HAVE_.+)\s', f.read()) or []
+def check_ifdef_HAVE():
+	"""Find conditional inclusions in header files.
 
-def _print_report (offenders):
-	if not offenders:
-		print "Everything okay!"
-		return
+	Ideally, none of the header files shipped in the library should
+	use "#ifdef HAVE_*" preprocessor entries, so the project's
+	config.h file doesn't have to by included along with them. This
+	function finds the .h files that should be worked out to avoid
+	these conditional inclusions.
+	"""
 
-	for h in offenders:
-		print "[% 2d errors] %s:\n\t%s" %(len(offenders[h]), h, ', '.join (offenders[h]))
+	def _check_header (h_path):
+		with open(h_path,'r') as f:
+			return re.findall(r'\#ifdef\s+(HAVE_.+)\s', f.read()) or []
 
-def main():
+	def _print_report (offenders):
+		if not offenders:
+			print "Everything okay!"
+			return
+
+		for h in offenders:
+			print "[% 2d errors] %s:\n\t%s" %(len(offenders[h]), h, ', '.join (offenders[h]))
+
+		print
+
 	offenders = {}
-	for h_path in _find_h_files (sys.argv[1:]):
+	for h_path in _find_files (sys.argv[1:], '*.h'):
 		errors = _check_header(h_path)
 		if errors:
 			offenders[h_path] = errors
 
 	_print_report (offenders)
 	return len(offenders)
+
+
+def check_common_internal():
+	"""Makes sure .c files include the common-internal.h file.
+
+	This function checks the .c files to make sure they include the
+	common-internal.h header file. It isn't strictly necessary,
+	however it is a good practice that we'd like to enforce. In the
+	past we've found a few bugs caused by the lack of some of the
+	headers that are pulled from common-internal.h.
+	"""
+
+	def _check_header (c_path):
+		with open(c_path,'r') as f:
+			return ("Doesn't use common-internal.h", None)['common-internal.h' in f.read()]
+
+	def _print_report (offenders):
+		print "[% 2d errors] .c files not using common-internal.h:" %(len(offenders))
+
+		if not offenders:
+			print "None!"
+		else:
+			print "\t%s" %("\n\t".join (offenders))
+
+	offenders = []
+	for c_path in _find_files (sys.argv[1:], '*.c'):
+		error = _check_header(c_path)
+		if error:
+			offenders += [c_path]
+
+	_print_report (offenders)
+	return len(offenders)
+
+
+def main():
+	errors = 0
+	errors += check_ifdef_HAVE()
+	errors += check_common_internal()
+
+	print "\nTotal: %d offending files"%(errors)
+	return errors
 
 if __name__ == "__main__":
 	sys.exit(main())
