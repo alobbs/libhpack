@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Play it safe: exit if something fails
-set -e -o pipefail -o errtrace -o functrace
+set -x -e -o pipefail -o errtrace -o functrace
 
 # Build
 mkdir -p build
