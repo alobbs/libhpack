@@ -18,7 +18,7 @@ debug:
 clean:
 	rm -rf build
 
-doc:
+doc: all
 ifeq ($(wildcard ./build/Makefile),)
 	$(call run-cmake)
 endif
