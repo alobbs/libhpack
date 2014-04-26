@@ -117,6 +117,7 @@
  * @date      April, 2014
  */
 
+#include <libchula/common-internal.h>
 #include <libchula/log.h>
 #include <libhpack/macros.h>
 #include <libhpack/header_table.h>

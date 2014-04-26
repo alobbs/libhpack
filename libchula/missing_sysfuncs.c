@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "common-internal.h"
 #include "missing_sysfuncs.h"
 #include "macros.h"
 #include <string.h>

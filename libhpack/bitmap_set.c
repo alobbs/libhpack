@@ -57,7 +57,8 @@
  * @date      April, 2014
  */
 
-#include <libhpack/bitmap_set.h>
+#include <libchula/common-internal.h>
+#include "bitmap_set.h"
 
 /**
  * Mask to get the position in the entry.

@@ -46,6 +46,7 @@
  */
 
 
+#include <libchula/common-internal.h>
 #include "header_parser.h"
 #include "integer.h"
 #include "huffman.h"
