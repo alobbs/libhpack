@@ -35,14 +35,15 @@ import re
 import sys
 import fnmatch
 
-def _find_files (paths, match_filter, match_postskip):
+def _find_files (paths, match_filter, match_postskip = None):
 	h_files = []
 	for d in paths:
 		for root, dirnames, filenames in os.walk(d):
 			for filename in fnmatch.filter(filenames, match_filter):
 				fp = os.path.join(root, filename)
-				if not match_postskip in fp:
-					h_files.append (fp)
+				if match_postskip and match_postskip in fp:
+					continue
+				h_files.append (fp)
 	return h_files
 
 def check_ifdef_HAVE():
@@ -61,7 +62,6 @@ def check_ifdef_HAVE():
 
 	def _print_report (offenders):
 		if not offenders:
-			print "Everything okay!"
 			return
 
 		for h in offenders:
@@ -94,12 +94,11 @@ def check_common_internal():
 			return ("Doesn't use common-internal.h", None)['common-internal.h' in f.read()]
 
 	def _print_report (offenders):
-		print "[% 2d errors] .c files not using common-internal.h:" %(len(offenders))
-
 		if not offenders:
-			print "None!"
-		else:
-			print "\t%s" %("\n\t".join (offenders))
+			return
+
+		print "[% 2d errors] .c files not using common-internal.h:" %(len(offenders))
+		print "\t%s" %("\n\t".join (offenders))
 
 	offenders = []
 	for c_path in _find_files (sys.argv[1:], '*.c', '/test/'):
@@ -111,10 +110,43 @@ def check_common_internal():
 	return len(offenders)
 
 
+def check_local_includes():
+	"""Makes sure .h files don't use local inclusions (with "")
+
+	Headers files will be exported, and therefore they should not make
+	use of local includes. Instead, they ought to use the public
+	header path.
+	"""
+
+	def _check_header (h_path):
+		with open(h_path,'r') as f:
+			return re.findall(r'\#\s*include\s+"(.+)"', f.read()) or []
+
+	def _print_report (offenders):
+		if not offenders:
+			return
+
+		print "Local header inclusions:"
+		for h in offenders:
+			print "[% 2d errors] %s:\n\t%s" %(len(offenders[h]), h, ', '.join (offenders[h]))
+
+		print
+
+	offenders = {}
+	for h_path in _find_files (sys.argv[1:], '*.h'):
+		errors = _check_header(h_path)
+		if errors:
+			offenders[h_path] = errors
+
+	_print_report (offenders)
+	return len(offenders)
+
+
 def main():
 	errors = 0
 	errors += check_ifdef_HAVE()
 	errors += check_common_internal()
+	errors += check_local_includes()
 
 	print "\nTotal: %d offending files"%(errors)
 	return errors
