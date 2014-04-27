@@ -33,6 +33,10 @@
 #ifndef CHULA_SHA1
 #define CHULA_SHA1
 
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
 #include <libchula/common.h>
 
 #define SHA_BLOCKSIZE	  64

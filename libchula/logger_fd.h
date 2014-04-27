@@ -33,6 +33,10 @@
 #ifndef CHULA_LOGGER_FD_H
 #define CHULA_LOGGER_FD_H
 
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
 #include <libchula/log.h>
 
 typedef struct {

@@ -33,6 +33,10 @@
 #ifndef CHULA_UTIL_H
 #define CHULA_UTIL_H
 
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
 #include <libchula/common.h>
 #include <libchula/buffer.h>
 

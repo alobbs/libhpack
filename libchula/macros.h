@@ -33,6 +33,10 @@
 #ifndef CHULA_MACROS_H
 #define CHULA_MACROS_H
 
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
