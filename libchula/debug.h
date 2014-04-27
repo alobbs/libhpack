@@ -34,7 +34,7 @@
 #define CHULA_DEBUG_H
 
 #include <unistd.h>
-#include "buffer.h"
+#include <libchula/buffer.h>
 
 #define chula_print_repr(scope,type,obj)                              \
     do {                                                              \

@@ -33,8 +33,8 @@
 #ifndef CHULA_COMMON_H
 #define CHULA_COMMON_H
 
+#include <libchula/macros.h>
 #include <stdint.h>
-#include "macros.h"
 
 typedef enum {
 	ret_no_sys          = -4,

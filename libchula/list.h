@@ -33,7 +33,7 @@
 #ifndef CHULA_LIST_H
 #define CHULA_LIST_H
 
-#include "common.h"
+#include <libchula/common.h>
 
 struct list_entry {
 	struct list_entry *next;

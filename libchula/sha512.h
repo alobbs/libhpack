@@ -33,7 +33,7 @@
 #ifndef CHULA_SHA512
 #define CHULA_SHA512
 
-#include "common.h"
+#include <libchula/common.h>
 
 #define SHA512_BLOCK_LENGTH  128
 #define SHA512_DIGEST_LENGTH 64

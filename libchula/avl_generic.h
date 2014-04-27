@@ -33,7 +33,7 @@
 #ifndef CHULA_AVL_GENERIC_H
 #define CHULA_AVL_GENERIC_H
 
-#include "buffer.h"
+#include <libchula/buffer.h>
 
 /* AVL Tree Node base
  */

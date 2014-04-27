@@ -33,9 +33,8 @@
 #ifndef CHULA_UTIL_H
 #define CHULA_UTIL_H
 
-#include "common.h"
-#include "buffer.h"
-#include "avl.h"
+#include <libchula/common.h>
+#include <libchula/buffer.h>
 
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>

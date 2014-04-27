@@ -33,8 +33,8 @@
 #ifndef CHULA_BUFFER_H
 #define CHULA_BUFFER_H
 
-#include "common.h"
-#include "crc32.h"
+#include <libchula/common.h>
+#include <libchula/crc32.h>
 
 #include <stddef.h>
 #include <stdarg.h>

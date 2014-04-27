@@ -33,7 +33,7 @@
 #ifndef _CRC32_H
 #define _CRC32_H
 
-#include "common.h"
+#include <libchula/common.h>
 
 typedef unsigned int crc_t;
 

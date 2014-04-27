@@ -33,7 +33,7 @@
 #ifndef CHULA_SHA1
 #define CHULA_SHA1
 
-#include "common.h"
+#include <libchula/common.h>
 
 #define SHA_BLOCKSIZE	  64
 #define SHA_DIGESTSIZE	  20

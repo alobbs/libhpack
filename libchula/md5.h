@@ -23,7 +23,7 @@
 #ifndef MD5_H
 #define MD5_H
 
-#include "common.h"
+#include <libchula/common.h>
 
 #define md5byte unsigned char
 
