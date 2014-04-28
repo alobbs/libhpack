@@ -33,6 +33,10 @@
 #ifndef LIBHPACK_HUFFMAN_H
 #define LIBHPACK_HUFFMAN_H
 
+#if !defined(HPACK_H_INSIDE) && !defined (HPACK_COMPILATION)
+# error "Only <libhpack/libhpack.h> can be included directly."
+#endif
+
 #include <libchula/libchula.h>
 
 /** Entry of the Huffman code table

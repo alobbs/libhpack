@@ -33,6 +33,10 @@
 #ifndef LIBHPACK_INTEGER_H
 #define LIBHPACK_INTEGER_H
 
+#if !defined(HPACK_H_INSIDE) && !defined (HPACK_COMPILATION)
+# error "Only <libhpack/libhpack.h> can be included directly."
+#endif
+
 #include <limits.h>
 #include <libchula/libchula.h>
 

@@ -15,6 +15,7 @@ set_target_properties (
     PROPERTIES
     VERSION ${hpack_VERSION}
     SOVERSION ${hpack_SOVERSION}
+    COMPILE_FLAGS -DHPACK_COMPILATION
 )
 
 add_custom_command (

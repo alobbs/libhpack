@@ -48,6 +48,10 @@
 #ifndef LIBHPACK_HEADER_PARSER_H
 #define LIBHPACK_HEADER_PARSER_H
 
+#if !defined(HPACK_H_INSIDE) && !defined (HPACK_COMPILATION)
+# error "Only <libhpack/libhpack.h> can be included directly."
+#endif
+
 #include <libchula/libchula.h>
 #include <libhpack/header_field.h>
 #include <libhpack/header_table.h>

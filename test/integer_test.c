@@ -30,10 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libchula/libchula.h>
-#include "libchula/testing_macros-internal.h"
-#include "libhpack/integer.h"
 #include <time.h>
+#include <libhpack/libhpack.h>
+#include "libchula/testing_macros-internal.h"
+
 
 /* All examples came from:
  * http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-05

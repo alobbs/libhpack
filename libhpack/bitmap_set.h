@@ -49,10 +49,15 @@
 #ifndef LIBHPACK_BITMAP_SET_H
 #define LIBHPACK_BITMAP_SET_H
 
+#if !defined(HPACK_H_INSIDE) && !defined (HPACK_COMPILATION)
+# error "Only <libhpack/libhpack.h> can be included directly."
+#endif
+
 #include <limits.h>
 #include <stdint.h>
+
 #include <libchula/libchula.h>
-#include <libhpack/macros.h>
+#include "macros.h"
 
 
 /**

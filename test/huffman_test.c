@@ -30,10 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libchula/libchula.h>
+#include <libhpack/libhpack.h>
 #include "libchula/testing_macros-internal.h"
-#include "libhpack/huffman.h"
-#include "libhpack/huffman_tables.h"
+
 
 #define encode_test(s1,s2) encode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1)
 #define decode_test(s1,s2) decode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1)

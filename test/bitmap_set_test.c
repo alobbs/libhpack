@@ -31,11 +31,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libchula/libchula.h>
-#include "libchula/testing_macros-internal.h"
-#include "libhpack/bitmap_set.h"
-
 #include <string.h>
+#include <libhpack/libhpack.h>
+#include "libchula/testing_macros-internal.h"
 
 #define EVEN_SET(E) memset (&E, 0x55, sizeof(E));
 #define ODD_SET(E)  memset (&E, 0xAA, sizeof(E));

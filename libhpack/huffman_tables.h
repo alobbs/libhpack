@@ -33,6 +33,10 @@
 #ifndef LIBHPACK_HUFFMAN_TABLES_H
 #define LIBHPACK_HUFFMAN_TABLES_H
 
+#if !defined(HPACK_H_INSIDE) && !defined (HPACK_COMPILATION)
+# error "Only <libhpack/libhpack.h> can be included directly."
+#endif
+
 extern const hpack_huffman_code_t hpack_huffman[257];
 extern const hpack_huffman_decode_table_t decode_table;
 

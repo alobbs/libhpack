@@ -33,7 +33,11 @@
 #ifndef HPACK_MACROS_H
 #define HPACK_MACROS_H
 
-#include <libchula/macros.h>
+#if !defined(HPACK_H_INSIDE) && !defined (HPACK_COMPILATION)
+# error "Only <libhpack/libhpack.h> can be included directly."
+#endif
+
+#include <libchula/libchula.h>
 
 #define HPACK_NEW(obj,type)        CHULA_GEN_NEW(hpack,obj,type)
 #define HPACK_NEW_STRUCT(obj,type) CHULA_GEN_NEW_STRUCT(hpack,obj,type)
