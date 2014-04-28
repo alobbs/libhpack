@@ -31,8 +31,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libchula/common.h>
-#include "huffman.h"
+#include <libchula/libchula.h>
+#include <libhpack/huffman.h>
 
 const hpack_huffman_code_t hpack_huffman[/*{TPL_HPACK_HUFFMAN_SIZE}*/] = {
 /*{TPL_HPACK_HUFFMAN}*/

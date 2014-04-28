@@ -55,8 +55,7 @@
 #ifndef LIBHPACK_HEADER_TABLE_H
 #define LIBHPACK_HEADER_TABLE_H
 
-#include <libchula/list.h>
-#include <libchula/buffer.h>
+#include <libchula/libchula.h>
 #include <libhpack/macros.h>
 #include <libhpack/header_field.h>
 #include <libhpack/bitmap_set.h>

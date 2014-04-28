@@ -31,8 +31,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "libchula/testing_macros.h"
+#include <libchula/libchula.h>
+#include "libchula/testing_macros-internal.h"
 #include "libhpack/header_parser.h"
+
 
 #define assert_store_n_eq(parser,n,_name,_value)  do {                                         \
         ret_t                 ret;                                                             \

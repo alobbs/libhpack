@@ -30,7 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "libchula/testing_macros.h"
+#include <libchula/libchula.h>
+#include "libchula/testing_macros-internal.h"
 #include "libhpack/header_table.h"
 
 void check_table_empty (hpack_header_table_t *table)

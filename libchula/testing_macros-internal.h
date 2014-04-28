@@ -30,11 +30,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LIBCHULA_TESTING_MACROS
-#define LIBCHULA_TESTING_MACROS
+#ifndef CHULA_TESTING_INTERNAL_MACROS
+#define CHULA_TESTING_INTERNAL_MACROS
 
 #include <check.h>
-#include <libchula/debug.h>
+
+/* Special case
+ */
+#define CHULA_H_INSIDE
+# include "libchula/debug.h"
+#undef CHULA_H_INSIDE
 
 #define check_add(suit,func)                             \
     TCase *testcase_ ## func = tcase_create(#func);      \
@@ -52,4 +57,4 @@
 #define ch_assert(a)          ck_assert(a)
 #define ch_assert_str_eq(a,b) ck_assert_str_eq((const char *)(a),(const char *)(b))
 
-#endif /* LIBCHULA_TESTING_MACROS */
+#endif /* CHULA_TESTING_INTERNAL_MACROS */

@@ -51,7 +51,7 @@
 
 #include <limits.h>
 #include <stdint.h>
-#include <libchula/common.h>
+#include <libchula/libchula.h>
 #include <libhpack/macros.h>
 
 

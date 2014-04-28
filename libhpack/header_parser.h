@@ -48,7 +48,7 @@
 #ifndef LIBHPACK_HEADER_PARSER_H
 #define LIBHPACK_HEADER_PARSER_H
 
-#include <libchula/buffer.h>
+#include <libchula/libchula.h>
 #include <libhpack/header_field.h>
 #include <libhpack/header_table.h>
 #include <libhpack/header_store.h>

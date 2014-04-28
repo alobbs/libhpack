@@ -48,7 +48,7 @@
 #ifndef LIBHPACK_HEADER_FIELD_H
 #define LIBHPACK_HEADER_FIELD_H
 
-#include <libchula/buffer.h>
+#include <libchula/libchula.h>
 
 /**
  * Defines the overhead in bytes for each field as declared in HPACK's

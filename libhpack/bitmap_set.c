@@ -57,7 +57,7 @@
  * @date      April, 2014
  */
 
-#include <libchula/common-internal.h>
+#include <libchula/libchula.h>
 #include "bitmap_set.h"
 
 /**

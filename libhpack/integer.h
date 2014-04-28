@@ -33,8 +33,8 @@
 #ifndef LIBHPACK_INTEGER_H
 #define LIBHPACK_INTEGER_H
 
-#include <libchula/common.h>
 #include <limits.h>
+#include <libchula/libchula.h>
 
 #define VLQ_MAX_LEN_INTEGER (SIZEOF_INT + 2)
 

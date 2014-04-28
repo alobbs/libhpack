@@ -33,7 +33,7 @@
 #ifndef LIBHPACK_HEADER_STORE_H
 #define LIBHPACK_HEADER_STORE_H
 
-#include <libchula/list.h>
+#include <libchula/libchula.h>
 #include <libhpack/header_field.h>
 #include <libhpack/header_store.h>
 
