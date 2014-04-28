@@ -33,7 +33,11 @@
 #ifndef CHULA_SHA512
 #define CHULA_SHA512
 
-#include "common.h"
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
+#include <libchula/common.h>
 
 #define SHA512_BLOCK_LENGTH  128
 #define SHA512_DIGEST_LENGTH 64

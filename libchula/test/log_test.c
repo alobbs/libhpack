@@ -34,10 +34,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "libchula/testing_macros.h"
-#include "libchula/util.h"
-#include "libchula/log.h"
-#include "libchula/logger_fd.h"
+#include <libchula/libchula.h>
+#include "libchula/testing_macros-internal.h"
 
 
 static bool

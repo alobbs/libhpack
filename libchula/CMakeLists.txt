@@ -21,6 +21,7 @@ set_target_properties (
     PROPERTIES
     VERSION ${chula_VERSION}
     SOVERSION ${chula_SOVERSION}
+    COMPILE_FLAGS -DCHULA_COMPILATION
 )
 
 # Installation

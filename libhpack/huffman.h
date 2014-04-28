@@ -33,7 +33,7 @@
 #ifndef LIBHPACK_HUFFMAN_H
 #define LIBHPACK_HUFFMAN_H
 
-#include <libchula/buffer.h>
+#include <libchula/libchula.h>
 
 /** Entry of the Huffman code table
  */

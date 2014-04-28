@@ -33,8 +33,12 @@
 #ifndef CHULA_AVL_H
 #define CHULA_AVL_H
 
-#include "buffer.h"
-#include "avl_generic.h"
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
+#include <libchula/buffer.h>
+#include <libchula/avl_generic.h>
 
 /* AVL Tree Node
  */

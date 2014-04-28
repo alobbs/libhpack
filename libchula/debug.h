@@ -33,8 +33,12 @@
 #ifndef CHULA_DEBUG_H
 #define CHULA_DEBUG_H
 
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
 #include <unistd.h>
-#include "buffer.h"
+#include <libchula/buffer.h>
 
 #define chula_print_repr(scope,type,obj)                              \
     do {                                                              \

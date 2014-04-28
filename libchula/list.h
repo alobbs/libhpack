@@ -33,7 +33,11 @@
 #ifndef CHULA_LIST_H
 #define CHULA_LIST_H
 
-#include "common.h"
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
+#include <libchula/common.h>
 
 struct list_entry {
 	struct list_entry *next;

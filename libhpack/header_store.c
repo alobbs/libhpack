@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libchula/common-internal.h>
 #include "header_store.h"
+
 
 typedef hpack_header_store_entry_t entry_t;
 

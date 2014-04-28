@@ -47,7 +47,7 @@
  * @date      April, 2014
  */
 
-#include <libchula/common-internal.h>
+#include <libchula/libchula.h>
 #include "header_field.h"
 
 /**

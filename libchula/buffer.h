@@ -33,8 +33,12 @@
 #ifndef CHULA_BUFFER_H
 #define CHULA_BUFFER_H
 
-#include "common.h"
-#include "crc32.h"
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
+#include <libchula/common.h>
+#include <libchula/crc32.h>
 
 #include <stddef.h>
 #include <stdarg.h>

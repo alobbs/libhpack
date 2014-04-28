@@ -30,7 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "libchula/testing_macros.h"
+#include <libchula/libchula.h>
+#include "libchula/testing_macros-internal.h"
 #include "libhpack/integer.h"
 #include <time.h>
 

@@ -23,7 +23,11 @@
 #ifndef MD5_H
 #define MD5_H
 
-#include "common.h"
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
+#include <libchula/common.h>
 
 #define md5byte unsigned char
 

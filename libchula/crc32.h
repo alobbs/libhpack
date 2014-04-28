@@ -30,15 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _CRC32_H
-#define _CRC32_H
+#ifndef CHULA_CRC32_H
+#define CHULA_CRC32_H
 
-#include "common.h"
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
+#include <libchula/common.h>
 
 typedef unsigned int crc_t;
 
 /* Returns crc32 of data block */
-crc_t crc32_sz(char *buf, int size);
+crc_t crc32_sz (char *buf, int size);
 crc_t crc32_partial_sz (crc_t crc_in, char *buf, int size);
 
-#endif
+#endif /* CHULA_CRC32_H */

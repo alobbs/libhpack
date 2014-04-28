@@ -34,8 +34,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "libchula/testing_macros.h"
-#include "libchula/buffer.h"
+#include <libchula/libchula.h>
+#include "libchula/testing_macros-internal.h"
 
 
 static void

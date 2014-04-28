@@ -3,7 +3,7 @@
 /* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
- *     * Alvaro Lopez Ortega <alvaro@alobbs.com>
+ *     * Alvaro Lopez Ortega <alvaro@gnu.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,30 +30,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CHULA_COMMON_H
-#define CHULA_COMMON_H
+#ifndef CHULA_TESTING_INTERNAL_MACROS
+#define CHULA_TESTING_INTERNAL_MACROS
 
-#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
-# error "Only <libchula/libchula.h> can be included directly."
-#endif
+#include <check.h>
 
-#include <libchula/macros.h>
-#include <stdint.h>
+/* Special case
+ */
+#define CHULA_H_INSIDE
+# include "libchula/debug.h"
+#undef CHULA_H_INSIDE
 
-typedef enum {
-	ret_no_sys          = -4,
-	ret_nomem           = -3,
-	ret_deny            = -2,
-	ret_error           = -1,
-	ret_ok              =  0,
-	ret_eof             =  1,
-	ret_eof_have_data   =  2,
-	ret_not_found       =  3,
-	ret_file_not_found  =  4,
-	ret_eagain          =  5,
-	ret_ok_and_sent     =  8
-} ret_t;
+#define check_add(suit,func)                             \
+    TCase *testcase_ ## func = tcase_create(#func);      \
+    suite_add_tcase (suit, testcase_ ## func);           \
+    tcase_add_test (testcase_ ##func, func);
 
-typedef void (*chula_func_free_t) (void *);
+#define run_test(suit)                          \
+    SRunner *sr = srunner_create (suit);        \
+    srunner_set_fork_status (sr, CK_NOFORK);    \
+    srunner_run_all (sr, CK_VERBOSE);           \
+    int test_ret =  srunner_ntests_failed(sr);  \
+    srunner_free(sr);                           \
+    return test_ret;
 
-#endif /* CHULA_COMMON_H */
+#define ch_assert(a)          ck_assert(a)
+#define ch_assert_str_eq(a,b) ck_assert_str_eq((const char *)(a),(const char *)(b))
+
+#endif /* CHULA_TESTING_INTERNAL_MACROS */

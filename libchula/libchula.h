@@ -3,7 +3,7 @@
 /* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
- *     * Alvaro Lopez Ortega <alvaro@gnu.org>
+ *     * Alvaro Lopez Ortega <alvaro@alobbs.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,26 +30,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LIBCHULA_TESTING_MACROS
-#define LIBCHULA_TESTING_MACROS
+#ifndef CHULA_H
+#define CHULA_H
 
-#include <check.h>
+#define CHULA_H_INSIDE
+
+#include <libchula/avl.h>
+#include <libchula/avl_generic.h>
+#include <libchula/buffer.h>
+#include <libchula/common.h>
+#include <libchula/crc32.h>
 #include <libchula/debug.h>
+#include <libchula/list.h>
+#include <libchula/log.h>
+#include <libchula/logger_fd.h>
+#include <libchula/macros.h>
+#include <libchula/md5.h>
+#include <libchula/missing_sysfuncs.h>
+#include <libchula/sha1.h>
+#include <libchula/sha512.h>
+#include <libchula/util.h>
 
-#define check_add(suit,func)                             \
-    TCase *testcase_ ## func = tcase_create(#func);      \
-    suite_add_tcase (suit, testcase_ ## func);           \
-    tcase_add_test (testcase_ ##func, func);
+#undef CHULA_H_INSIDE
 
-#define run_test(suit)                          \
-    SRunner *sr = srunner_create (suit);        \
-    srunner_set_fork_status (sr, CK_NOFORK);    \
-    srunner_run_all (sr, CK_VERBOSE);           \
-    int test_ret =  srunner_ntests_failed(sr);  \
-    srunner_free(sr);                           \
-    return test_ret;
-
-#define ch_assert(a)          ck_assert(a)
-#define ch_assert_str_eq(a,b) ck_assert_str_eq((const char *)(a),(const char *)(b))
-
-#endif /* LIBCHULA_TESTING_MACROS */
+#endif /* CHULA_H */

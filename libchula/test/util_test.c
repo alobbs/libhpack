@@ -30,18 +30,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "config.h"
 #ifdef HAVE_SYSLOG_H
 # include <syslog.h>
 #endif
 
-#include "libchula/testing_macros.h"
-#include "libchula/util.h"
+#include <libchula/libchula.h>
+#include "libchula/testing_macros-internal.h"
 
 #ifndef LOG_INFO
 # define LOG_INFO 6

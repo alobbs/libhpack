@@ -33,9 +33,12 @@
 #ifndef CHULA_UTIL_H
 #define CHULA_UTIL_H
 
-#include "common.h"
-#include "buffer.h"
-#include "avl.h"
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
+
+#include <libchula/common.h>
+#include <libchula/buffer.h>
 
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
