@@ -47,7 +47,6 @@
 #include <libchula/logger_fd.h>
 #include <libchula/macros.h>
 #include <libchula/md5.h>
-#include <libchula/missing_sysfuncs.h>
 #include <libchula/sha1.h>
 #include <libchula/sha512.h>
 #include <libchula/util.h>

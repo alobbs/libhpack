@@ -178,9 +178,9 @@ END_TEST
 
 
 int
-missing_sysfuncs_tests (void)
+cstrings_tests (void)
 {
-    Suite *s1 = suite_create("Missing System Functions");
+    Suite *s1 = suite_create("C-Strings Functions");
     check_add (s1, _strsep);
     check_add (s1, _strlcat);
     check_add (s1, _strnstr);

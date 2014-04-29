@@ -37,7 +37,7 @@ int list_tests (void);
 int util_tests (void);
 int macro_tests (void);
 int buffer_tests (void);
-int missing_sysfuncs_tests (void);
+int cstrings_tests (void);
 
 int
 main (void)
@@ -49,7 +49,7 @@ main (void)
     ret += buffer_tests();
     ret += list_tests();
     ret += avl_tests();
-    ret += missing_sysfuncs_tests();
+    ret += cstrings_tests();
     ret += util_tests();
     ret += log_tests();
 
