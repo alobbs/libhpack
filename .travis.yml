@@ -15,7 +15,6 @@ matrix:
     - env: BUILD=src-check
     - env: BUILD=arm
   allow_failures:
-    - env: BUILD=src-check
     - env: BUILD=arm
 
 cache: apt
