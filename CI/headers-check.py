@@ -29,11 +29,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 import os
 import re
 import sys
 import fnmatch
+
+PATH_CHULA = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libchula')
+PATH_HPACK = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libhpack')
+
 
 def _find_files (paths, match_filter, match_postskip = None):
 	h_files = []
@@ -58,26 +61,16 @@ def check_ifdef_HAVE():
 
 	def _check_header (h_path):
 		with open(h_path,'r') as f:
-			return re.findall(r'\#ifdef\s+(HAVE_.+)\s', f.read()) or []
+			haves = re.findall(r'\#ifdef\s+(HAVE_.+)\s', f.read())
+			if haves:
+				return ["%s - Conditional includes %s" %(h_path, ', '.join(haves))]
+			return []
 
-	def _print_report (offenders):
-		if not offenders:
-			return
+	errors = []
+	for h_path in _find_files ([PATH_CHULA, PATH_HPACK], '*.h', '-internal'):
+		errors += _check_header(h_path)
 
-		for h in offenders:
-			print "[% 2d errors] %s:\n\t%s" %(len(offenders[h]), h, ', '.join (offenders[h]))
-
-		print
-
-	offenders = {}
-	for h_path in _find_files (sys.argv[1:], '*.h', '-internal'):
-		errors = _check_header(h_path)
-		if errors:
-			offenders[h_path] = errors
-
-	_print_report (offenders)
-	return len(offenders)
-
+	return errors
 
 def check_common_internal():
 	"""Makes sure .c files include the common-internal.h file.
@@ -91,24 +84,15 @@ def check_common_internal():
 
 	def _check_header (c_path):
 		with open(c_path,'r') as f:
-			return ("Doesn't use common-internal.h", None)['common-internal.h' in f.read()]
+			if not 'common-internal.h' in f.read():
+				return ["%s - missing inclusion: common-internal.h" %(c_path)]
+			return []
 
-	def _print_report (offenders):
-		if not offenders:
-			return
+	errors = []
+	for c_path in _find_files ([PATH_CHULA], '*.c', '/test/'):
+		errors += _check_header(c_path)
 
-		print "[% 2d errors] .c files not using common-internal.h:" %(len(offenders))
-		print "\t%s" %("\n\t".join (offenders))
-
-	offenders = []
-	for c_path in _find_files (sys.argv[1:], '*.c', '/test/'):
-		error = _check_header(c_path)
-		if error:
-			offenders += [c_path]
-
-	_print_report (offenders)
-	return len(offenders)
-
+	return errors
 
 def check_local_includes():
 	"""Makes sure .h files don't use local inclusions (with "")
@@ -120,36 +104,54 @@ def check_local_includes():
 
 	def _check_header (h_path):
 		with open(h_path,'r') as f:
-			return re.findall(r'\#\s*include\s+"(.+)"', f.read()) or []
+			local_includes = re.findall(r'\#\s*include\s+"(.+)"', f.read())
+			if local_includes:
+				return ["%s - has local includes %s" %(h_path, ', '.join(local_includes))]
+			return []
 
-	def _print_report (offenders):
-		if not offenders:
-			return
+	errors = []
+	for h_path in _find_files ([PATH_CHULA, PATH_HPACK], '*.h'):
+		errors += _check_header(h_path)
 
-		print "Local header inclusions:"
-		for h in offenders:
-			print "[% 2d errors] %s:\n\t%s" %(len(offenders[h]), h, ', '.join (offenders[h]))
+	return errors
 
-		print
+def check_cstrings_funcs():
+	"""Cheks if chula's func wrapper for missing libc functions are used
 
-	offenders = {}
-	for h_path in _find_files (sys.argv[1:], '*.h'):
-		errors = _check_header(h_path)
-		if errors:
-			offenders[h_path] = errors
+	This function checks the .c files to make sure they use the
+	cstrings wrappers of the string handling functions that may be
+	missing from some of the systems where libhack should work.
+	"""
 
-	_print_report (offenders)
-	return len(offenders)
+	FUNCS = ('strsep', 'strnstr', 'strcasestr', 'strlcat')
+
+	def _check_header (c_path):
+		with open(c_path,'r') as f:
+			cont = f.read()
+ 			errors = []
+			for func in FUNCS:
+				funcs = re.findall ('\s*(%s)[\s\n]*\('%(func), cont)
+				if funcs:
+					errors += ['%s - Unwrapped functions: %s'%(c_path, ', '.join(funcs))]
+			return errors
+
+	errors = []
+	for c_path in _find_files ([PATH_CHULA, PATH_HPACK], '*.c', 'libchula/cstrings.c'):
+		errors += _check_header(c_path)
+
+	return errors
 
 
 def main():
-	errors = 0
+	errors = []
 	errors += check_ifdef_HAVE()
 	errors += check_common_internal()
 	errors += check_local_includes()
+	errors += check_cstrings_funcs()
 
-	print "\nTotal: %d offending files"%(errors)
-	return errors
+	print "Total %d errors" %(len(errors))
+	print "\n".join([' %s'%(e) for e in errors])
+	return len(errors)
 
 if __name__ == "__main__":
 	sys.exit(main())
