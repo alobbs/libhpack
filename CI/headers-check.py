@@ -128,12 +128,15 @@ def check_cstrings_funcs():
 	def _check_header (c_path):
 		with open(c_path,'r') as f:
 			cont = f.read()
- 			errors = []
+ 			funcs_found = []
 			for func in FUNCS:
-				funcs = re.findall ('\s*(%s)[\s\n]*\('%(func), cont)
-				if funcs:
-					errors += ['%s - Unwrapped functions: %s'%(c_path, ', '.join(funcs))]
-			return errors
+				found = re.findall ('\s*(%s)[\s\n]*\('%(func), cont)
+				if found:
+					funcs_found.append(func)
+
+			if funcs_found:
+				return ['%s - Unwrapped functions: %s'%(c_path, ', '.join(funcs_found))]
+			return []
 
 	errors = []
 	for c_path in _find_files ([PATH_CHULA, PATH_HPACK], '*.c', 'libchula/cstrings.c'):
