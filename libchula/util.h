@@ -48,13 +48,8 @@
 # include <arpa/inet.h>
 #endif
 
-#ifdef HAVE_PWD_H
-# include <pwd.h>
-#endif
-
-#ifdef HAVE_GRP_H
-# include <grp.h>
-#endif
+#include <pwd.h>
+#include <grp.h>
 
 #ifdef HAVE_SYS_UIO_H
 # include <sys/uio.h>
