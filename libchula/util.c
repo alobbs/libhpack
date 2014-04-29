@@ -97,6 +97,22 @@
 # include <sys/wait.h>
 #endif
 
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
+# include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_SYS_UIO_H
+# include <sys/uio.h>
+#endif
+
+#ifdef HAVE_PATHS_H
+# include <paths.h>
+#endif
+
 #ifndef HOST_NAME_MAX
 # define HOST_NAME_MAX 255
 #endif

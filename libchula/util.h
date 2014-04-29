@@ -40,30 +40,12 @@
 #include <libchula/common.h>
 #include <libchula/buffer.h>
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
-#endif
-
 #include <pwd.h>
 #include <grp.h>
-
-#ifdef HAVE_SYS_UIO_H
-# include <sys/uio.h>
-#endif
-
-#ifdef HAVE_PATHS_H
-# include <paths.h>
-#endif
-
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
-
 #include <time.h>
 #include <dirent.h>
 #include <errno.h>

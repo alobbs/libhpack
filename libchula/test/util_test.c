@@ -35,8 +35,13 @@
 #include <unistd.h>
 
 #include "config.h"
+
 #ifdef HAVE_SYSLOG_H
 # include <syslog.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
+# include <arpa/inet.h>
 #endif
 
 #include <libchula/libchula.h>
