@@ -38,8 +38,9 @@
 #include <string.h>
 #include <fcntl.h>
 #include <pthread.h>
-#include "macros.h"
-#include "log.h"
+
+#include <libchula/macros.h>
+#include <libchula/log.h>
 
 #if defined HAVE_ENDIAN_H
 # include <endian.h>
