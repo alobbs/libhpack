@@ -35,6 +35,7 @@
 
 #define CHULA_H_INSIDE
 
+#include <libchula/cstrings.h>
 #include <libchula/avl.h>
 #include <libchula/avl_generic.h>
 #include <libchula/buffer.h>

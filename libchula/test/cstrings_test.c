@@ -49,23 +49,23 @@ START_TEST (_strsep)
     ch_assert (string != NULL);
     tofree = string;
 
-    token = strsep (&string, " ,");
+    token = chula_strsep (&string, " ,");
     ch_assert (token != NULL);
     ch_assert_str_eq (token, "Hello");
 
-    token = strsep (&string, " ,");
+    token = chula_strsep (&string, " ,");
     ch_assert (token != NULL);
     ch_assert_str_eq (token, "");
 
-    token = strsep (&string, " ,");
+    token = chula_strsep (&string, " ,");
     ch_assert (token != NULL);
     ch_assert_str_eq (token, "there");
 
-    token = strsep (&string, " ,");
+    token = chula_strsep (&string, " ,");
     ch_assert (token != NULL);
     ch_assert_str_eq (token, "stranger");
 
-    token = strsep (&string, " ,");
+    token = chula_strsep (&string, " ,");
     ch_assert (token == NULL);
 
     free (tofree);
@@ -77,17 +77,17 @@ START_TEST (_strnstr)
     char *p;
     char *string = "This is a testing string";
 
-    p = strnstr (string, "is a", strlen(string));
+    p = chula_strnstr (string, "is a", strlen(string));
     ch_assert (p != NULL);
 
-    p = strnstr (string, string, strlen(string));
+    p = chula_strnstr (string, string, strlen(string));
     ch_assert (p != NULL);
     ch_assert (p == string);
 
-    p = strnstr (string, "testing", 9);
+    p = chula_strnstr (string, "testing", 9);
     ch_assert (p == NULL);
 
-    p = strnstr (string, "foobar", strlen(string));
+    p = chula_strnstr (string, "foobar", strlen(string));
     ch_assert (p == NULL);
 }
 END_TEST
@@ -97,21 +97,21 @@ START_TEST (_strcasestr)
     char *p;
     char *string = "This is a testing string";
 
-    p = strcasestr (string, "iS A");
+    p = chula_strcasestr (string, "iS A");
     ch_assert (p != NULL);
 
-    p = strcasestr (string, "tHIS IS A TESTING STRiNG");
-    ch_assert (p != NULL);
-    ch_assert (p == string);
-
-    p = strcasestr (string, string);
+    p = chula_strcasestr (string, "tHIS IS A TESTING STRiNG");
     ch_assert (p != NULL);
     ch_assert (p == string);
 
-    p = strcasestr (string, "TeStInG");
+    p = chula_strcasestr (string, string);
+    ch_assert (p != NULL);
+    ch_assert (p == string);
+
+    p = chula_strcasestr (string, "TeStInG");
     ch_assert (p != NULL);
 
-    p = strcasestr (string, "foobar");
+    p = chula_strcasestr (string, "foobar");
     ch_assert (p == NULL);
 }
 END_TEST
@@ -122,24 +122,24 @@ START_TEST (_strncasestrn)
     char *string    = "This is a testing string";
     int   stringlen = strlen(string);
 
-    p = strncasestrn (string, stringlen, "iS A", 4);
+    p = chula_strncasestrn (string, stringlen, "iS A", 4);
     ch_assert (p != NULL);
 
-    p = strncasestrn (string, stringlen, "tHIS IS A TESTING STRiNG", stringlen);
-    ch_assert (p != NULL);
-    ch_assert (p == string);
-
-    p = strncasestrn (string, stringlen, string, stringlen);
+    p = chula_strncasestrn (string, stringlen, "tHIS IS A TESTING STRiNG", stringlen);
     ch_assert (p != NULL);
     ch_assert (p == string);
 
-    p = strncasestrn (string, stringlen, "TeStInG", 7);
+    p = chula_strncasestrn (string, stringlen, string, stringlen);
+    ch_assert (p != NULL);
+    ch_assert (p == string);
+
+    p = chula_strncasestrn (string, stringlen, "TeStInG", 7);
     ch_assert (p != NULL);
 
-    p = strncasestrn (string, stringlen, "is a trick that I'm playing", 4);
+    p = chula_strncasestrn (string, stringlen, "is a trick that I'm playing", 4);
     ch_assert (p != NULL);
 
-    p = strncasestrn (string, stringlen, "foobar", 6);
+    p = chula_strncasestrn (string, stringlen, "foobar", 6);
     ch_assert (p == NULL);
 }
 END_TEST
@@ -150,7 +150,7 @@ START_TEST (_strncasestr)
     char *string    = "This is a testing string";
     int   stringlen = strlen(string);
 
-    p = strncasestr (string, "iS A", stringlen);
+    p = chula_strncasestr (string, "iS A", stringlen);
     ch_assert (p != NULL);
 }
 END_TEST
@@ -165,14 +165,13 @@ START_TEST (_strlcat)
     strncpy (s1, "hi ", sizeof(s1));
     strncpy (s2, "there!", sizeof(s2));
 
-
-    len = strlcat (s1, s2, sizeof(s1));
+    len = chula_strlcat (s1, s2, sizeof(s1));
     ch_assert_str_eq (s1, "hi there!");
     ch_assert (len == strlen("hi there!"));
 
     /* Too long */
     strncpy (s2, "12345678901234567890", sizeof(s2));
-    len = strlcat (s1, s2, sizeof(s1));
+    len = chula_strlcat (s1, s2, sizeof(s1));
     ch_assert (len > sizeof(s1));
 }
 END_TEST
@@ -183,10 +182,10 @@ missing_sysfuncs_tests (void)
 {
     Suite *s1 = suite_create("Missing System Functions");
     check_add (s1, _strsep);
+    check_add (s1, _strlcat);
     check_add (s1, _strnstr);
     check_add (s1, _strcasestr);
-    check_add (s1, _strncasestrn);
     check_add (s1, _strncasestr);
-    check_add (s1, _strlcat);
+    check_add (s1, _strncasestrn);
     run_test (s1);
 }

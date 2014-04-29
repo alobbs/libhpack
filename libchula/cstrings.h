@@ -30,39 +30,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CHULA_MISSING_FUNCS_H
-#define CHULA_MISSING_FUNCS_H
+#ifndef CHULA_CSTRINGS_H
+#define CHULA_CSTRINGS_H
 
 #if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
 # error "Only <libchula/libchula.h> can be included directly."
 #endif
 
-#include <config.h>
 #include <stdlib.h>
 
-#ifndef HAVE_STRSEP
-char *strsep (char **str, const char *delims);
-#endif
-#ifndef HAVE_STRNSTR
-char *strnstr (const char *s, const char *find, size_t slen);
-#endif
-#ifndef HAVE_STRCASESTR
-char *strcasestr (const char *s, const char *find);
-#endif
-#ifndef HAVE_STRLCAT
-size_t strlcat (char *dst, const char *src, size_t siz);
-#endif
-#ifndef HAVE_MALLOC
-void *malloc (size_t n);
-#endif
-#ifndef HAVE_REALLOC
-void *realloc (void *ptr, size_t n);
-#endif
+char   *chula_strsep       (char **str, const char *delims);
+size_t  chula_strlcat      (char *dst, const char *src, size_t siz);
+char   *chula_strnstr      (const char *s, const char *find, size_t slen);
+char   *chula_strcasestr   (const char *s, const char *find);
+char   *chula_strncasestr  (const char *s, const char *find, size_t slen);
+char   *chula_strncasestrn (const char *s, size_t slen, const char *find, size_t findlen);
 
-char *strncasestr  (const char *s, const char *find, size_t slen);
-char *strncasestrn (const char *s, size_t slen, const char *find, size_t findlen);
+/* Macros */
+#define chula_strncasestrn_s(s,s_len,lit) chula_strncasestrn(s, s_len, lit, sizeof(lit)-1)
+#define chula_strcasestrn_s(s,lit)        chula_strncasestrn(s, lit, sizeof(lit)-1)
 
-#define strncasestrn_s(s,s_len,lit) strncasestrn(s, s_len, lit, sizeof(lit)-1)
-#define strcasestrn_s(s,lit)        strncasestrn(s, lit, sizeof(lit)-1)
-
-#endif /* CHULA_MISSING_FUNCS_H */
+#endif /* CHULA_CSTRINGS_H */

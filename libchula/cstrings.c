@@ -31,15 +31,15 @@
  */
 
 #include "common-internal.h"
-#include "missing_sysfuncs.h"
-#include "macros.h"
+#include "cstrings.h"
 #include <string.h>
 #include <strings.h>
 
-#ifndef HAVE_STRSEP
+
 char *
-strsep (char **str, const char *delims)
+chula_strsep (char **str, const char *delims)
 {
+#ifndef HAVE_STRSEP
 	char* token;
 
 	if (*str == NULL) {
@@ -62,13 +62,15 @@ strsep (char **str, const char *delims)
 	 */
 	*str=NULL;
 	return token;
-}
+#else
+    return strsep (str, delims);
 #endif
+}
 
-#ifndef HAVE_STRNSTR
 char *
-strnstr (const char *s, const char *find, size_t slen)
+chula_strnstr (const char *s, const char *find, size_t slen)
 {
+#ifndef HAVE_STRNSTR
 	char c, sc;
 	size_t len;
 
@@ -85,13 +87,15 @@ strnstr (const char *s, const char *find, size_t slen)
 		s--;
 	}
 	return ((char *)s);
-}
+#else
+    return strnstr (s, find, slen);
 #endif
+}
 
-#ifndef HAVE_STRCASESTR
 char *
-strcasestr (const char *s, const char *find)
+chula_strcasestr (const char *s, const char *find)
 {
+#ifndef HAVE_STRCASESTR
 	register char c, sc;
 	register size_t len;
 
@@ -106,11 +110,13 @@ strcasestr (const char *s, const char *find)
 		s--;
 	}
 	return ((char *) s);
-}
+#else
+    return strcasestr (s, find);
 #endif
+}
 
 char *
-strncasestrn (const char *s, size_t slen, const char *find, size_t findlen)
+chula_strncasestrn (const char *s, size_t slen, const char *find, size_t findlen)
 {
     char c;
 	char sc;
@@ -140,9 +146,9 @@ strncasestrn (const char *s, size_t slen, const char *find, size_t findlen)
 }
 
 char *
-strncasestr (const char *s, const char *find, size_t slen)
+chula_strncasestr (const char *s, const char *find, size_t slen)
 {
-	return strncasestrn (s, slen, find, strlen(find));
+	return chula_strncasestrn (s, slen, find, strlen(find));
 }
 
 
@@ -152,10 +158,10 @@ strncasestr (const char *s, const char *find, size_t slen)
  * Returns strlen(src) + MIN(siz, strlen(initial dst)).
  * If retval >= siz, truncation occurred.
  */
-#ifndef HAVE_STRLCAT
 size_t
-strlcat (char *dst, const char *src, size_t siz)
+chula_strlcat (char *dst, const char *src, size_t siz)
 {
+#ifndef HAVE_STRLCAT
     /* The following few lines has been copy and pasted from Todd
      * C. Miller <Todd.Miller@courtesan.com> code. BSD licensed.
      */
@@ -182,25 +188,8 @@ strlcat (char *dst, const char *src, size_t siz)
     *d = '\0';
 
     /* count does not include NUL */
-    return(dlen + (s - src));
-}
+    return (dlen + (s - src));
+#else
+    return strlcat (dst, src, siz);
 #endif
-
-#ifndef HAVE_MALLOC
-inline void *
-malloc (size_t n)
-{
-	if (unlikely (n == 0))
-		n = 1;
-
-	return rpl_malloc(n);
 }
-#endif
-
-#ifndef HAVE_REALLOC
-inline void *
-realloc (void *ptr, size_t n)
-{
-	return rpl_realloc (ptr,n);
-}
-#endif

@@ -33,7 +33,7 @@
 #include "common-internal.h"
 #include "util.h"
 #include "log.h"
-#include "missing_sysfuncs.h"
+#include "cstrings.h"
 
 #include <signal.h>
 #include <stdlib.h>

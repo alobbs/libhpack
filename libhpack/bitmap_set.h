@@ -57,7 +57,7 @@
 #include <stdint.h>
 
 #include <libchula/libchula.h>
-#include "macros.h"
+#include <libhpack/macros.h>
 
 
 /**

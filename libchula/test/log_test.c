@@ -49,7 +49,7 @@ str_in_file (chula_buffer_t *filepath,
     ret = chula_buffer_read_file (&tmp, (char *)filepath->buf);
     if (unlikely(ret != ret_ok)) return false;
 
-    found = (strnstr ((char *)tmp.buf, string, tmp.len) != NULL);
+    found = (chula_strnstr ((char *)tmp.buf, string, tmp.len) != NULL);
 
     chula_buffer_mrproper (&tmp);
     return found;
