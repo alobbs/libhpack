@@ -38,7 +38,7 @@
 /* Special case
  */
 #define CHULA_H_INSIDE
-# include "libchula/debug.h"
+# include <libchula/debug.h>
 #undef CHULA_H_INSIDE
 
 #define check_add(suit,func)                             \
