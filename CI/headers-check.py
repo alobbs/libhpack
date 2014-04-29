@@ -130,7 +130,7 @@ def check_cstrings_funcs():
 			cont = f.read()
  			funcs_found = []
 			for func in FUNCS:
-				found = re.findall ('\s*(%s)[\s\n]*\('%(func), cont)
+				found = re.findall ('[^_](%s)[\s\n]*\('%(func), cont)
 				if found:
 					funcs_found.append(func)
 
