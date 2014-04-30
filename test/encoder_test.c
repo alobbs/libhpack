@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
-/* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
+/* All files in libhpack are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
  *     * Alvaro Lopez Ortega <alvaro@gnu.org>
@@ -31,25 +31,34 @@
  */
 
 #include <libhpack/libhpack.h>
+#include "libchula/testing_macros-internal.h"
 
-int header_table_tests (void);
-int integer_tests (void);
-int huffman_tests (void);
-int header_tests (void);
-int bitmap_set_tests (void);
-int header_encoding_tests (void);
+START_TEST (init_mrproper) {
+    ret_t                  ret;
+    hpack_header_encoder_t enc;
+
+    ret = hpack_header_encoder_init (&enc);
+    ch_assert (ret == ret_ok);
+
+    ret = hpack_header_encoder_mrproper (&enc);
+    ch_assert (ret == ret_ok);
+}
+END_TEST
+
 
 int
-main (void)
+basics (void)
+{
+    Suite *s1 = suite_create("Basic header encoding");
+    check_add (s1, init_mrproper);
+    run_test (s1);
+}
+
+int
+header_encoding_tests (void)
 {
     int re;
 
-    re  = integer_tests();
-    re += huffman_tests();
-    re += bitmap_set_tests();
-    re += header_table_tests();
-    re += header_tests();
-    re += header_encoding_tests();
-
+    re = basics();
     return re;
 }

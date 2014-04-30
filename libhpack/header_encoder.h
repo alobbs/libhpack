@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
-/* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
+/* All files in libhpack are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
  *     * Alvaro Lopez Ortega <alvaro@gnu.org>
@@ -30,26 +30,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libhpack/libhpack.h>
+#ifndef LIBHPACK_HEADER_ENCODER_H
+#define LIBHPACK_HEADER_ENCODER_H
 
-int header_table_tests (void);
-int integer_tests (void);
-int huffman_tests (void);
-int header_tests (void);
-int bitmap_set_tests (void);
-int header_encoding_tests (void);
+#if !defined(HPACK_H_INSIDE) && !defined (HPACK_COMPILATION)
+# error "Only <libhpack/libhpack.h> can be included directly."
+#endif
 
-int
-main (void)
-{
-    int re;
+#include <libchula/libchula.h>
+#include <libhpack/header_field.h>
+#include <libhpack/header_table.h>
+#include <libhpack/header_store.h>
+#include <libhpack/bitmap_set.h>
 
-    re  = integer_tests();
-    re += huffman_tests();
-    re += bitmap_set_tests();
-    re += header_table_tests();
-    re += header_tests();
-    re += header_encoding_tests();
+/**
+ * Header Parser Structure.
+ */
+typedef struct {
+    int foo;
+} hpack_header_encoder_t;
 
-    return re;
-}
+ret_t hpack_header_encoder_init     (hpack_header_encoder_t *enc);
+ret_t hpack_header_encoder_mrproper (hpack_header_encoder_t *enc);
+
+#endif /* LIBHPACK_HEADER_ENCODER_H */

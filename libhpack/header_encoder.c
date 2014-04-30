@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
-/* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
+/* All files in libhpack are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
  *     * Alvaro Lopez Ortega <alvaro@gnu.org>
@@ -30,26 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libhpack/libhpack.h>
+#include "header_encoder.h"
+#include "integer.h"
+#include "huffman.h"
 
-int header_table_tests (void);
-int integer_tests (void);
-int huffman_tests (void);
-int header_tests (void);
-int bitmap_set_tests (void);
-int header_encoding_tests (void);
-
-int
-main (void)
+ret_t
+hpack_header_encoder_init (hpack_header_encoder_t *enc)
 {
-    int re;
+    return ret_ok;
+}
 
-    re  = integer_tests();
-    re += huffman_tests();
-    re += bitmap_set_tests();
-    re += header_table_tests();
-    re += header_tests();
-    re += header_encoding_tests();
-
-    return re;
+ret_t
+hpack_header_encoder_mrproper (hpack_header_encoder_t *enc)
+{
+    return ret_ok;
 }

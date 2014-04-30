@@ -42,6 +42,7 @@
 #include <libhpack/header_parser.h>
 #include <libhpack/header_store.h>
 #include <libhpack/header_table.h>
+#include <libhpack/header_encoder.h>
 #include <libhpack/huffman.h>
 #include <libhpack/huffman_tables.h>
 #include <libhpack/integer.h>
