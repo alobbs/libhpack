@@ -251,10 +251,10 @@ static hpack_header_field_t static_table[STATIC_ENTRIES] = {
 /*
  * HEADER TABLE INTERNAL FUNCTIONS
  */
-static ret_t header_offs_add       (hpack_headers_offs_cb *offsets, uint16_t offset);
-static ret_t header_data_get       (hpack_headers_data_cb *h_data, uint16_t offset, char *dst, unsigned int num_bytes);
-static ret_t header_data_get_chula (hpack_headers_data_cb *h_data, uint16_t offset, chula_buffer_t *dst, unsigned int num_bytes);
-static ret_t header_data_add       (hpack_headers_data_cb *h_data, char *data, unsigned int data_size);
+static ret_t header_offs_add       (hpack_headers_offs_cb_t *offsets, uint16_t offset);
+static ret_t header_data_get       (hpack_headers_data_cb_t *h_data, uint16_t offset, char *dst, unsigned int num_bytes);
+static ret_t header_data_get_chula (hpack_headers_data_cb_t *h_data, uint16_t offset, chula_buffer_t *dst, unsigned int num_bytes);
+static ret_t header_data_add       (hpack_headers_data_cb_t *h_data, char *data, unsigned int data_size);
 
 
 /**
@@ -333,8 +333,8 @@ header_table_evict (hpack_header_table_t *table,
  * @retval re_ok     The element has been added.
  */
 static ret_t
-header_offs_add (hpack_headers_offs_cb *offsets,
-                 uint16_t               offset)
+header_offs_add (hpack_headers_offs_cb_t *offsets,
+                 uint16_t                 offset)
 {
     if (unlikely(offsets == NULL))
         return ret_error;
@@ -369,10 +369,10 @@ header_offs_add (hpack_headers_offs_cb *offsets,
  * @retval ret_ok     Data in dst is relevant.
  */
 static ret_t
-header_data_get (hpack_headers_data_cb *h_data,
-                 uint16_t               offset,
-                 char                  *dst,
-                 unsigned int           num_bytes)
+header_data_get (hpack_headers_data_cb_t *h_data,
+                 uint16_t                 offset,
+                 char                    *dst,
+                 unsigned int             num_bytes)
 {
     unsigned int to_end;
 
@@ -414,10 +414,10 @@ header_data_get (hpack_headers_data_cb *h_data,
  * @retval ret_ok     Data in dst is relevant.
  */
 static ret_t
-header_data_get_chula (hpack_headers_data_cb *h_data,
-                       uint16_t               offset,
-                       chula_buffer_t        *dst,
-                       unsigned int           num_bytes)
+header_data_get_chula (hpack_headers_data_cb_t *h_data,
+                       uint16_t                 offset,
+                       chula_buffer_t          *dst,
+                       unsigned int             num_bytes)
 {
     ret_t        ret;
     unsigned int to_end;
@@ -455,9 +455,9 @@ header_data_get_chula (hpack_headers_data_cb *h_data,
  * @retval ret_ok     Data has been added.
  */
 static ret_t
-header_data_add (hpack_headers_data_cb *h_data,
-                 char                  *data,
-                 unsigned int           data_size)
+header_data_add (hpack_headers_data_cb_t *h_data,
+                 char                    *data,
+                 unsigned int             data_size)
 {
     unsigned int to_end;
 

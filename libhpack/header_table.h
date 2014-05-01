@@ -84,7 +84,7 @@ typedef struct {
     uint16_t buffer[HPACK_MAX_HEADER_TABLE_ENTRIES];  /**< Array of offsets for the Header Entries. */
     uint16_t head;                                    /**< Head of the Circular Buffer. */
     uint16_t tail;                                    /**< Tail of the Circular Buffer. */
-} hpack_headers_offs_cb;
+} hpack_headers_offs_cb_t;
 
 
 /**
@@ -94,20 +94,20 @@ typedef struct {
     char     buffer[HPACK_CB_HEADER_DATA_SIZE];  /**< Header Fields information. */
     uint16_t head;                               /**< Head of the Circular Buffer. */
     uint16_t tail;                               /**< Tail of the Circular Buffer. */
-} hpack_headers_data_cb;
+} hpack_headers_data_cb_t;
 
 
 /**
  * Structure for the whole Header Table.
  */
 typedef struct {
-    hpack_headers_offs_cb headers_offsets;  /**< Positions of the headers in the headers_data field. */
-    hpack_headers_data_cb headers_data;     /**< Header Field data. */
-    uint16_t              num_headers;      /**< How many headers we currently have in the table. */
-    uint16_t              used_data;        /**< How many octects we have used from the Header Table (this
+    hpack_headers_offs_cb_t headers_offsets;  /**< Positions of the headers in the headers_data field. */
+    hpack_headers_data_cb_t headers_data;     /**< Header Field data. */
+    uint16_t                num_headers;      /**< How many headers we currently have in the table. */
+    uint16_t                used_data;        /**< How many octects we have used from the Header Table (this
                                              *   is regarding the Maximum Table Size and not the actual
                                              *   bytes used). */
-    uint16_t              max_data;         /**< Maximum Table Size as specified in HPACK */
+    uint16_t                max_data;         /**< Maximum Table Size as specified in HPACK */
 } hpack_header_table_t;
 
 
