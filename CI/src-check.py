@@ -36,6 +36,8 @@ import fnmatch
 
 PATH_CHULA = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libchula')
 PATH_HPACK = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libhpack')
+PATH_CHULA_TEST = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libchula/test')
+PATH_HPACK_TEST = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../test')
 
 
 def _find_files (paths, match_filter, match_postskip = None):
@@ -145,15 +147,33 @@ def check_cstrings_funcs():
 	return errors
 
 
+def code_vs_tests():
+	code_size = 0
+	test_size = 0
+
+	for c_path in _find_files ([PATH_CHULA, PATH_HPACK], '*.c'):
+		code_size += os.path.getsize (c_path)
+	for c_path in _find_files ([PATH_CHULA_TEST, PATH_HPACK_TEST], '*.c'):
+		test_size += os.path.getsize (c_path)
+
+	percent = (test_size*100)/float(code_size)
+	if percent < 50:
+		print "[WARNING]:",
+	print "Testing/Code ratio: %0.2f%% (code=%dKb test=%dKb)" %(percent, code_size/1024, test_size/1024)
+	return []
+
+
 def main():
 	errors = []
 	errors += check_ifdef_HAVE()
 	errors += check_common_internal()
 	errors += check_local_includes()
 	errors += check_cstrings_funcs()
+	errors += code_vs_tests()
 
-	print "Total %d errors" %(len(errors))
-	print "\n".join([' %s'%(e) for e in errors])
+	if len(errors):
+		print "Total %d errors" %(len(errors))
+		print "\n".join([' %s'%(e) for e in errors])
 	return len(errors)
 
 if __name__ == "__main__":
