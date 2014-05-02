@@ -40,15 +40,16 @@ PATH_CHULA_TEST = os.path.normpath (os.path.dirname (os.path.realpath(__file__))
 PATH_HPACK_TEST = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../test')
 
 
-def _find_files (paths, match_filter, match_postskip = None):
+def _find_files (paths, match_filters, match_postskip = None):
 	h_files = []
 	for d in paths:
 		for root, dirnames, filenames in os.walk(d):
-			for filename in fnmatch.filter(filenames, match_filter):
-				fp = os.path.join(root, filename)
-				if match_postskip and match_postskip in fp:
-					continue
-				h_files.append (fp)
+			for m_fil in match_filters:
+				for filename in fnmatch.filter(filenames, m_fil):
+					fp = os.path.join(root, filename)
+					if match_postskip and match_postskip in fp:
+						continue
+					h_files.append (fp)
 	return h_files
 
 def check_ifdef_HAVE():
@@ -69,7 +70,7 @@ def check_ifdef_HAVE():
 			return []
 
 	errors = []
-	for h_path in _find_files ([PATH_CHULA, PATH_HPACK], '*.h', '-internal'):
+	for h_path in _find_files ([PATH_CHULA, PATH_HPACK], ['*.h'], '-internal'):
 		errors += _check_header(h_path)
 
 	return errors
@@ -91,7 +92,7 @@ def check_common_internal():
 			return []
 
 	errors = []
-	for c_path in _find_files ([PATH_CHULA], '*.c', '/test/'):
+	for c_path in _find_files ([PATH_CHULA], ['*.c'], '/test/'):
 		errors += _check_header(c_path)
 
 	return errors
@@ -112,7 +113,7 @@ def check_local_includes():
 			return []
 
 	errors = []
-	for h_path in _find_files ([PATH_CHULA, PATH_HPACK], '*.h'):
+	for h_path in _find_files ([PATH_CHULA, PATH_HPACK], ['*.h']):
 		errors += _check_header(h_path)
 
 	return errors
@@ -141,19 +142,22 @@ def check_cstrings_funcs():
 			return []
 
 	errors = []
-	for c_path in _find_files ([PATH_CHULA, PATH_HPACK], '*.c', 'libchula/cstrings.c'):
+	for c_path in _find_files ([PATH_CHULA, PATH_HPACK], ['*.c'], 'libchula/cstrings.c'):
 		errors += _check_header(c_path)
 
 	return errors
 
 
 def code_vs_tests():
+	"""Measures the amount of code and its testing counterpart
+	"""
+
 	code_size = 0
 	test_size = 0
 
-	for c_path in _find_files ([PATH_CHULA, PATH_HPACK], '*.c'):
+	for c_path in _find_files ([PATH_CHULA, PATH_HPACK], ['*.c','*.h','*.py']):
 		code_size += os.path.getsize (c_path)
-	for c_path in _find_files ([PATH_CHULA_TEST, PATH_HPACK_TEST], '*.c'):
+	for c_path in _find_files ([PATH_CHULA_TEST, PATH_HPACK_TEST], ['*.c','*.h','*.py']):
 		test_size += os.path.getsize (c_path)
 
 	percent = (test_size*100)/float(code_size)
