@@ -890,6 +890,21 @@ START_TEST (_syslog)
 }
 END_TEST
 
+START_TEST (_malloc_size)
+{
+    ret_t   ret;
+    char   *ptr;
+    size_t  size = 999;
+
+    ptr = malloc (1234);
+    ch_assert (ptr != NULL);
+
+    ret = chula_malloc_size (ptr, &size);
+    ch_assert (ret == ret_ok);
+    ch_assert (size >= 1234);
+}
+END_TEST
+
 
 int
 util_tests (void)
@@ -938,5 +953,6 @@ util_tests (void)
     check_add (s1, set_closexec);
     check_add (s1, set_reuseaddr);
     check_add (s1, _syslog);
+    check_add (s1, _malloc_size);
     run_test (s1);
 }

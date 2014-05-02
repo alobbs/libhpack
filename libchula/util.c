@@ -1999,3 +1999,21 @@ chula_tmp_dir_copy (chula_buffer_t *buffer)
 	chula_buffer_add_str (buffer, "/tmp");
 	return ret_ok;
 }
+
+
+ret_t
+chula_malloc_size (const void *ptr, size_t *size)
+{
+#ifdef HAVE_MALLOC_SIZE
+    *size = malloc_size (ptr);
+    return ret_ok;
+
+#elif defined(HAVE_MALLOC_USABLE_SIZE)
+    *size = malloc_usable_size (ptr);
+    return ret_ok;
+
+#else
+# error "Neither malloc_size() nor malloc_usable_size()"
+#endif
+    return ret_error;
+}
