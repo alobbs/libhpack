@@ -902,6 +902,26 @@ START_TEST (_malloc_size)
     ret = chula_malloc_size (ptr, &size);
     ch_assert (ret == ret_ok);
     ch_assert (size >= 1234);
+
+    /* 'size' may be actually larger than requested, and so we should
+     * make sure we don't go out of boundaries when reading and / or
+     * writing at the beginning and end of the allocated memory. If by
+     * any reason the size we got was wrong (bigger) this should raise
+     * an exception (or error under valgrind).
+     */
+    ptr[0] = 0;
+    ptr[1] = 1;
+    ptr[2] = 2;
+    ch_assert (ptr[0] == 0);
+    ch_assert (ptr[1] == 1);
+    ch_assert (ptr[2] == 2);
+
+    ptr[size-3] = 7;
+    ptr[size-2] = 8;
+    ptr[size-1] = 9;
+    ch_assert (ptr[size-3] == 7);
+    ch_assert (ptr[size-2] == 8);
+    ch_assert (ptr[size-1] == 9);
 }
 END_TEST
 

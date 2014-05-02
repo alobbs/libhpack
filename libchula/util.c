@@ -113,6 +113,12 @@
 # include <paths.h>
 #endif
 
+#if defined (HAVE_MALLOC_H)
+# include <malloc.h>
+#elif defined (HAVE_MALLOC_MALLOC_H)
+# include <malloc/malloc.h>
+#endif
+
 #ifndef HOST_NAME_MAX
 # define HOST_NAME_MAX 255
 #endif
