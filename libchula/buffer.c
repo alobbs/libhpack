@@ -191,6 +191,26 @@ chula_buffer_fake (chula_buffer_t *buf, const char *str, uint32_t len)
     buf->size = len + 1;
 }
 
+ret_t
+chula_buffer_import (chula_buffer_t *buf, char *str, uint32_t len)
+{
+    ret_t  ret;
+    size_t s    = 0;
+
+    if (buf->buf != NULL) {
+        free (buf->buf);
+    }
+
+    buf->buf = (uint8_t *)str;
+    buf->len = len;
+
+    ret = chula_malloc_size (str, &s);
+    if (unlikely (ret != ret_ok)) return ret;
+
+    buf->size = s;
+    return ret_ok;
+}
+
 
 ret_t
 chula_buffer_mrproper (chula_buffer_t *buf)

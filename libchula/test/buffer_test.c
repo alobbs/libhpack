@@ -1971,6 +1971,33 @@ START_TEST (print_cstr)
 }
 END_TEST
 
+START_TEST (_import)
+{
+    ret_t           ret;
+    int             len;
+    chula_buffer_t  buf  = CHULA_BUF_INIT;
+    char           *mem  = NULL;
+
+    /* Allocate a chunk of memory */
+    mem = malloc (1234);
+    ch_assert (mem != NULL);
+
+    /* Write on it */
+    len = snprintf (mem, 1234, "hola");
+    ch_assert (len == 4);
+
+    /* Import it as a buffer */
+    ret = chula_buffer_import (&buf, mem, len);
+    ch_assert (ret == ret_ok);
+    ch_assert ((uint8_t *)mem == buf.buf);
+
+    /* Append something, for instance */
+    ret = chula_buffer_add_str (&buf, " caracola");
+    ch_assert (ret == ret_ok);
+    ch_assert_str_eq (buf.buf, "hola caracola");
+}
+END_TEST
+
 
 int
 buffer_tests (void)
@@ -2038,5 +2065,6 @@ buffer_tests (void)
     check_add (s1, cnt_cspn);
     check_add (s1, print_debug);
     check_add (s1, print_cstr);
+    check_add (s1, _import);
     run_test (s1);
 }

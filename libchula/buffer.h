@@ -60,18 +60,19 @@ typedef struct {
 #define CHULA_BUF_SLIDE_NONE         INT_MIN
 
 #define chula_buffer_is_empty(b)        (BUF(b)->len == 0)
-#define chula_buffer_add_str(b,s)       chula_buffer_add (b, s, sizeof(s)-1)
+#define chula_buffer_add_str(b,s)       chula_buffer_add      (b, s, sizeof(s)-1)
 #define chula_buffer_prepend_str(b,s)   chula_buffer_prepend  (b, s, sizeof(s)-1)
 #define chula_buffer_prepend_buf(b,s)   chula_buffer_prepend  (b, (char *)(s)->buf, (s)->len)
 #define chula_buffer_cmp_str(b,s)       chula_buffer_cmp      (b, (char *)(s), sizeof(s)-1)
 #define chula_buffer_case_cmp_str(b,s)  chula_buffer_case_cmp (b, (char *)(s), sizeof(s)-1)
-#define chula_buffer_fake_str(b,s)      chula_buffer_fake (b, s, sizeof(s)-1)
+#define chula_buffer_fake_str(b,s)      chula_buffer_fake     (b, s, sizeof(s)-1)
 
 ret_t chula_buffer_new                  (chula_buffer_t **buf);
 ret_t chula_buffer_free                 (chula_buffer_t  *buf);
 ret_t chula_buffer_init                 (chula_buffer_t  *buf);
 ret_t chula_buffer_mrproper             (chula_buffer_t  *buf);
 void  chula_buffer_fake                 (chula_buffer_t  *buf, const char *str, uint32_t len);
+ret_t chula_buffer_import               (chula_buffer_t  *buf, char *str, uint32_t len);
 
 void  chula_buffer_clean                (chula_buffer_t  *buf);
 ret_t chula_buffer_dup                  (chula_buffer_t  *buf, chula_buffer_t **dup);
