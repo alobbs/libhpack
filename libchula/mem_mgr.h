@@ -30,29 +30,47 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CHULA_H
-#define CHULA_H
+#ifndef CHULA_MEM_MGR_H
+#define CHULA_MEM_MGR_H
 
-#define CHULA_H_INSIDE
+#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
+# error "Only <libchula/libchula.h> can be included directly."
+#endif
 
-#include <libchula/cstrings.h>
-#include <libchula/avl.h>
-#include <libchula/avl_generic.h>
-#include <libchula/buffer.h>
 #include <libchula/common.h>
-#include <libchula/crc32.h>
-#include <libchula/debug.h>
-#include <libchula/list.h>
-#include <libchula/log.h>
-#include <libchula/logger_fd.h>
-#include <libchula/macros.h>
-#include <libchula/md5.h>
-#include <libchula/sha1.h>
-#include <libchula/sha512.h>
-#include <libchula/util.h>
+#include <libchula/buffer.h>
 
-#include <libchula/mem_mgr.h>
+typedef struct {
+    void *malloc;
+    void *realloc;
+    void *free;
+} chula_mem_policy_t;
 
-#undef CHULA_H_INSIDE
+typedef struct {
+    chula_mem_policy_t base;
+    float              failure_rate;
+} chula_mem_policy_random_t;
 
-#endif /* CHULA_H */
+typedef struct {
+    chula_mem_policy_t system;
+} chula_mem_mgr_t;
+
+#define MEM_MGR(m)    ((chula_mem_mgr_t *)(m))
+#define MEM_POLICY(m) ((chula_mem_policy_t *)(m))
+
+/* Memory Policy */
+ret_t chula_mem_policy_init     (chula_mem_policy_t *policy);
+ret_t chula_mem_policy_mrproper (chula_mem_policy_t *policy);
+
+/* Memory Policy: Random Failures */
+ret_t chula_mem_policy_random_init     (chula_mem_policy_random_t *polran, float rate);
+ret_t chula_mem_policy_random_mrproper (chula_mem_policy_random_t *polran);
+
+/* Memory Manager */
+ret_t chula_mem_mgr_init       (chula_mem_mgr_t *mgr);
+ret_t chula_mem_mgr_mrproper   (chula_mem_mgr_t *mgr);
+ret_t chula_mem_mgr_set_policy (chula_mem_mgr_t *mgr, chula_mem_policy_t *policy);
+ret_t chula_mem_mgr_reset      (chula_mem_mgr_t *mgr);
+
+
+#endif /* CHULA_MEM_MGR_H */
