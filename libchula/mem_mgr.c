@@ -34,6 +34,7 @@
 #include "mem_mgr.h"
 #include "log.h"
 #include "cstrings.h"
+#include "util.h"
 
 #include <unistd.h>
 
@@ -56,7 +57,6 @@ ret_t
 chula_mem_mgr_init (chula_mem_mgr_t *mgr)
 {
 #ifdef HAVE_MALLOC_DEFAULT_ZONE
-    int            re;
     malloc_zone_t *zone = malloc_default_zone();
 
     /* Store original functions */
@@ -71,6 +71,7 @@ chula_mem_mgr_init (chula_mem_mgr_t *mgr)
 ret_t
 chula_mem_mgr_mrproper (chula_mem_mgr_t *mgr)
 {
+    UNUSED(mgr);
     return ret_ok;
 }
 
@@ -119,6 +120,7 @@ chula_mem_policy_init (chula_mem_policy_t *policy)
 ret_t
 chula_mem_policy_mrproper (chula_mem_policy_t *policy)
 {
+    UNUSED(policy);
     return ret_ok;
 }
 
@@ -129,7 +131,13 @@ chula_mem_policy_mrproper (chula_mem_policy_t *policy)
 static void *
 _random_malloc (struct _malloc_zone_t *zone, size_t size)
 {
-    void * (*orig)(struct _malloc_zone_t *zone, size_t size) = current_manager->system.malloc;
+    void* (*orig)(struct _malloc_zone_t *zone, size_t size) = current_manager->system.malloc;
+    chula_mem_policy_random_t *policy = (chula_mem_policy_random_t *)current_policy;
+
+    if ((chula_random() & 0xff) <= (0xff * policy->failure_rate)) {
+        return NULL;
+    }
+
     return orig (zone, size);
 }
 
@@ -137,6 +145,12 @@ static void *
 _random_realloc (struct _malloc_zone_t *zone, void *ptr, size_t size)
 {
     void * (*orig)(struct _malloc_zone_t *zone, void *ptr, size_t size) = current_manager->system.realloc;
+    chula_mem_policy_random_t *policy = (chula_mem_policy_random_t *)current_policy;
+
+    if ((chula_random() & 0xff) <= (0xff * policy->failure_rate)) {
+        return NULL;
+    }
+
     return orig (zone, ptr, size);
 }
 
