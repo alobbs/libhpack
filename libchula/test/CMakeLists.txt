@@ -1,5 +1,10 @@
+# Subdirectories
+add_subdirectory(OOM)
+
+# Dependencies
 pkg_check_modules(CHECK check)
 
+# Testing exec
 file(GLOB SRCS *.c)
 
 add_executable (test_libchula ${SRCS})
