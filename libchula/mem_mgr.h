@@ -52,6 +52,13 @@ typedef struct {
 } chula_mem_policy_random_t;
 
 typedef struct {
+    chula_mem_policy_t base;
+    uint32_t           n_malloc;
+    uint32_t           n_realloc;
+    uint32_t           n_free;
+} chula_mem_policy_counter_t;
+
+typedef struct {
     chula_mem_policy_t system;
     bool               frozen;
 } chula_mem_mgr_t;
@@ -66,6 +73,10 @@ ret_t chula_mem_policy_mrproper (chula_mem_policy_t *policy);
 /* Memory Policy: Random Failures */
 ret_t chula_mem_policy_random_init     (chula_mem_policy_random_t *polran, float rate);
 ret_t chula_mem_policy_random_mrproper (chula_mem_policy_random_t *polran);
+
+/* Memory Policy: Counter */
+ret_t chula_mem_policy_counter_init     (chula_mem_policy_counter_t *polcnt);
+ret_t chula_mem_policy_counter_mrproper (chula_mem_policy_counter_t *polcnt);
 
 /* Memory Manager */
 ret_t chula_mem_mgr_init       (chula_mem_mgr_t *mgr);

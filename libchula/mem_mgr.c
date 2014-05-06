@@ -203,12 +203,62 @@ chula_mem_policy_random_mrproper (chula_mem_policy_random_t *policy)
 }
 
 
-/*
-    chula_mem_mgr_t           mgr;
-    chula_mem_policy_random_t policy;
-
-    chula_mem_policy_random_init (&policy, 0.5);
-
-    chula_mem_mgr_init (&mgr);
-    chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy));
+/* Counter Memory Policy
  */
+
+static void *
+_counter_malloc (struct _malloc_zone_t *zone, size_t size)
+{
+    void* (*orig)(struct _malloc_zone_t *zone, size_t size) = current_manager->system.malloc;
+    chula_mem_policy_counter_t *policy = (chula_mem_policy_counter_t *)current_policy;
+
+    if (! current_manager->frozen) {
+        policy->n_malloc++;
+    }
+
+    return orig (zone, size);
+}
+
+static void *
+_counter_realloc (struct _malloc_zone_t *zone, void *ptr, size_t size)
+{
+    void * (*orig)(struct _malloc_zone_t *zone, void *ptr, size_t size) = current_manager->system.realloc;
+    chula_mem_policy_counter_t *policy = (chula_mem_policy_counter_t *)current_policy;
+
+    if (! current_manager->frozen) {
+        policy->n_realloc++;
+    }
+
+    return orig (zone, ptr, size);
+}
+
+static void
+_counter_free (struct _malloc_zone_t *zone, void *ptr)
+{
+    void * (*orig)(struct _malloc_zone_t *zone, void *ptr) = current_manager->system.free;
+    chula_mem_policy_counter_t *policy = (chula_mem_policy_counter_t *)current_policy;
+
+    if (! current_manager->frozen) {
+        policy->n_free++;
+    }
+
+    orig (zone, ptr);
+}
+
+ret_t
+chula_mem_policy_counter_init (chula_mem_policy_counter_t *polcnt)
+{
+    chula_mem_policy_init (&polcnt->base);
+
+    polcnt->base.malloc  = _counter_malloc;
+    polcnt->base.realloc = _counter_realloc;
+    polcnt->base.free    = _counter_free;
+
+    return ret_ok;
+}
+
+ret_t
+chula_mem_policy_counter_mrproper (chula_mem_policy_counter_t *polcnt)
+{
+    return chula_mem_policy_mrproper (&polcnt->base);
+}
