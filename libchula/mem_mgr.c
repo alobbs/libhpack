@@ -59,6 +59,9 @@ chula_mem_mgr_init (chula_mem_mgr_t *mgr)
 #ifdef HAVE_MALLOC_DEFAULT_ZONE
     malloc_zone_t *zone = malloc_default_zone();
 
+    /* Properties */
+    mgr->frozen = false;
+
     /* Store original functions */
     mgr->system.malloc  = zone->malloc;
     mgr->system.realloc = zone->realloc;
@@ -104,6 +107,20 @@ chula_mem_mgr_reset (chula_mem_mgr_t *mgr)
     return chula_mem_mgr_set_policy (mgr, &mgr->system);
 }
 
+ret_t
+chula_mem_mgr_freeze (chula_mem_mgr_t *mgr)
+{
+    mgr->frozen = true;
+    return ret_ok;
+}
+
+ret_t
+chula_mem_mgr_thaw (chula_mem_mgr_t *mgr)
+{
+    mgr->frozen = false;
+    return ret_ok;
+}
+
 
 /* Policy
  */
@@ -134,8 +151,10 @@ _random_malloc (struct _malloc_zone_t *zone, size_t size)
     void* (*orig)(struct _malloc_zone_t *zone, size_t size) = current_manager->system.malloc;
     chula_mem_policy_random_t *policy = (chula_mem_policy_random_t *)current_policy;
 
-    if ((chula_random() & 0xff) <= (0xff * policy->failure_rate)) {
-        return NULL;
+    if (! current_manager->frozen) {
+        if ((chula_random() & 0xff) <= (0xff * policy->failure_rate)) {
+            return NULL;
+        }
     }
 
     return orig (zone, size);
@@ -147,8 +166,10 @@ _random_realloc (struct _malloc_zone_t *zone, void *ptr, size_t size)
     void * (*orig)(struct _malloc_zone_t *zone, void *ptr, size_t size) = current_manager->system.realloc;
     chula_mem_policy_random_t *policy = (chula_mem_policy_random_t *)current_policy;
 
-    if ((chula_random() & 0xff) <= (0xff * policy->failure_rate)) {
-        return NULL;
+    if (! current_manager->frozen) {
+        if ((chula_random() & 0xff) <= (0xff * policy->failure_rate)) {
+            return NULL;
+        }
     }
 
     return orig (zone, ptr, size);

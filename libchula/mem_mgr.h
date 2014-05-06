@@ -53,6 +53,7 @@ typedef struct {
 
 typedef struct {
     chula_mem_policy_t system;
+    bool               frozen;
 } chula_mem_mgr_t;
 
 #define MEM_MGR(m)    ((chula_mem_mgr_t *)(m))
@@ -69,8 +70,10 @@ ret_t chula_mem_policy_random_mrproper (chula_mem_policy_random_t *polran);
 /* Memory Manager */
 ret_t chula_mem_mgr_init       (chula_mem_mgr_t *mgr);
 ret_t chula_mem_mgr_mrproper   (chula_mem_mgr_t *mgr);
-ret_t chula_mem_mgr_set_policy (chula_mem_mgr_t *mgr, chula_mem_policy_t *policy);
-ret_t chula_mem_mgr_reset      (chula_mem_mgr_t *mgr);
 
+ret_t chula_mem_mgr_reset      (chula_mem_mgr_t *mgr);
+ret_t chula_mem_mgr_set_policy (chula_mem_mgr_t *mgr, chula_mem_policy_t *policy);
+ret_t chula_mem_mgr_freeze     (chula_mem_mgr_t *mgr);
+ret_t chula_mem_mgr_thaw       (chula_mem_mgr_t *mgr);
 
 #endif /* CHULA_MEM_MGR_H */
