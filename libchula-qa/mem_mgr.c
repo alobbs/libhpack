@@ -259,3 +259,76 @@ chula_mem_policy_counter_mrproper (chula_mem_policy_counter_t *polcnt)
 {
     return chula_mem_policy_mrproper (&polcnt->base);
 }
+
+
+/* Scheduled Failure Memory Policy
+ */
+
+static void *
+_after_malloc (struct _malloc_zone_t *zone, size_t size)
+{
+    void* (*orig)(struct _malloc_zone_t *zone, size_t size) = current_manager->system.malloc;
+    chula_mem_policy_sched_fail_t *policy = (chula_mem_policy_sched_fail_t *)current_policy;
+
+    policy->counter++;
+
+    if ((! current_manager->frozen) &&
+        (policy->counter > policy->fail_after))
+    {
+        return NULL;
+    }
+
+    return orig (zone, size);
+}
+
+static void *
+_after_realloc (struct _malloc_zone_t *zone, void *ptr, size_t size)
+{
+    void * (*orig)(struct _malloc_zone_t *zone, void *ptr, size_t size) = current_manager->system.realloc;
+    chula_mem_policy_sched_fail_t *policy = (chula_mem_policy_sched_fail_t *)current_policy;
+
+    policy->counter++;
+
+    if ((! current_manager->frozen) &&
+        (policy->counter > policy->fail_after))
+    {
+        return NULL;
+    }
+
+    return orig (zone, ptr, size);
+}
+
+static void
+_after_free (struct _malloc_zone_t *zone, void *ptr)
+{
+    void * (*orig)(struct _malloc_zone_t *zone, void *ptr) = current_manager->system.free;
+    chula_mem_policy_sched_fail_t *policy = (chula_mem_policy_sched_fail_t *)current_policy;
+
+    if (! current_manager->frozen) {
+        policy->counter++;
+    }
+
+    orig (zone, ptr);
+}
+
+
+ret_t
+chula_mem_policy_sched_fail_init (chula_mem_policy_sched_fail_t *polschd, uint32_t fail_after)
+{
+    chula_mem_policy_init (&polschd->base);
+
+    polschd->counter      = 0;
+    polschd->fail_after   = fail_after;
+
+    polschd->base.malloc  = _after_malloc;
+    polschd->base.realloc = _after_realloc;
+    polschd->base.free    = _after_free;
+
+    return ret_ok;
+}
+
+ret_t
+chula_mem_policy_sched_fail_mrproper (chula_mem_policy_sched_fail_t *polschd)
+{
+    return chula_mem_policy_mrproper (&polschd->base);
+}
