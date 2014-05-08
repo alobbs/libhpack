@@ -32,8 +32,11 @@
  */
 
 #include <string.h>
+
 #include <libhpack/libhpack.h>
-#include "libchula/testing_macros-internal.h"
+#include <libchula-qa/libchula-qa.h>
+#include <libchula-qa/testing_macros-internal.h>
+
 
 #define EVEN_SET(E) memset (&E, 0x55, sizeof(E));
 #define ODD_SET(E)  memset (&E, 0xAA, sizeof(E));

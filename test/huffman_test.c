@@ -31,7 +31,8 @@
  */
 
 #include <libhpack/libhpack.h>
-#include "libchula/testing_macros-internal.h"
+#include <libchula-qa/libchula-qa.h>
+#include <libchula-qa/testing_macros-internal.h>
 
 
 #define encode_test(s1,s2) encode_string_test(s1, sizeof(s1)-1, s2, sizeof(s2)-1)

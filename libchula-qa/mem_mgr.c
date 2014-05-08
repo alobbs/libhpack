@@ -30,11 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "common-internal.h"
+#include "config.h"
 #include "mem_mgr.h"
-#include "log.h"
-#include "cstrings.h"
-#include "util.h"
 
 #include <unistd.h>
 

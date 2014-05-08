@@ -51,8 +51,6 @@
 #include <libchula/sha512.h>
 #include <libchula/util.h>
 
-#include <libchula/mem_mgr.h>
-
 #undef CHULA_H_INSIDE
 
 #endif /* CHULA_H */

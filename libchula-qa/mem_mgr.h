@@ -33,12 +33,11 @@
 #ifndef CHULA_MEM_MGR_H
 #define CHULA_MEM_MGR_H
 
-#if !defined(CHULA_H_INSIDE) && !defined (CHULA_COMPILATION)
-# error "Only <libchula/libchula.h> can be included directly."
+#if !defined(CHULA_QA_H_INSIDE) && !defined (CHULA_QA_COMPILATION)
+# error "Only <libchula-qa/libchula-qa.h> can be included directly."
 #endif
 
-#include <libchula/common.h>
-#include <libchula/buffer.h>
+#include <libchula/libchula.h>
 
 typedef struct {
     void *malloc;

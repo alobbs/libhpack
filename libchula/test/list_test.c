@@ -34,9 +34,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <libchula/libchula.h>
-#include "libchula/testing_macros-internal.h"
-
+#include <libchula-qa/libchula-qa.h>
+#include <libchula-qa/testing_macros-internal.h>
 
 typedef struct {
     chula_list_t base;

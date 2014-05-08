@@ -350,6 +350,7 @@ else()
 endif(BUILD_DOCS)
 
 add_subdirectory(libchula)
+add_subdirectory(libchula-qa)
 add_subdirectory(libhpack)
 
 # Testing

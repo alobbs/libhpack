@@ -35,8 +35,9 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#include <libchula/libchula.h>
-#include "libchula/testing_macros-internal.h"
+#include <libchula-qa/libchula-qa.h>
+#include <libchula-qa/testing_macros-internal.h>
+
 
 START_TEST (init_heap)
 {

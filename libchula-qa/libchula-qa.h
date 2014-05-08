@@ -3,7 +3,7 @@
 /* All files in libchula are Copyright (C) 2014 Alvaro Lopez Ortega.
  *
  *   Authors:
- *     * Alvaro Lopez Ortega <alvaro@gnu.org>
+ *     * Alvaro Lopez Ortega <alvaro@alobbs.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,56 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libchula-qa/libchula-qa.h>
-#include <libchula-qa/testing_macros-internal.h>
+#ifndef CHULA_QA_H
+#define CHULA_QA_H
 
+#define CHULA_QA_H_INSIDE
+#include <libchula-qa/mem_mgr.h>
+#undef CHULA_QA_H_INSIDE
 
-typedef struct {
-    int foo;
-} test_obj1_t;
-
-static ret_t
-test_obj1_new (test_obj1_t **obj, int val)
-{
-    *obj = INT_TO_POINTER(val);
-    return ret_ok;
-}
-
-static ret_t
-gen_new_obj_w_ret (void)
-{
-    test_obj1_t *obj = CHULA_GEN_NEW_OBJ(test,obj1,1234);
-    ch_assert (POINTER_TO_INT(obj) == 1234);
-    return ret_ok;
-}
-
-static ret_t
-gen_new_obj_3_w_ret (void)
-{
-    test_obj1_t *a = CHULA_GEN_NEW_OBJ(test,obj1,123);
-    test_obj1_t *b = CHULA_GEN_NEW_OBJ(test,obj1,456);
-    test_obj1_t *c = CHULA_GEN_NEW_OBJ(test,obj1,789);
-    ch_assert (POINTER_TO_INT(a) == 123);
-    ch_assert (POINTER_TO_INT(b) == 456);
-    ch_assert (POINTER_TO_INT(c) == 789);
-    return ret_ok;
-}
-
-
-START_TEST (gen_new_obj) {
-    gen_new_obj_w_ret();
-}
-END_TEST
-START_TEST (gen_new_obj_3) {
-    gen_new_obj_3_w_ret();
-}
-END_TEST
-
-int
-macro_tests (void)
-{
-    Suite *s1 = suite_create("Macros");
-    check_add (s1, gen_new_obj);
-    check_add (s1, gen_new_obj_3);
-    run_test (s1);
-}
+#endif /* CHULA_QA_H */

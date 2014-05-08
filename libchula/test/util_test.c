@@ -44,8 +44,8 @@
 # include <arpa/inet.h>
 #endif
 
-#include <libchula/libchula.h>
-#include "libchula/testing_macros-internal.h"
+#include <libchula-qa/libchula-qa.h>
+#include <libchula-qa/testing_macros-internal.h>
 
 #ifndef LOG_INFO
 # define LOG_INFO 6

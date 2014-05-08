@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libchula/libchula.h>
+#include <libchula-qa/libchula-qa.h>
 #include <assert.h>
 
 int

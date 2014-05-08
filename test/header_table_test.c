@@ -31,7 +31,8 @@
  */
 
 #include <libhpack/libhpack.h>
-#include "libchula/testing_macros-internal.h"
+#include <libchula-qa/libchula-qa.h>
+#include <libchula-qa/testing_macros-internal.h>
 
 
 void check_table_empty (hpack_header_table_t *table)
