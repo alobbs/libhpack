@@ -96,4 +96,11 @@ ret_t chula_mem_mgr_set_policy (chula_mem_mgr_t *mgr, chula_mem_policy_t *policy
 ret_t chula_mem_mgr_freeze     (chula_mem_mgr_t *mgr);
 ret_t chula_mem_mgr_thaw       (chula_mem_mgr_t *mgr);
 
+#define chula_mem_mgr_work(mgr,cmd)             \
+    do {                                        \
+        chula_mem_mgr_freeze (mgr);             \
+        cmd;                                    \
+        chula_mem_mgr_thaw (mgr);               \
+    } while(false)
+
 #endif /* CHULA_MEM_MGR_H */

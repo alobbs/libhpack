@@ -33,36 +33,73 @@
 #include <libchula-qa/libchula-qa.h>
 #include <assert.h>
 
+static chula_mem_mgr_t mgr;
+
+#define WORK(...)  chula_mem_mgr_work (&mgr, __VA_ARGS__)
+#define PRINT(...) chula_mem_mgr_work (&mgr, printf(__VA_ARGS__))
+
 int
-buffer_tests (void)
+exec_sched_fail (int (*test)(void))
 {
-    ret_t                     ret;
-    chula_mem_mgr_t           mgr;
-    chula_mem_policy_random_t policy;
+    int                           re = 0;
+    uint32_t                      total_calls;
+    chula_mem_policy_counter_t    policy_c;
+    chula_mem_policy_sched_fail_t policy_f;
 
-    /* Set a custom mem-mgr */
-    chula_mem_mgr_init (&mgr);
-    chula_mem_policy_random_init (&policy, 0.01);
-    chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy));
+    /* Count */
+    chula_mem_policy_counter_init (&policy_c);
+    chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy_c));
+    test();
+    PRINT ("policy_c.n_malloc  %d\n", policy_c.n_malloc);
+    PRINT ("policy_c.n_realloc %d\n", policy_c.n_realloc);
+    PRINT ("policy_c.n_free    %d\n", policy_c.n_free);
+    total_calls = policy_c.n_malloc + policy_c.n_realloc + policy_c.n_free;
+    PRINT ("total_calls %d\n", total_calls);
+    chula_mem_policy_counter_mrproper (&policy_c);
 
-    /* Testing */
-    for (uint32_t i=0; i<1000; i++) {
-        chula_buffer_t *buf = NULL;
-
-        ret = chula_buffer_new (&buf);
-        assert ((ret == ret_ok) || (ret == ret_nomem));
-
-        chula_buffer_free(buf);
+    /* Execute */
+    for (uint32_t n=0; n<total_calls; n++) {
+        printf ("n = %d\n", n);
+        chula_mem_policy_sched_fail_init (&policy_f, n);
+        chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy_f));
+        re += test();
     }
 
-    /* Restore mem-mgr */
-    chula_mem_mgr_reset(&mgr);
-
     /* Clean up */
-    chula_mem_mgr_mrproper (&mgr);
-    chula_mem_policy_random_mrproper (&policy);
+    chula_mem_policy_counter_mrproper (&policy_c);
+    chula_mem_policy_sched_fail_mrproper (&policy_f);
+    return re;
+}
 
-    printf ("Everything did work\n");
+int
+buffer_new (void)
+{
+    ret_t           ret;
+    chula_buffer_t *buf  = NULL;
+
+    ret = chula_buffer_new (&buf);
+    assert (((ret == ret_ok) && (buf != NULL)) ||
+            ((ret == ret_nomem) && (buf == NULL)));
+
+    chula_buffer_free(buf);
+    return 0;
+}
+
+int
+buffer_add_str (void)
+{
+    ret_t           ret;
+    uint32_t        len;
+    chula_buffer_t *buf  = NULL;
+
+    WORK(chula_buffer_new (&buf));
+
+    len = buf->len;
+    ret = chula_buffer_add_str (buf, "testing");
+    assert (((ret == ret_ok) && (buf->len > len)) ||
+            ((ret == ret_nomem) && (buf->len <= len)));
+
+    chula_buffer_free(buf);
     return 0;
 }
 
@@ -78,7 +115,14 @@ main (int argc, char *argv[])
     chula_random_seed();
 
     /* Tests */
-    re += buffer_tests();
+    chula_mem_mgr_init (&mgr);
+    re += exec_sched_fail(buffer_new);
+    re += exec_sched_fail(buffer_add_str);
 
+    /* Clean up */
+    chula_mem_mgr_reset(&mgr);
+    chula_mem_mgr_mrproper (&mgr);
+
+    printf ("Everything did work\n");
     return re;
 }

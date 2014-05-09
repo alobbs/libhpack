@@ -130,6 +130,8 @@ chula_mem_mgr_mrproper (chula_mem_mgr_t *mgr)
     })
 #endif
 
+#define PRINT(...) chula_mem_mgr_work (current_manager, printf(__VA_ARGS__))
+
 ret_t
 chula_mem_mgr_set_policy (chula_mem_mgr_t    *mgr,
                           chula_mem_policy_t *policy)
@@ -300,6 +302,9 @@ chula_mem_policy_counter_init (chula_mem_policy_counter_t *polcnt)
 {
     chula_mem_policy_init (&polcnt->base);
 
+    polcnt->n_malloc     = 0;
+    polcnt->n_realloc    = 0;
+    polcnt->n_free       = 0;
     polcnt->base.malloc  = _counter_malloc;
     polcnt->base.realloc = _counter_realloc;
     polcnt->base.free    = _counter_free;
@@ -326,6 +331,7 @@ FUNC_MALLOC (after)
     if ((! current_manager->frozen) &&
         (policy->counter > policy->fail_after))
     {
+        PRINT ("malloc: ERROR\n");
         return NULL;
     }
 
@@ -341,6 +347,7 @@ FUNC_REALLOC (after)
     if ((! current_manager->frozen) &&
         (policy->counter > policy->fail_after))
     {
+        PRINT ("realloc: ERROR\n");
         return NULL;
     }
 
