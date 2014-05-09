@@ -363,10 +363,12 @@ if(USE_VALGRIND)
   message(STATUS "Testing run under valgrind")
   add_test("valgrind-hpack" ${VALGRIND} ${VALGRIND_OPTIONS} test/test_libhpack)
   add_test("valgrind-chula" ${VALGRIND} ${VALGRIND_OPTIONS} libchula/test/test_libchula)
+  add_test("valgrind-chula-oom" ${VALGRIND} ${VALGRIND_OPTIONS} libchula/test/OOM/oom_libchula)
 else()
   message(STATUS "Testing not run under valgrind")
   add_test(hpack test/test_libhpack)
   add_test(chula libchula/test/test_libchula)
+  add_test(chula-oom libchula/test/OOM/oom_libchula)
 endif()
 
 # config.h
