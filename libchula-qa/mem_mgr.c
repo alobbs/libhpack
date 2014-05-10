@@ -45,6 +45,14 @@
 # include <sys/mman.h>
 #endif
 
+/* ANSI colors
+ */
+#define ESC   "\x1b["
+#define RESET ESC "0m"
+
+#define red(s)   ESC "0;31m" s RESET
+#define green(s) ESC "0;32m" s RESET
+
 
 /* Memory Manager
  */
@@ -329,10 +337,10 @@ FUNC_MALLOC (after)
     if (! current_manager->frozen) {
         policy->counter++;
         if (policy->counter > policy->fail_after) {
-            PRINT ("F");
+            PRINT (red("M"));
             return NULL;
         }
-        PRINT ("w");
+        PRINT (green("M"));
     }
 
     return CALL_MALLOC;
@@ -345,10 +353,10 @@ FUNC_REALLOC (after)
     if (! current_manager->frozen) {
         policy->counter++;
         if (policy->counter > policy->fail_after) {
-            PRINT ("F");
+            PRINT (red("R"));
             return NULL;
         }
-        PRINT ("w");
+        PRINT (green("R"));
     }
 
     return CALL_REALLOC;
