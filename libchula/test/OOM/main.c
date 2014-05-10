@@ -38,6 +38,7 @@ static chula_mem_mgr_t mgr;
 #define WORK(...)  chula_mem_mgr_work (&mgr, __VA_ARGS__)
 #define PRINT(...) chula_mem_mgr_work (&mgr, printf(__VA_ARGS__))
 
+
 int
 exec_sched_fail (int (*test)(void))
 {
@@ -50,20 +51,20 @@ exec_sched_fail (int (*test)(void))
     chula_mem_policy_counter_init (&policy_c);
     chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy_c));
     test();
-    PRINT ("policy_c.n_malloc  %d\n", policy_c.n_malloc);
-    PRINT ("policy_c.n_realloc %d\n", policy_c.n_realloc);
-    PRINT ("policy_c.n_free    %d\n", policy_c.n_free);
     total_calls = policy_c.n_malloc + policy_c.n_realloc + policy_c.n_free;
-    PRINT ("total_calls %d\n", total_calls);
     chula_mem_policy_counter_mrproper (&policy_c);
 
     /* Execute */
-    for (uint32_t n=0; n<total_calls; n++) {
-        printf ("n = %d\n", n);
+    for (uint32_t n=0; n<=total_calls; n++) {
+        PRINT ("\t% 3d of % 3d: ", n, total_calls);
         chula_mem_policy_sched_fail_init (&policy_f, n);
         chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy_f));
         re += test();
+        PRINT ("\n");
     }
+
+    /* Disable memory manager */
+    chula_mem_mgr_reset (&mgr);
 
     /* Clean up */
     chula_mem_policy_counter_mrproper (&policy_c);
@@ -94,10 +95,32 @@ buffer_add_str (void)
 
     WORK(chula_buffer_new (&buf));
 
-    len = buf->len;
-    ret = chula_buffer_add_str (buf, "testing");
-    assert (((ret == ret_ok) && (buf->len > len)) ||
-            ((ret == ret_nomem) && (buf->len <= len)));
+    for (uint32_t n=0; n<20; n++) {
+        len = buf->len;
+        ret = chula_buffer_add_str (buf, "testing ");
+        assert (((ret == ret_ok) && (buf->len > len)) ||
+                ((ret == ret_nomem) && (buf->len <= len)));
+    }
+
+    chula_buffer_free(buf);
+    return 0;
+}
+
+int
+buffer_add_long (void)
+{
+    ret_t           ret;
+    uint32_t        len;
+    chula_buffer_t *buf  = NULL;
+
+    WORK(chula_buffer_new (&buf));
+
+    for (uint32_t n=0; n<20; n++) {
+        len = buf->len;
+        ret = chula_buffer_add_long10 (buf, 123456789);
+        assert (((ret == ret_ok) && (buf->len > len)) ||
+                ((ret == ret_nomem) && (buf->len <= len)));
+    }
 
     chula_buffer_free(buf);
     return 0;
@@ -111,13 +134,22 @@ main (int argc, char *argv[])
     UNUSED(argc);
     UNUSED(argv);
 
+#define SCHED_FAIL(func)                        \
+    do {                                        \
+        PRINT ("* %s\n", #func);                \
+        fflush (stdout);                        \
+        re += exec_sched_fail(func);            \
+        PRINT ("\n");                           \
+    } while (false)
+
     /* It'll need random numbers */
     chula_random_seed();
 
     /* Tests */
     chula_mem_mgr_init (&mgr);
-    re += exec_sched_fail(buffer_new);
-    re += exec_sched_fail(buffer_add_str);
+    SCHED_FAIL (buffer_new);
+    SCHED_FAIL (buffer_add_str);
+    SCHED_FAIL (buffer_add_long);
 
     /* Clean up */
     chula_mem_mgr_reset(&mgr);

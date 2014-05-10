@@ -326,13 +326,13 @@ FUNC_MALLOC (after)
 {
     chula_mem_policy_sched_fail_t *policy = (chula_mem_policy_sched_fail_t *)current_policy;
 
-    policy->counter++;
-
-    if ((! current_manager->frozen) &&
-        (policy->counter > policy->fail_after))
-    {
-        PRINT ("malloc: ERROR\n");
-        return NULL;
+    if (! current_manager->frozen) {
+        policy->counter++;
+        if (policy->counter > policy->fail_after) {
+            PRINT ("F");
+            return NULL;
+        }
+        PRINT ("w");
     }
 
     return CALL_MALLOC;
@@ -342,13 +342,13 @@ FUNC_REALLOC (after)
 {
     chula_mem_policy_sched_fail_t *policy = (chula_mem_policy_sched_fail_t *)current_policy;
 
-    policy->counter++;
-
-    if ((! current_manager->frozen) &&
-        (policy->counter > policy->fail_after))
-    {
-        PRINT ("realloc: ERROR\n");
-        return NULL;
+    if (! current_manager->frozen) {
+        policy->counter++;
+        if (policy->counter > policy->fail_after) {
+            PRINT ("F");
+            return NULL;
+        }
+        PRINT ("w");
     }
 
     return CALL_REALLOC;
