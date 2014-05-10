@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CHULA_TESTING_INTERNAL_MACROS
-#define CHULA_TESTING_INTERNAL_MACROS
+#ifndef CHULA_QA_TESTING_INTERNAL_MACROS
+#define CHULA_QA_TESTING_INTERNAL_MACROS
 
 #include <check.h>
 
@@ -57,4 +57,4 @@
 #define ch_assert(a)          ck_assert(a)
 #define ch_assert_str_eq(a,b) ck_assert_str_eq((const char *)(a),(const char *)(b))
 
-#endif /* CHULA_TESTING_INTERNAL_MACROS */
+#endif /* CHULA_QA_TESTING_INTERNAL_MACROS */
