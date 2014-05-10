@@ -87,7 +87,7 @@ buffer_new (void)
 }
 
 int
-buffer_add_str (void)
+buffer_add (void)
 {
     ret_t           ret;
     uint32_t        len;
@@ -98,6 +98,13 @@ buffer_add_str (void)
     for (uint32_t n=0; n<20; n++) {
         len = buf->len;
         ret = chula_buffer_add_str (buf, "testing ");
+        assert (((ret == ret_ok) && (buf->len > len)) ||
+                ((ret == ret_nomem) && (buf->len <= len)));
+    }
+
+    for (uint32_t n=0; n<20; n++) {
+        len = buf->len;
+        ret = chula_buffer_add_char (buf, 'a');
         assert (((ret == ret_ok) && (buf->len > len)) ||
                 ((ret == ret_nomem) && (buf->len <= len)));
     }
@@ -148,7 +155,7 @@ main (int argc, char *argv[])
     /* Tests */
     chula_mem_mgr_init (&mgr);
     SCHED_FAIL (buffer_new);
-    SCHED_FAIL (buffer_add_str);
+    SCHED_FAIL (buffer_add);
     SCHED_FAIL (buffer_add_long);
 
     /* Clean up */
