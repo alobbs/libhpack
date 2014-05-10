@@ -282,7 +282,11 @@ realloc_inc_bufsize (chula_buffer_t *buf, size_t incsize)
     size_t   newsize = buf->size + incsize + REALLOC_EXTRA_SIZE + 1;
 
     pbuf = (uint8_t *) realloc(buf->buf, newsize);
-    if (unlikely (pbuf == NULL)) return ret_nomem;
+    if (unlikely (pbuf == NULL)) {
+        buf->size = 0;
+        buf->len  = 0;
+        return ret_nomem;
+    }
 
     buf->buf  = pbuf;
     buf->size = (int) newsize;
@@ -299,7 +303,11 @@ realloc_new_bufsize (chula_buffer_t *buf, size_t newsize)
     newsize += REALLOC_EXTRA_SIZE + 1;
 
     pbuf = (uint8_t *) realloc(buf->buf, newsize);
-    if (unlikely (pbuf == NULL)) return ret_nomem;
+    if (unlikely (pbuf == NULL)) {
+        buf->size = 0;
+        buf->len  = 0;
+        return ret_nomem;
+    }
 
     buf->buf = pbuf;
     buf->size = (int) newsize;
@@ -311,7 +319,8 @@ realloc_new_bufsize (chula_buffer_t *buf, size_t newsize)
 ret_t
 chula_buffer_add (chula_buffer_t *buf, const char *txt, size_t size)
 {
-    int available;
+    ret_t ret;
+    int   available;
 
     if (unlikely (size <= 0))
         return ret_ok;
@@ -321,9 +330,8 @@ chula_buffer_add (chula_buffer_t *buf, const char *txt, size_t size)
     available = buf->size - buf->len;
 
     if ((uint32_t) available < (size+1)) {
-        if (unlikely (realloc_inc_bufsize(buf, size - available) != ret_ok)) {
-            return ret_nomem;
-        }
+        ret = realloc_inc_bufsize(buf, size - available);
+        if (unlikely (ret != ret_ok)) return ret;
     }
 
     /* Copy
@@ -470,11 +478,12 @@ chula_buffer_add_fsize (chula_buffer_t *buf, CST_OFFSET size)
 ret_t
 chula_buffer_add_long10 (chula_buffer_t *buf, int32_t lNum)
 {
+    ret_t    ret;
+    char     szOutBuf[IOS_NUMBUF];
     uint32_t ulNum                 = (uint32_t) lNum;
     uint32_t flgNeg                = 0;
     int      newlen                = 0;
     size_t   i                     = (IOS_NUMBUF - 1);
-    char     szOutBuf[IOS_NUMBUF];
 
     if (lNum < 0L) {
         flgNeg = 1;
@@ -499,8 +508,9 @@ chula_buffer_add_long10 (chula_buffer_t *buf, int32_t lNum)
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
-        if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
-            return ret_nomem;
+        ret = realloc_new_bufsize(buf, newlen);
+        if (unlikely (ret != ret_ok)) {
+            return ret;
         }
     }
 
@@ -516,11 +526,12 @@ chula_buffer_add_long10 (chula_buffer_t *buf, int32_t lNum)
 ret_t
 chula_buffer_add_llong10 (chula_buffer_t *buf, int64_t lNum)
 {
+    ret_t    ret;
+    char     szOutBuf[IOS_NUMBUF];
     uint64_t ulNum                 = (uint64_t) lNum;
     uint32_t flgNeg                = 0;
     int      newlen                = 0;
     size_t   i                     = (IOS_NUMBUF - 1);
-    char     szOutBuf[IOS_NUMBUF];
 
     if (lNum < 0L) {
         flgNeg = 1;
@@ -545,8 +556,9 @@ chula_buffer_add_llong10 (chula_buffer_t *buf, int64_t lNum)
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
-        if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
-            return ret_nomem;
+        ret = realloc_new_bufsize(buf, newlen);
+        if (unlikely (ret != ret_ok)) {
+            return ret;
         }
     }
 
@@ -563,9 +575,10 @@ chula_buffer_add_llong10 (chula_buffer_t *buf, int64_t lNum)
 ret_t
 chula_buffer_add_ulong10 (chula_buffer_t *buf, uint32_t ulNum)
 {
+    ret_t   ret;
+    char    szOutBuf[IOS_NUMBUF];
     int     newlen               = 0;
     size_t  i                    = (IOS_NUMBUF - 1);
-    char    szOutBuf[IOS_NUMBUF];
 
     szOutBuf[i] = '\0';
 
@@ -580,8 +593,9 @@ chula_buffer_add_ulong10 (chula_buffer_t *buf, uint32_t ulNum)
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
-        if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
-            return ret_nomem;
+        ret = realloc_new_bufsize(buf, newlen);
+        if (unlikely (ret != ret_ok)) {
+            return ret;
         }
     }
 
@@ -598,9 +612,10 @@ chula_buffer_add_ulong10 (chula_buffer_t *buf, uint32_t ulNum)
 ret_t
 chula_buffer_add_ullong10 (chula_buffer_t *buf, uint64_t ulNum)
 {
-    int     newlen               = 0;
-    size_t  i                    = (IOS_NUMBUF - 1);
+    ret_t   ret;
     char    szOutBuf[IOS_NUMBUF];
+    int     newlen                = 0;
+    size_t  i                     = (IOS_NUMBUF - 1);
 
     szOutBuf[i] = '\0';
 
@@ -615,8 +630,9 @@ chula_buffer_add_ullong10 (chula_buffer_t *buf, uint64_t ulNum)
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
-        if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
-            return ret_nomem;
+        ret = realloc_new_bufsize(buf, newlen);
+        if (unlikely (ret != ret_ok)) {
+            return ret;
         }
     }
 
@@ -636,10 +652,11 @@ chula_buffer_add_ullong10 (chula_buffer_t *buf, uint64_t ulNum)
 ret_t
 chula_buffer_add_ulong16 (chula_buffer_t *buf, uint32_t ulNum)
 {
+    ret_t   ret;
+    char    szOutBuf[IOS_NUMBUF];
     size_t  i                     = (IOS_NUMBUF - 1);
     int     ival                  = 0;
     int     newlen                = 0;
-    char    szOutBuf[IOS_NUMBUF];
 
     szOutBuf[i] = '\0';
 
@@ -655,8 +672,9 @@ chula_buffer_add_ulong16 (chula_buffer_t *buf, uint32_t ulNum)
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
-        if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
-            return ret_nomem;
+        ret = realloc_new_bufsize(buf, newlen);
+        if (unlikely (ret != ret_ok)) {
+            return ret;
         }
     }
 
@@ -676,10 +694,11 @@ chula_buffer_add_ulong16 (chula_buffer_t *buf, uint32_t ulNum)
 ret_t
 chula_buffer_add_ullong16 (chula_buffer_t *buf, uint64_t ulNum)
 {
-    size_t  i                     = (IOS_NUMBUF - 1);
-    int     ival                  = 0;
-    int     newlen                = 0;
-    char    szOutBuf[IOS_NUMBUF];
+    ret_t  ret;
+    char   szOutBuf[IOS_NUMBUF];
+    size_t i                     = (IOS_NUMBUF - 1);
+    int    ival                  = 0;
+    int    newlen                = 0;
 
     szOutBuf[i] = '\0';
 
@@ -695,8 +714,9 @@ chula_buffer_add_ullong16 (chula_buffer_t *buf, uint64_t ulNum)
      */
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
-        if (unlikely (realloc_new_bufsize(buf, newlen) != ret_ok)) {
-            return ret_nomem;
+        ret = realloc_new_bufsize(buf, newlen);
+        if (unlikely (ret != ret_ok)) {
+            return ret;
         }
     }
 
@@ -851,6 +871,8 @@ chula_buffer_add_va (chula_buffer_t *buf, const char *format, ...)
 ret_t
 chula_buffer_add_char (chula_buffer_t *buf, char c)
 {
+    ret_t ret;
+
     /* Add char (fast path)
      */
     if (likely (buf->len + 1 < buf->size)) {
@@ -861,8 +883,9 @@ chula_buffer_add_char (chula_buffer_t *buf, char c)
 
     /* Get memory
      */
-    if (unlikely (realloc_inc_bufsize(buf, 1) != ret_ok)) {
-        return ret_nomem;
+    ret = realloc_inc_bufsize (buf, 1);
+    if (unlikely (ret != ret_ok)) {
+        return ret;
     }
 
     /* Add char
@@ -877,7 +900,8 @@ chula_buffer_add_char (chula_buffer_t *buf, char c)
 ret_t
 chula_buffer_add_char_n (chula_buffer_t *buf, char c, int num)
 {
-    int free = buf->size - buf->len;
+    ret_t ret;
+    int   free = buf->size - buf->len;
 
     if (num <= 0)
         return ret_ok;
@@ -885,8 +909,9 @@ chula_buffer_add_char_n (chula_buffer_t *buf, char c, int num)
     /* Get memory
      */
     if (free < (num+1)) {
-        if (unlikely (realloc_inc_bufsize(buf, num - free) != ret_ok)) {
-            return ret_nomem;
+        ret = realloc_inc_bufsize(buf, num - free);
+        if (unlikely (ret != ret_ok)) {
+            return ret;
         }
     }
 
@@ -901,7 +926,8 @@ chula_buffer_add_char_n (chula_buffer_t *buf, char c, int num)
 ret_t
 chula_buffer_prepend (chula_buffer_t *buf, const char *txt, size_t size)
 {
-    int free = buf->size - buf->len;
+    ret_t ret;
+    int   free = buf->size - buf->len;
 
     if (size <= 0)
         return ret_ok;
@@ -909,8 +935,9 @@ chula_buffer_prepend (chula_buffer_t *buf, const char *txt, size_t size)
     /* Get memory
      */
     if ((uint32_t) free < (size+1)) {
-        if (unlikely (realloc_inc_bufsize(buf, size - free) != ret_ok)) {
-            return ret_nomem;
+        ret = realloc_inc_bufsize(buf, size - free);
+        if (unlikely (ret != ret_ok)) {
+            return ret;
         }
     }
 
@@ -992,6 +1019,8 @@ chula_buffer_ensure_size (chula_buffer_t *buf, size_t size)
      */
     pbuf = (uint8_t *) realloc(buf->buf, size);
     if (unlikely (pbuf == NULL)) {
+        buf->len  = 0;
+        buf->size = 0;
         return ret_nomem;
     }
 
@@ -1018,7 +1047,11 @@ chula_buffer_retract (chula_buffer_t *buf)
     /* Shrink the allocated memory
      */
     pbuf = (uint8_t *) realloc (buf->buf, buf->len+1);
-    if (unlikely (pbuf == NULL)) return ret_nomem;
+    if (unlikely (pbuf == NULL)) {
+        buf->len  = 0;
+        buf->size = 0;
+        return ret_nomem;
+    }
 
     buf->buf  = pbuf;
     buf->size = buf->len + 1;
