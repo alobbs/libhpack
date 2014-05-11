@@ -1367,7 +1367,8 @@ chula_buffer_multiply (chula_buffer_t *buf, int num)
     if (unlikely (ret != ret_ok)) return ret;
 
     for (i=1; i<num; i++) {
-        chula_buffer_add (buf, (const char *)buf->buf, initial_size);
+        ret = chula_buffer_add (buf, (const char *)buf->buf, initial_size);
+        if (unlikely (ret != ret_ok)) return ret;
     }
 
     return ret_ok;

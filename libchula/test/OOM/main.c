@@ -109,12 +109,19 @@ buffer_add (void)
                 ((ret == ret_nomem) && (buf->len <= len)));
     }
 
+    for (uint32_t n=0; n<20; n++) {
+        len = buf->len;
+        ret = chula_buffer_add_long10 (buf, 123456789);
+        assert (((ret == ret_ok) && (buf->len > len)) ||
+                ((ret == ret_nomem) && (buf->len <= len)));
+    }
+
     chula_buffer_free(buf);
     return 0;
 }
 
 int
-buffer_add_long (void)
+buffer_operations (void)
 {
     ret_t           ret;
     uint32_t        len;
@@ -122,9 +129,13 @@ buffer_add_long (void)
 
     WORK(chula_buffer_new (&buf));
 
-    for (uint32_t n=0; n<20; n++) {
+    for (uint32_t n=2; n<12; n++) {
         len = buf->len;
-        ret = chula_buffer_add_long10 (buf, 123456789);
+
+        WORK(chula_buffer_clean (buf));
+        WORK(chula_buffer_add_str (buf, "abcdefghijklmopqrstuvwxyz"));
+
+        ret = chula_buffer_multiply (buf, n);
         assert (((ret == ret_ok) && (buf->len > len)) ||
                 ((ret == ret_nomem) && (buf->len <= len)));
     }
@@ -156,7 +167,7 @@ main (int argc, char *argv[])
     chula_mem_mgr_init (&mgr);
     SCHED_FAIL (buffer_new);
     SCHED_FAIL (buffer_add);
-    SCHED_FAIL (buffer_add_long);
+    SCHED_FAIL (buffer_operations);
 
     /* Clean up */
     chula_mem_mgr_reset(&mgr);
