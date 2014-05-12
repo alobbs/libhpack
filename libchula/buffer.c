@@ -1009,8 +1009,11 @@ chula_buffer_ensure_size (chula_buffer_t *buf, size_t size)
      */
     if (buf->buf == NULL) {
         buf->buf = (uint8_t *) malloc (size);
-        if (unlikely (buf->buf == NULL))
+        if (unlikely (buf->buf == NULL)) {
+            buf->len  = 0;
+            buf->size = 0;
             return ret_nomem;
+        }
         buf->size = size;
         return ret_ok;
     }
