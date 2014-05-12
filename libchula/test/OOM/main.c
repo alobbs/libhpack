@@ -121,6 +121,29 @@ buffer_add (void)
 }
 
 int
+buffer_dup (void)
+{
+    ret_t           ret;
+    chula_buffer_t *buf  = NULL;
+
+    WORK(chula_buffer_new (&buf));
+    WORK(chula_buffer_add_str (buf, "testing "));
+
+    for (uint32_t n=0; n<5; n++) {
+        chula_buffer_t *dup = NULL;
+
+        ret = chula_buffer_dup (buf, &dup);
+        assert (((ret == ret_nomem) && (dup == NULL)) ||
+                ((ret == ret_ok) && (dup != NULL) && (dup->buf != NULL)));
+
+        chula_buffer_free (dup);
+    }
+
+    chula_buffer_free(buf);
+    return 0;
+}
+
+int
 buffer_operations (void)
 {
     ret_t           ret;
@@ -167,6 +190,7 @@ main (int argc, char *argv[])
     chula_mem_mgr_init (&mgr);
     SCHED_FAIL (buffer_new);
     SCHED_FAIL (buffer_add);
+    SCHED_FAIL (buffer_dup);
     SCHED_FAIL (buffer_operations);
 
     /* Clean up */
