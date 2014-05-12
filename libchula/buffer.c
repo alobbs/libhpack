@@ -1379,6 +1379,7 @@ void
 chula_buffer_repr (chula_buffer_t *buf,
                    chula_buffer_t *output)
 {
+    ret_t     ret;
     uint32_t  i;
     uint8_t   tmp;
     char      text[71]   = {[0 ... 66] = 0};
@@ -1388,8 +1389,10 @@ chula_buffer_repr (chula_buffer_t *buf,
     for (i=0; i < buf->len; i++) {
         if (i%16 == 0) {
             if (text[0] != 0){
-                chula_buffer_add (output, text, strlen(text));
-                chula_buffer_add_str (output, CRLF);
+                ret = chula_buffer_add (output, text, strlen(text));
+                if (unlikeu (ret != ret_ok)) return ret;
+                ret = chula_buffer_add_str (output, CRLF);
+                if (unlikeu (ret != ret_ok)) return ret;
             }
             sprintf (text, "%08x%61c", i, ' ');
             hex_text = text + 10;
@@ -1413,8 +1416,11 @@ chula_buffer_repr (chula_buffer_t *buf,
         ascii_text += 1;
     }
 
-    chula_buffer_add (output, text, strlen(text));
-    chula_buffer_add_str (output, CRLF);
+    ret = chula_buffer_add (output, text, strlen(text));
+    if (unlikeu (ret != ret_ok)) return ret;
+
+    ret = chula_buffer_add_str (output, CRLF);
+    if (unlikeu (ret != ret_ok)) return ret;
 }
 
 
@@ -2108,7 +2114,9 @@ chula_buffer_encode_sha1_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
     /* Copy result to destination buffer
      */
     chula_buffer_clean (encoded);
-    chula_buffer_add_buffer (encoded, buf);
+
+    ret = chula_buffer_add_buffer (encoded, buf);
+    if (unlikely (ret != ret_ok)) return ret;
 
     return ret_ok;
 }
@@ -2177,7 +2185,9 @@ chula_buffer_encode_sha512_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
     /* Copy result to destination buffer
      */
     chula_buffer_clean (encoded);
-    chula_buffer_add_buffer (encoded, buf);
+
+    ret = chula_buffer_add_buffer (encoded, buf);
+    if (unlikely (ret != ret_ok)) return ret;
 
     return ret_ok;
 }
