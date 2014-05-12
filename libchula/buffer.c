@@ -282,15 +282,10 @@ realloc_inc_bufsize (chula_buffer_t *buf, size_t incsize)
     size_t   newsize = buf->size + incsize + REALLOC_EXTRA_SIZE + 1;
 
     pbuf = (uint8_t *) realloc(buf->buf, newsize);
-    if (unlikely (pbuf == NULL)) {
-        buf->size = 0;
-        buf->len  = 0;
-        return ret_nomem;
-    }
+    if (unlikely (pbuf == NULL)) return ret_nomem;
 
     buf->buf  = pbuf;
     buf->size = (int) newsize;
-
     return ret_ok;
 }
 
@@ -303,15 +298,10 @@ realloc_new_bufsize (chula_buffer_t *buf, size_t newsize)
     newsize += REALLOC_EXTRA_SIZE + 1;
 
     pbuf = (uint8_t *) realloc(buf->buf, newsize);
-    if (unlikely (pbuf == NULL)) {
-        buf->size = 0;
-        buf->len  = 0;
-        return ret_nomem;
-    }
+    if (unlikely (pbuf == NULL)) return ret_nomem;
 
     buf->buf = pbuf;
     buf->size = (int) newsize;
-
     return ret_ok;
 }
 
@@ -509,9 +499,7 @@ chula_buffer_add_long10 (chula_buffer_t *buf, int32_t lNum)
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
         ret = realloc_new_bufsize(buf, newlen);
-        if (unlikely (ret != ret_ok)) {
-            return ret;
-        }
+        if (unlikely (ret != ret_ok)) return ret;
     }
 
     /* Copy including '\0'
@@ -557,9 +545,7 @@ chula_buffer_add_llong10 (chula_buffer_t *buf, int64_t lNum)
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
         ret = realloc_new_bufsize(buf, newlen);
-        if (unlikely (ret != ret_ok)) {
-            return ret;
-        }
+        if (unlikely (ret != ret_ok)) return ret;
     }
 
     /* Copy including '\0'
@@ -594,9 +580,7 @@ chula_buffer_add_ulong10 (chula_buffer_t *buf, uint32_t ulNum)
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
         ret = realloc_new_bufsize(buf, newlen);
-        if (unlikely (ret != ret_ok)) {
-            return ret;
-        }
+        if (unlikely (ret != ret_ok)) return ret;
     }
 
     /* Copy including '\0'
@@ -631,9 +615,7 @@ chula_buffer_add_ullong10 (chula_buffer_t *buf, uint64_t ulNum)
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
         ret = realloc_new_bufsize(buf, newlen);
-        if (unlikely (ret != ret_ok)) {
-            return ret;
-        }
+        if (unlikely (ret != ret_ok)) return ret;
     }
 
     /* Copy including '\0'
@@ -673,9 +655,7 @@ chula_buffer_add_ulong16 (chula_buffer_t *buf, uint32_t ulNum)
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
         ret = realloc_new_bufsize(buf, newlen);
-        if (unlikely (ret != ret_ok)) {
-            return ret;
-        }
+        if (unlikely (ret != ret_ok)) return ret;
     }
 
     /* Copy including '\0'
@@ -715,9 +695,7 @@ chula_buffer_add_ullong16 (chula_buffer_t *buf, uint64_t ulNum)
     newlen = buf->len + (int) ((IOS_NUMBUF - 1) - i);
     if (unlikely ((uint32_t)newlen >= buf->size)) {
         ret = realloc_new_bufsize(buf, newlen);
-        if (unlikely (ret != ret_ok)) {
-            return ret;
-        }
+        if (unlikely (ret != ret_ok)) return ret;
     }
 
     /* Copy including '\0'
@@ -884,9 +862,7 @@ chula_buffer_add_char (chula_buffer_t *buf, char c)
     /* Get memory
      */
     ret = realloc_inc_bufsize (buf, 1);
-    if (unlikely (ret != ret_ok)) {
-        return ret;
-    }
+    if (unlikely (ret != ret_ok)) return ret;
 
     /* Add char
      */
@@ -910,9 +886,7 @@ chula_buffer_add_char_n (chula_buffer_t *buf, char c, int num)
      */
     if (free < (num+1)) {
         ret = realloc_inc_bufsize(buf, num - free);
-        if (unlikely (ret != ret_ok)) {
-            return ret;
-        }
+        if (unlikely (ret != ret_ok)) return ret;
     }
 
     memset (buf->buf+buf->len, c, num);
@@ -936,9 +910,7 @@ chula_buffer_prepend (chula_buffer_t *buf, const char *txt, size_t size)
      */
     if ((uint32_t) free < (size+1)) {
         ret = realloc_inc_bufsize(buf, size - free);
-        if (unlikely (ret != ret_ok)) {
-            return ret;
-        }
+        if (unlikely (ret != ret_ok)) return ret;
     }
 
     memmove (buf->buf+size, buf->buf, buf->len);
@@ -1021,15 +993,10 @@ chula_buffer_ensure_size (chula_buffer_t *buf, size_t size)
     /* It already has memory, but it needs more..
      */
     pbuf = (uint8_t *) realloc(buf->buf, size);
-    if (unlikely (pbuf == NULL)) {
-        buf->len  = 0;
-        buf->size = 0;
-        return ret_nomem;
-    }
+    if (unlikely (pbuf == NULL)) return ret_nomem;
 
-    buf->buf = pbuf;
+    buf->buf  = pbuf;
     buf->size = size;
-
     return ret_ok;
 }
 
@@ -1050,15 +1017,10 @@ chula_buffer_retract (chula_buffer_t *buf)
     /* Shrink the allocated memory
      */
     pbuf = (uint8_t *) realloc (buf->buf, buf->len+1);
-    if (unlikely (pbuf == NULL)) {
-        buf->len  = 0;
-        buf->size = 0;
-        return ret_nomem;
-    }
+    if (unlikely (pbuf == NULL)) return ret_nomem;
 
     buf->buf  = pbuf;
     buf->size = buf->len + 1;
-
     return ret_ok;
 }
 
