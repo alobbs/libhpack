@@ -2,8 +2,8 @@
 
 import re
 import os
-import string
 import fnmatch
+import argparse
 
 MACRO = """
 #define %(func_name)s%(macro_args)s ({ \\
@@ -38,9 +38,11 @@ def parse_file (fullpath_h, replacement_pair):
 		func_name = func_orig.replace(replacement_pair[0], replacement_pair[1])
 
 		# Arguments
+		args = []
 		func_args = [x.strip() for x in tmp[1].split(',')]
-		func_argn = len(func_args)
-		macro_args = '(%s)' %(','.join(string.uppercase[:func_argn]))
+		for arg in func_args:
+			args += [filter(lambda x: len(x), re.split(' |\*|\&|\)', arg))[-1]]
+		macro_args = '(%s)' %(','.join(args))
 
 		output += MACRO %(locals())
 
@@ -58,13 +60,23 @@ def parse_dir (path_dir, path_header, replacement_pair):
 	# Write target header
 	with open(path_header, 'w+') as f:
 		f.write(header)
-	print '%s: DONE' %(path_header)
+
+	print '%s: %s definitions' %(path_header, header.count('#define'))
 
 
 def main():
-	parse_dir ("libchula", "libchula/chulada.h", ('chula_','chuli_'))
-	parse_dir ("libhpack", "libhpack/hpack.h", ('hpack_','hp_'))
+	# Command Line Args
+	parser = argparse.ArgumentParser()
+	parser.add_argument ('--path',        action="store", required=True, help="")
+	parser.add_argument ('--output',      action="store", required=True, help="Output header file")
+	parser.add_argument ('--replacement', action="store", required=True, help="Name replacement. Eg: chula_:chuli_")
+	ns = parser.parse_args()
+	if not ns:
+		print ("ERROR: Couldn't parse parameters")
+		raise SystemExit
 
+	# Parse headers
+	parse_dir (ns.path, ns.output, ns.replacement.split(':'))
 
 if __name__ == "__main__":
 	main()
