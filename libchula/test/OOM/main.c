@@ -153,11 +153,10 @@ buffer_operations (void)
     WORK(chula_buffer_new (&buf));
 
     for (uint32_t n=2; n<12; n++) {
-        len = buf->len;
-
         WORK(chula_buffer_clean (buf));
         WORK(chula_buffer_add_str (buf, "abcdefghijklmopqrstuvwxyz"));
 
+        len = buf->len;
         ret = chula_buffer_multiply (buf, n);
         assert (((ret == ret_ok) && (buf->len > len)) ||
                 ((ret == ret_nomem) && (buf->len <= len)));
@@ -166,6 +165,49 @@ buffer_operations (void)
     chula_buffer_free(buf);
     return 0;
 }
+
+int
+buffer_encoders (void)
+{
+    ret_t           ret;
+    chula_buffer_t *buf     = NULL;
+    chula_buffer_t  encoded = CHULA_BUF_INIT;
+
+#define ASSERT_ENCODED                                                             \
+    assert (((ret == ret_ok)    && (encoded.len  > 0) && (encoded.buf != NULL)) || \
+            ((ret == ret_nomem) && (encoded.len == 0) && (encoded.buf == NULL)))
+
+    /* Base64 */
+    WORK(chula_buffer_new (&buf));
+    WORK(chula_buffer_add_str (buf, "abcdefghijklmopqrstuvwxyz"));
+
+    ret = chula_buffer_encode_base64 (buf, &encoded);
+    ASSERT_ENCODED;
+
+    /* MD5 */
+    WORK(chula_buffer_mrproper(&encoded));
+    ret = chula_buffer_encode_md5 (buf, &encoded);
+    ASSERT_ENCODED;
+
+    /* SHA1 */
+    WORK(chula_buffer_mrproper(&encoded));
+    ret = chula_buffer_encode_sha1 (buf, &encoded);
+    ASSERT_ENCODED;
+
+    WORK(chula_buffer_mrproper(&encoded));
+    ret = chula_buffer_encode_sha1_base64 (buf, &encoded);
+    ASSERT_ENCODED;
+
+    /* SHA512 */
+    WORK(chula_buffer_mrproper(&encoded));
+    ret = chula_buffer_encode_sha512 (buf, &encoded);
+    ASSERT_ENCODED;
+
+    chula_buffer_mrproper (&encoded);
+    chula_buffer_free(buf);
+    return 0;
+}
+
 
 int
 main (int argc, char *argv[])
@@ -192,6 +234,7 @@ main (int argc, char *argv[])
     SCHED_FAIL (buffer_add);
     SCHED_FAIL (buffer_dup);
     SCHED_FAIL (buffer_operations);
+    SCHED_FAIL (buffer_encoders);
 
     /* Clean up */
     chula_mem_mgr_reset(&mgr);
