@@ -13,15 +13,22 @@ MACRO = """
 })
 """
 
+SECTION = """
+/* %(fullpath_h)s
+ */
+"""
+
 def parse_file (fullpath_h, replacement_pair):
 	with open(fullpath_h, 'r') as f:
 		cont = f.read()
 
 	# Find functions
 	funcs = re.findall (r'ret_t\s+?[^\\#]+?\(.+?\);', cont, re.S)
+	if not funcs:
+		return ''
 
-	output = ''
-	for func in funcs or []:
+	output = SECTION%(locals())
+	for func in funcs:
 		# Remove new-lines and multiple spaces
 		func = re.sub(' +',' ', func.replace('\n',' '))
 
@@ -41,6 +48,8 @@ def parse_file (fullpath_h, replacement_pair):
 		args = []
 		func_args = [x.strip() for x in tmp[1].split(',')]
 		for arg in func_args:
+			if arg == '(void)':
+				break
 			args += [filter(lambda x: len(x), re.split(' |\*|\&|\)', arg))[-1]]
 		macro_args = '(%s)' %(','.join(args))
 
