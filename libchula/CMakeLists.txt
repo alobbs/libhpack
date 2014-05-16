@@ -8,7 +8,9 @@ endif(BUILD_DOCS)
 # Library
 set(LIB_NAME chula)
 file(GLOB chula_SRCS *.c *.h)
+LIST (APPEND chula_SRCS chula-ret.h)
 file(GLOB chula_HDRS *.h)
+LIST (APPEND chula_HDRS chula-ret.h)
 
 add_library (
     ${LIB_NAME}
@@ -22,6 +24,14 @@ set_target_properties (
     VERSION ${chula_VERSION}
     SOVERSION ${chula_SOVERSION}
     COMPILE_FLAGS -DCHULA_COMPILATION
+)
+
+# Auto-ret header
+add_custom_command (
+    OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/chula-ret.h
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../tools/auto-ret.py
+    ARGS    --path ${CMAKE_CURRENT_SOURCE_DIR} --output ${CMAKE_CURRENT_SOURCE_DIR}/chula-ret.h --replacement chula_:chuli_
+    COMMENT "Generating the chula-ret.h file..."
 )
 
 # Installation

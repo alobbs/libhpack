@@ -50,6 +50,7 @@
 #include <libchula/sha1.h>
 #include <libchula/sha512.h>
 #include <libchula/util.h>
+#include <libchula/chula-ret.h>
 
 #undef CHULA_H_INSIDE
 
