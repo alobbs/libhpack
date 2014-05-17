@@ -34,10 +34,12 @@ import re
 import sys
 import fnmatch
 
-PATH_CHULA = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libchula')
-PATH_HPACK = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libhpack')
+PATH_CHULA    = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libchula')
+PATH_CHULA_QA = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libchula-qa')
+PATH_HPACK    = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libhpack')
 PATH_CHULA_TEST = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libchula/test')
 PATH_HPACK_TEST = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../test')
+PATH_HPACK_CI   = os.path.normpath (os.path.dirname (os.path.realpath(__file__)))
 
 
 def _find_files (paths, match_filters, match_postskip = None):
@@ -157,7 +159,7 @@ def code_vs_tests():
 
 	for c_path in _find_files ([PATH_CHULA, PATH_HPACK], ['*.c','*.h','*.py']):
 		code_size += os.path.getsize (c_path)
-	for c_path in _find_files ([PATH_CHULA_TEST, PATH_HPACK_TEST], ['*.c','*.h','*.py']):
+	for c_path in _find_files ([PATH_CHULA_TEST, PATH_HPACK_TEST, PATH_HPACK_CI, PATH_CHULA_QA], ['*.c','*.h','*.py']):
 		test_size += os.path.getsize (c_path)
 
 	percent = (test_size*100)/float(code_size)
