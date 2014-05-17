@@ -30,7 +30,7 @@ set_target_properties (
 add_custom_command (
     OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/chula-ret.h
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../tools/auto-ret.py
-    ARGS    --path ${CMAKE_CURRENT_SOURCE_DIR} --output ${CMAKE_CURRENT_SOURCE_DIR}/chula-ret.h --replacement chula_:chuli_
+    ARGS    --path ${CMAKE_CURRENT_SOURCE_DIR} --output ${CMAKE_CURRENT_SOURCE_DIR}/chula-ret.h --suffix _RET
     COMMENT "Generating the chula-ret.h file..."
 )
 
