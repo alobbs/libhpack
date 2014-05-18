@@ -1,10 +1,12 @@
 # Library
 set(LIB_NAME hpack)
 file(GLOB hpack_SRCS *.c *.h)
-LIST (APPEND hpack_SRCS hpack-ret.h)
-LIST (APPEND hpack_SRCS huffman_tables.c)
+list(APPEND hpack_SRCS hpack-ret.h)
+
 file(GLOB hpack_HDRS *.h)
-LIST (APPEND hpack_HDRS hpack-ret.h)
+file(GLOB hpack_HDRS_wo *.h)
+list(APPEND hpack_HDRS hpack-ret.h)
+list(REMOVE_ITEM hpack_HDRS_wo hpack-ret.h)
 
 add_library (
     ${LIB_NAME}
@@ -32,6 +34,7 @@ add_custom_command (
     OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/hpack-ret.h
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../tools/auto-ret.py
     ARGS    --path ${CMAKE_CURRENT_SOURCE_DIR} --output ${CMAKE_CURRENT_SOURCE_DIR}/hpack-ret.h --suffix _RET
+    DEPENDS ${chula_HDRS_wo}
     COMMENT "Generating the hpack-ret.h file..."
 )
 
