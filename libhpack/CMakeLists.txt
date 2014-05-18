@@ -2,6 +2,7 @@
 set(LIB_NAME hpack)
 file(GLOB hpack_SRCS *.c *.h)
 list(APPEND hpack_SRCS hpack-ret.h)
+list(APPEND hpack_SRCS huffman_tables.c)
 
 file(GLOB hpack_HDRS *.h)
 file(GLOB hpack_HDRS_wo *.h)
