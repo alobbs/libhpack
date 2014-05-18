@@ -59,11 +59,13 @@ def parse_file (fullpath_h, replacement_pair, func_suffix):
 
 def parse_dir (path_dir, path_header, replacement_pair, func_suffix):
 	header = ''
-
 	# Parse header files
 	for root, dirnames, filenames in os.walk(path_dir):
 		for filename in fnmatch.filter(filenames, "*.h"):
-			fp = os.path.join (root, filename)
+			fp = os.path.abspath (os.path.join (root, filename))
+			if fp == path_header:
+				print "Ignoring %s" %(fp)
+				continue
 			header += parse_file(fp, replacement_pair, func_suffix)
 
 	# Write target header
@@ -86,7 +88,7 @@ def main():
 		raise SystemExit
 
 	# Parse headers
-	parse_dir (ns.path, ns.output, ns.replacement.split(':'), ns.suffix)
+	parse_dir (ns.path, os.path.abspath(ns.output), ns.replacement.split(':'), ns.suffix)
 
 if __name__ == "__main__":
 	main()
