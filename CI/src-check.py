@@ -34,12 +34,15 @@ import re
 import sys
 import fnmatch
 
-PATH_CHULA    = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libchula')
-PATH_CHULA_QA = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libchula-qa')
-PATH_HPACK    = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libhpack')
-PATH_CHULA_TEST = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../libchula/test')
-PATH_HPACK_TEST = os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + '/../test')
-PATH_HPACK_CI   = os.path.normpath (os.path.dirname (os.path.realpath(__file__)))
+# Paths
+from_here = lambda x: os.path.normpath (os.path.dirname (os.path.realpath(__file__)) + x)
+
+PATH_CHULA      = from_here('/../libchula')
+PATH_CHULA_QA   = from_here('/../libchula-qa')
+PATH_HPACK      = from_here('/../libhpack')
+PATH_CHULA_TEST = from_here('/../libchula/test')
+PATH_HPACK_TEST = from_here('/../test')
+PATH_HPACK_CI   = from_here('')
 
 
 def _find_files (paths, match_filters, match_postskip = None):
