@@ -2089,12 +2089,15 @@ chula_buffer_encode_sha1_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 ret_t
 chula_buffer_encode_sha512 (chula_buffer_t *buf, chula_buffer_t *encoded)
 {
+    ret_t      ret;
     SHA512_CTX sha512;
 
     SHA512_Init (&sha512);
     SHA512_Update (&sha512, (void *)buf->buf, buf->len);
 
-    chula_buffer_ensure_size (encoded, SHA512_DIGEST_LENGTH + 1);
+    ret = chula_buffer_ensure_size (encoded, SHA512_DIGEST_LENGTH + 1);
+    if (unlikely (ret != ret_ok)) return ret;
+
     SHA512_Final (&sha512, (void *)encoded->buf);
 
     encoded->len = SHA512_DIGEST_LENGTH;
@@ -2107,6 +2110,7 @@ chula_buffer_encode_sha512 (chula_buffer_t *buf, chula_buffer_t *encoded)
 ret_t
 chula_buffer_encode_sha512_digest (chula_buffer_t *buf)
 {
+    ret_t         ret;
     int           i;
     unsigned char digest[SHA512_DIGEST_LENGTH];
     SHA512_CTX    sha512;
@@ -2115,7 +2119,8 @@ chula_buffer_encode_sha512_digest (chula_buffer_t *buf)
     SHA512_Update (&sha512, (void *) buf->buf, buf->len);
     SHA512_Final  (&sha512, digest);
 
-    chula_buffer_ensure_size (buf, (2 * SHA512_DIGEST_LENGTH)+1);
+    ret = chula_buffer_ensure_size (buf, (2 * SHA512_DIGEST_LENGTH)+1);
+    if (unlikely (ret != ret_ok)) return ret;
 
     for (i = 0; i < SHA512_DIGEST_LENGTH; ++i) {
         int tmp;
@@ -2140,13 +2145,18 @@ chula_buffer_encode_sha512_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
 
     /* Prepare destination buffer
      */
-    chula_buffer_ensure_size (encoded, (SHA512_DIGEST_LENGTH * 2) + 1);
+    ret = chula_buffer_ensure_size (encoded, (SHA512_DIGEST_LENGTH * 2) + 1);
+    if (unlikely (ret != ret_ok)) return ret;
+
     chula_buffer_clean (encoded);
 
     /* Encode sha1 + base64
      */
-    chula_buffer_encode_sha512 (buf, encoded);
-    chula_buffer_encode_base64 (encoded, buf);
+    ret = chula_buffer_encode_sha512 (buf, encoded);
+    if (unlikely (ret != ret_ok)) return ret;
+
+    ret = chula_buffer_encode_base64 (encoded, buf);
+    if (unlikely (ret != ret_ok)) return ret;
 
     /* Copy result to destination buffer
      */
