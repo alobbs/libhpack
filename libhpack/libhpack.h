@@ -48,6 +48,7 @@
 #include <libhpack/integer.h>
 #include <libhpack/libhpack.h>
 #include <libhpack/macros.h>
+#include <libhpack/hpack-ret.h>
 
 #undef HPACK_H_INSIDE
 
