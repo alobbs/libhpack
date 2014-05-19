@@ -34,6 +34,7 @@
 #include "util.h"
 #include "log.h"
 #include "cstrings.h"
+#include "chula-ret.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -667,12 +668,14 @@ chula_rm_rf (chula_buffer_t *path,
         if (!strncmp (entry->d_name, ".",  1)) continue;
         if (!strncmp (entry->d_name, "..", 2)) continue;
 
-		chula_buffer_clean      (&tmp);
+		chula_buffer_clean (&tmp);
 
-		ret  = chula_buffer_add_buffer (&tmp, path);
-		ret |= chula_buffer_add_char   (&tmp, '/');
-		ret |= chula_buffer_add        (&tmp, entry->d_name, strlen(entry->d_name));
-        if (unlikely (ret != ret_ok)) return ret_error;
+		ret = chula_buffer_add_buffer (&tmp, path);
+        if (unlikely (ret != ret_ok)) goto error;
+		ret = chula_buffer_add_char (&tmp, '/');
+        if (unlikely (ret != ret_ok)) goto error;
+		ret = chula_buffer_add (&tmp, entry->d_name, strlen(entry->d_name));
+        if (unlikely (ret != ret_ok)) goto error;
 
         re = chula_stat ((char *)tmp.buf, &info);
         if (re != 0) continue;
@@ -702,6 +705,11 @@ chula_rm_rf (chula_buffer_t *path,
 	 */
 	chula_buffer_mrproper (&tmp);
 	return ret_ok;
+
+error:
+	chula_closedir (d);
+	chula_buffer_mrproper (&tmp);
+	return ret_error;
 }
 
 
@@ -1529,9 +1537,10 @@ ret_t
 chula_path_find_exec (const char     *bin_name,
                       chula_buffer_t *fullpath)
 {
-	int   re;
-	char *p, *q;
-	char *path;
+	int    re;
+    ret_t  ret;
+	char  *p, *q;
+	char  *path;
 
 	p = getenv("PATH");
 	if (p == NULL) {
@@ -1551,9 +1560,13 @@ chula_path_find_exec (const char     *bin_name,
 		}
 
 		chula_buffer_clean   (fullpath);
-		chula_buffer_add     (fullpath, p, strlen(p));
-		chula_buffer_add_str (fullpath, "/");
-		chula_buffer_add     (fullpath, bin_name, strlen(bin_name));
+
+		ret = chula_buffer_add (fullpath, p, strlen(p));
+        if (unlikely (ret != ret_ok)) goto error;
+		ret = chula_buffer_add_str (fullpath, "/");
+        if (unlikely (ret != ret_ok)) goto error;
+		ret = chula_buffer_add (fullpath, bin_name, strlen(bin_name));
+        if (unlikely (ret != ret_ok)) goto error;
 
 		re = chula_access ((char *)fullpath->buf, X_OK);
 		if (re == 0) {
@@ -1566,6 +1579,10 @@ chula_path_find_exec (const char     *bin_name,
 
 	free (path);
 	return ret_not_found;
+
+error:
+	free (path);
+	return ret_error;
 }
 
 
@@ -1626,7 +1643,8 @@ chula_gethostbyname (chula_buffer_t *hostname, struct addrinfo **addr)
 ret_t
 chula_gethostname (chula_buffer_t *buf)
 {
-	int  re;
+	int   re;
+    ret_t ret;
 
 #ifdef HAVE_GETHOSTNAME
 	char host_name[HOST_NAME_MAX + 1];
@@ -1636,7 +1654,8 @@ chula_gethostname (chula_buffer_t *buf)
 		return ret_error;
 	}
 
-	chula_buffer_add (buf, host_name, strlen(host_name));
+	ret = chula_buffer_add (buf, host_name, strlen(host_name));
+    if (unlikely (ret != ret_ok)) return ret;
 
 	return ret_ok;
 
@@ -1648,7 +1667,8 @@ chula_gethostname (chula_buffer_t *buf)
 		return ret_error;
 	}
 
-	chula_buffer_add (buf, info.nodename, sizeof(info.nodename));
+	ret = chula_buffer_add (buf, info.nodename, sizeof(info.nodename));
+    if (unlikely (ret != ret_ok)) return ret;
 
 	return ret_ok;
 #endif
@@ -1968,13 +1988,16 @@ chula_get_shell (const char **shell, const char **binary)
 ret_t
 chula_tmp_dir_copy (chula_buffer_t *buffer)
 {
+    ret_t       ret;
 	const char *p;
 
 	/* Read a custom Http2d variable
 	 */
 	p = getenv("CHULA_TMPDIR");
 	if (p != NULL) {
-		chula_buffer_add (buffer, p, strlen(p));
+		ret = chula_buffer_add (buffer, p, strlen(p));
+        if (unlikely (ret != ret_ok)) return ret;
+
 		return ret_ok;
 	}
 
@@ -1996,13 +2019,17 @@ chula_tmp_dir_copy (chula_buffer_t *buffer)
     }
 #endif
 	if (p != NULL) {
-		chula_buffer_add (buffer, p, strlen(p));
+		ret = chula_buffer_add (buffer, p, strlen(p));
+        if (unlikely (ret != ret_ok)) return ret;
+
 		return ret_ok;
 	}
 
 	/* /tmp will be our safety-net
 	 */
-	chula_buffer_add_str (buffer, "/tmp");
+	ret = chula_buffer_add_str (buffer, "/tmp");
+    if (unlikely (ret != ret_ok)) return ret;
+
 	return ret_ok;
 }
 
