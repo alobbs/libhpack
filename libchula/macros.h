@@ -172,14 +172,6 @@
 #define CHULA_MK_NEW(obj,type)      CHULA_GEN_MK_NEW(chula,obj,type)
 #define CHULA_DCL_POINTER(obj,type) CHULA_GEN_DCL_POINTER(chula,obj,type)
 
-#define RETURN_IF_FAIL(expr,ret)                                \
-	do {                                                        \
-		if (!(expr)) {                                          \
-            chula_log_error ("assertion `%s' failed\n", #expr); \
-			return (ret);                                       \
-		}                                                       \
-	} while(0)
-
 #define SHOULDNT_HAPPEN                                             \
 	do {                                                            \
 		fprintf (stderr,                                            \
@@ -219,7 +211,7 @@
 #define CHULA_GEN_NEW_STRUCT(pre,obj,type)                              \
 	CHULA_GEN_DCL_POINTER(pre,obj,type) = (CHULA_GEN_MK_TYPE(pre,type) *) \
 		malloc (sizeof(CHULA_GEN_MK_TYPE(pre,type)));                   \
-	RETURN_IF_FAIL (obj != NULL, ret_nomem)
+	if (unlikely (obj == NULL)) return ret_nomem
 
 #define CHULA_NEW_STRUCT(obj,type) CHULA_GEN_NEW_STRUCT(chula,obj,type)
 
@@ -228,7 +220,7 @@
 #define CHULA_GEN_NEW(pre,obj,type)             \
 	CHULA_GEN_DCL_POINTER(pre,obj,type) = NULL; \
 	CHULA_GEN_MK_NEW(pre,obj,type);             \
-	RETURN_IF_FAIL (obj != NULL, ret_nomem)
+	if (unlikely (obj == NULL)) return ret_nomem
 
 #define CHULA_NEW(obj,type) CHULA_GEN_NEW(chula,obj,type)
 
