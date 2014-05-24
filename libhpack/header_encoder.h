@@ -53,4 +53,12 @@ typedef struct {
 ret_t hpack_header_encoder_init     (hpack_header_encoder_t *enc);
 ret_t hpack_header_encoder_mrproper (hpack_header_encoder_t *enc);
 
+ret_t hpack_header_encoder_add       (hpack_header_encoder_t *enc,
+                                      chula_buffer_t         *name,
+                                      chula_buffer_t         *value);
+ret_t hpack_header_encoder_add_field (hpack_header_encoder_t *enc,
+                                      hpack_header_field_t   *field);
+ret_t hpack_header_encoder_render    (hpack_header_encoder_t *enc,
+                                      chula_buffer_t         *output);
+
 #endif /* LIBHPACK_HEADER_ENCODER_H */

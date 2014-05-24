@@ -45,3 +45,27 @@ hpack_header_encoder_mrproper (hpack_header_encoder_t *enc)
 {
     return ret_ok;
 }
+
+ret_t
+hpack_header_encoder_add (hpack_header_encoder_t *enc,
+                          chula_buffer_t         *name,
+                          chula_buffer_t         *value)
+{
+    return ret_ok;
+}
+
+
+ret_t
+hpack_header_encoder_add_field (hpack_header_encoder_t *enc,
+                                hpack_header_field_t   *field)
+{
+    return ret_ok;
+}
+
+
+ret_t
+hpack_header_encoder_render (hpack_header_encoder_t *enc,
+                             chula_buffer_t         *output)
+{
+    return ret_ok;
+}
