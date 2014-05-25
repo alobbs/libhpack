@@ -234,13 +234,13 @@
 		CHULA_GEN_NEW_STRUCT (pre,n,klass);                         \
 		                                                            \
 		ret = pre ## _ ## klass ## _init (n);                       \
-            if (unlikely (ret != ret_ok)) {                         \
-                free (n);                                           \
-                return ret;                                         \
-            }                                                       \
+        if (unlikely (ret != ret_ok)) {                             \
+            free (n);                                               \
+            return ret;                                             \
+        }                                                           \
                                                                     \
-            *obj = n;                                               \
-            return ret_ok;                                          \
+        *obj = n;                                                   \
+        return ret_ok;                                              \
 	}
 
 #define CHULA_GEN_ADD_FUNC_FREE(pre,klass)                          \
@@ -251,8 +251,8 @@
                                                                     \
 		pre ## _ ## klass ## _mrproper (obj);                       \
 		                                                            \
-            free (obj);                                             \
-            return ret_ok;                                          \
+        free (obj);                                                 \
+        return ret_ok;                                              \
 	}
 
 #define CHULA_ADD_FUNC_NEW(klass)  CHULA_GEN_ADD_FUNC_NEW(chula,klass)
