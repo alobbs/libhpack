@@ -227,61 +227,6 @@ chula_mem_policy_mrproper (chula_mem_policy_t *policy)
 }
 
 
-/* Random Failures Memory Policy
- */
-
-FUNC_MALLOC (random)
-{
-    chula_mem_policy_random_t *policy = (chula_mem_policy_random_t *)current_policy;
-
-    if (! current_manager->frozen) {
-        if ((chula_random() & 0xff) <= (0xff * policy->failure_rate)) {
-            return NULL;
-        }
-    }
-
-    return CALL_MALLOC;
-}
-
-FUNC_REALLOC (random)
-{
-    chula_mem_policy_random_t *policy = (chula_mem_policy_random_t *)current_policy;
-
-    if (! current_manager->frozen) {
-        if ((chula_random() & 0xff) <= (0xff * policy->failure_rate)) {
-            return NULL;
-        }
-    }
-
-    return CALL_REALLOC;
-}
-
-FUNC_FREE (random)
-{
-    CALL_FREE;
-}
-
-ret_t
-chula_mem_policy_random_init (chula_mem_policy_random_t *policy,
-                              float                      rate)
-{
-    chula_mem_policy_init (&policy->base);
-
-    policy->base.malloc  = _random_malloc;
-    policy->base.realloc = _random_realloc;
-    policy->base.free    = _random_free;
-    policy->failure_rate = rate;
-
-    return ret_ok;
-}
-
-ret_t
-chula_mem_policy_random_mrproper (chula_mem_policy_random_t *policy)
-{
-    return chula_mem_policy_mrproper (&policy->base);
-}
-
-
 /* Counter Memory Policy
  */
 
