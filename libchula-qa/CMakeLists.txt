@@ -20,6 +20,14 @@ set_target_properties (
     COMPILE_FLAGS -DCHULA_QA_COMPILATION
 )
 
+if (UNIX AND NOT APPLE)
+    set_target_properties (
+        ${LIB_NAME}
+        PROPERTIES
+        LINK_FLAGS "-Wl,--wrap=malloc -Wl,--wrap=realloc -Wl,--wrap=free"
+    )
+endif()
+
 link_directories(${CHECK_LIBRARY_DIRS})
 include_directories (${CMAKE_SOURCE_DIR} ${CHECK_INCLUDE_DIRS})
 target_link_libraries (${LIB_NAME} ${CHECK_LDFLAGS} ${CHECK_CFLAGS})

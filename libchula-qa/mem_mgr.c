@@ -45,6 +45,7 @@
 # include <sys/mman.h>
 #endif
 
+
 /* ANSI colors
  */
 #define ESC   "\x1b["
@@ -53,12 +54,10 @@
 #define red(s)   ESC "0;31m" s RESET
 #define green(s) ESC "0;32m" s RESET
 
-
-/* Memory Manager
- */
-
 static chula_mem_policy_t *current_policy  = NULL;
 static chula_mem_mgr_t    *current_manager = NULL;
+
+#define PRINT(...) chula_mem_mgr_work (current_manager, printf(__VA_ARGS__))
 
 ret_t
 chula_mem_mgr_init (chula_mem_mgr_t *mgr)
@@ -73,15 +72,9 @@ chula_mem_mgr_init (chula_mem_mgr_t *mgr)
     mgr->system.malloc  = zone->malloc;
     mgr->system.realloc = zone->realloc;
     mgr->system.free    = zone->free;
-
-#elif defined(HAVE_MALLOC_HOOK)
-    /* Store original hook functions */
-    mgr->system.malloc  = __malloc_hook;
-    mgr->system.realloc = __realloc_hook;
-    mgr->system.free    = __free_hook;
 #endif
 
-   return ret_ok;
+    return ret_ok;
 }
 
 ret_t
@@ -90,55 +83,6 @@ chula_mem_mgr_mrproper (chula_mem_mgr_t *mgr)
     UNUSED(mgr);
     return ret_ok;
 }
-
-#ifdef HAVE_MALLOC_DEFAULT_ZONE
-# define FUNC_MALLOC(name)  static void *_ ## name ## _malloc  (struct _malloc_zone_t *zone, size_t size)
-# define FUNC_REALLOC(name) static void *_ ## name ## _realloc (struct _malloc_zone_t *zone, void *ptr, size_t size)
-# define FUNC_FREE(name)    static void  _ ## name ## _free    (struct _malloc_zone_t *zone, void *ptr)
-# define CALL_MALLOC                                                    \
-    ({                                                                  \
-        void* (*orig)(struct _malloc_zone_t *, size_t ) =               \
-            current_manager->system.malloc;                             \
-        orig (zone, size);                                              \
-    })
-# define CALL_REALLOC                                                   \
-    ({                                                                  \
-        void * (*orig)(struct _malloc_zone_t *, void *, size_t) =       \
-            current_manager->system.realloc;                            \
-        orig (zone, ptr, size);                                         \
-    })
-# define CALL_FREE                                                      \
-    ({                                                                  \
-        void (*orig)(struct _malloc_zone_t *, void *) =                 \
-            current_manager->system.free;                               \
-        orig (zone, ptr);                                               \
-    })
-
-#elif defined(HAVE_MALLOC_HOOK)
-# define FUNC_MALLOC(name)  static void *_ ## name ## _malloc  (size_t size, const void *caller)
-# define FUNC_REALLOC(name) static void *_ ## name ## _realloc (void *ptr, size_t size, const void *caller)
-# define FUNC_FREE(name)    static void  _ ## name ## _free    (void *ptr, const void *caller)
-# define CALL_MALLOC                                                    \
-    ({                                                                  \
-        void* (*orig)(size_t, const void *) =                           \
-            current_manager->system.malloc;                             \
-        orig (size, caller);                                            \
-    })
-# define CALL_REALLOC                                                   \
-    ({                                                                  \
-        void * (*orig)(void *, size_t, const void *) =                  \
-            current_manager->system.realloc;                            \
-        orig (ptr, size, caller);                                       \
-    })
-# define CALL_FREE                                                      \
-    ({                                                                  \
-        void (*orig)(void *, const void *) =                            \
-            current_manager->system.free;                               \
-        orig (ptr, caller);                                             \
-    })
-#endif
-
-#define PRINT(...) chula_mem_mgr_work (current_manager, printf(__VA_ARGS__))
 
 ret_t
 chula_mem_mgr_set_policy (chula_mem_mgr_t    *mgr,
@@ -160,13 +104,6 @@ chula_mem_mgr_set_policy (chula_mem_mgr_t    *mgr,
     zone->malloc  = policy->malloc;
     zone->realloc = policy->realloc;
     zone->free    = policy->free;
-
-    /* Set new functions (Linux)
-     */
-#elif defined(HAVE_MALLOC_HOOK)
-    __malloc_hook  = policy->malloc;
-    __realloc_hook = policy->realloc;
-    __free_hook    = policy->free;
 #endif
 
     return ret_ok;
@@ -193,6 +130,83 @@ chula_mem_mgr_thaw (chula_mem_mgr_t *mgr)
 }
 
 
+/* Guts
+ */
+
+#ifdef LINUX
+# define FUNC_MALLOC(name)  static void *_ ## name ## _malloc  (size_t size)
+# define FUNC_REALLOC(name) static void *_ ## name ## _realloc (void *ptr, size_t size)
+# define FUNC_FREE(name)    static void  _ ## name ## _free    (void *ptr)
+
+# define CALL_MALLOC  ({ __real_malloc (size); })
+# define CALL_REALLOC ({ __real_realloc (ptr, size); })
+# define CALL_FREE    ({ __real_free (ptr); })
+
+void *__real_malloc  (size_t size);
+void *__real_realloc (void *ptr, size_t size);
+void  __real_free    (void *ptr);
+
+void *
+__wrap_malloc (size_t size)
+{
+    if (current_manager->frozen) {
+        return __real_malloc (size);
+    }
+
+    void* (*custom)(size_t) = current_policy->malloc;
+    return custom(size);
+}
+
+void *
+__wrap_realloc (void *ptr, size_t size)
+{
+    if (current_manager->frozen) {
+        return __real_realloc (ptr, size);
+    }
+
+    void* (*custom)(void *, size_t) = current_policy->realloc;
+    return custom (ptr, size);
+}
+
+void
+__wrap_free (void *ptr)
+{
+    if (current_manager->frozen) {
+        __real_free (ptr);
+    }
+
+    void (*custom)(void *) = current_policy->free;
+    custom (ptr);
+}
+
+#elif defined(OSX)
+# define FUNC_MALLOC(name)  static void *_ ## name ## _malloc  (struct _malloc_zone_t *zone, size_t size)
+# define FUNC_REALLOC(name) static void *_ ## name ## _realloc (struct _malloc_zone_t *zone, void *ptr, size_t size)
+# define FUNC_FREE(name)    static void  _ ## name ## _free    (struct _malloc_zone_t *zone, void *ptr)
+
+# define CALL_MALLOC                                                    \
+    ({                                                                  \
+        void* (*orig)(struct _malloc_zone_t *, size_t ) =               \
+            current_manager->system.malloc;                             \
+        orig (zone, size);                                              \
+    })
+# define CALL_REALLOC                                                   \
+    ({                                                                  \
+        void * (*orig)(struct _malloc_zone_t *, void *, size_t) =       \
+            current_manager->system.realloc;                            \
+        orig (zone, ptr, size);                                         \
+    })
+# define CALL_FREE                                                      \
+    ({                                                                  \
+        void (*orig)(struct _malloc_zone_t *, void *) =                 \
+            current_manager->system.free;                               \
+        orig (zone, ptr);                                               \
+    })
+
+#endif /* (LINUX|OSX) */
+
+
+
 /* Policy
  */
 
@@ -215,7 +229,6 @@ chula_mem_policy_mrproper (chula_mem_policy_t *policy)
 
 /* Random Failures Memory Policy
  */
-
 
 FUNC_MALLOC (random)
 {
