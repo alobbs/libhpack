@@ -140,7 +140,7 @@ chula_mem_mgr_thaw (chula_mem_mgr_t *mgr)
 
 # define CALL_MALLOC  ({ __real_malloc (size); })
 # define CALL_REALLOC ({ __real_realloc (ptr, size); })
-# define CALL_FREE    ({ __real_free (ptr); })
+# define CALL_FREE    __real_free(ptr)
 
 void *__real_malloc  (size_t size);
 void *__real_realloc (void *ptr, size_t size);
@@ -197,11 +197,11 @@ __wrap_free (void *ptr)
         orig (zone, ptr, size);                                         \
     })
 # define CALL_FREE                                                      \
-    ({                                                                  \
+    do {                                                                \
         void (*orig)(struct _malloc_zone_t *, void *) =                 \
             current_manager->system.free;                               \
         orig (zone, ptr);                                               \
-    })
+    } while (false)
 
 #endif /* (LINUX|OSX) */
 
