@@ -149,10 +149,6 @@ void  __real_free    (void *ptr);
 void *
 __wrap_malloc (size_t size)
 {
-    if (current_manager->frozen) {
-        return __real_malloc (size);
-    }
-
     void* (*custom)(size_t) = current_policy->malloc;
     return custom(size);
 }
@@ -160,10 +156,6 @@ __wrap_malloc (size_t size)
 void *
 __wrap_realloc (void *ptr, size_t size)
 {
-    if (current_manager->frozen) {
-        return __real_realloc (ptr, size);
-    }
-
     void* (*custom)(void *, size_t) = current_policy->realloc;
     return custom (ptr, size);
 }
@@ -171,10 +163,6 @@ __wrap_realloc (void *ptr, size_t size)
 void
 __wrap_free (void *ptr)
 {
-    if (current_manager->frozen) {
-        __real_free (ptr);
-    }
-
     void (*custom)(void *) = current_policy->free;
     custom (ptr);
 }
