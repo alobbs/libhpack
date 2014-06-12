@@ -1931,7 +1931,7 @@ chula_buffer_encode_base64 (chula_buffer_t *buf, chula_buffer_t *encoded)
         out[j++] = (uint8_t) g;
     }
 
-    out[j]  = (uint8_t) '\0';
+    out[j] = (uint8_t) '\0';
     encoded->len = j;
 
     return ret_ok;
