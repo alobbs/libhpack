@@ -6,6 +6,9 @@ set(LIB_NAME chula-qa)
 file(GLOB chula_qa_SRCS *.c *.h)
 file(GLOB chula_qa_HDRS *.h)
 
+# HACK: Wait until Chula's ret file is ready
+list(APPEND chula_qa_SRCS ../libchula/chula-ret.h)
+
 add_library (
     ${LIB_NAME}
     STATIC
