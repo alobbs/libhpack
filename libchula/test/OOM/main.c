@@ -208,6 +208,21 @@ buffer_encoders (void)
     return 0;
 }
 
+int
+buffer_repr (void)
+{
+    chula_buffer_t buf_A = CHULA_BUF_INIT;
+    chula_buffer_t buf_B = CHULA_BUF_INIT;
+
+    WORK(chula_buffer_add_str (&buf_A, "abcdefghijklmopqrstuvwxyz"));
+
+    chula_buffer_repr (&buf_A, &buf_B);
+
+    WORK(chula_buffer_mrproper(&buf_A));
+    WORK(chula_buffer_mrproper(&buf_B));
+    return 0;
+}
+
 
 int
 main (int argc, char *argv[])
@@ -235,6 +250,7 @@ main (int argc, char *argv[])
     SCHED_FAIL (buffer_dup);
     SCHED_FAIL (buffer_operations);
     SCHED_FAIL (buffer_encoders);
+    SCHED_FAIL (buffer_repr);
 
     /* Clean up */
     chula_mem_mgr_reset(&mgr);
