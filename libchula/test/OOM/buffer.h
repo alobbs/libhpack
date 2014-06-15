@@ -30,41 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "oom.h"
-#include "buffer.h"
+#ifndef OOM_BUFFER
+#define OOM_BUFFER
 
-#define SCHED_FAIL(func)                        \
-    do {                                        \
-        PRINT ("* %s\n", #func);                \
-        fflush (stdout);                        \
-        re += exec_sched_fail(func);            \
-        PRINT ("\n");                           \
-    } while (false)
+int buffer_new        (void);
+int buffer_add        (void);
+int buffer_dup        (void);
+int buffer_operations (void);
+int buffer_encoders   (void);
+int buffer_repr       (void);
 
-
-int
-main (int argc, char *argv[])
-{
-    int re = 0;
-
-    UNUSED(argc);
-    UNUSED(argv);
-
-    /* Init */
-    chula_mem_mgr_init (&mgr);
-
-    /* Tests */
-    SCHED_FAIL (buffer_new);
-    SCHED_FAIL (buffer_add);
-    SCHED_FAIL (buffer_dup);
-    SCHED_FAIL (buffer_operations);
-    SCHED_FAIL (buffer_encoders);
-    SCHED_FAIL (buffer_repr);
-
-    /* Clean up */
-    chula_mem_mgr_reset(&mgr);
-    chula_mem_mgr_mrproper (&mgr);
-
-    printf ("Everything did work\n");
-    return re;
-}
+#endif /* OOM_BUFFER */

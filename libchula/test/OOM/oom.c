@@ -31,40 +31,38 @@
  */
 
 #include "oom.h"
-#include "buffer.h"
 
-#define SCHED_FAIL(func)                        \
-    do {                                        \
-        PRINT ("* %s\n", #func);                \
-        fflush (stdout);                        \
-        re += exec_sched_fail(func);            \
-        PRINT ("\n");                           \
-    } while (false)
-
+chula_mem_mgr_t mgr;
 
 int
-main (int argc, char *argv[])
+exec_sched_fail (int (*test)(void))
 {
-    int re = 0;
+    int                           re = 0;
+    uint32_t                      total_calls;
+    chula_mem_policy_counter_t    policy_c;
+    chula_mem_policy_sched_fail_t policy_f;
 
-    UNUSED(argc);
-    UNUSED(argv);
+    /* Count */
+    chula_mem_policy_counter_init (&policy_c);
+    chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy_c));
+    test();
+    total_calls = policy_c.n_malloc + policy_c.n_realloc + policy_c.n_free;
+    chula_mem_policy_counter_mrproper (&policy_c);
 
-    /* Init */
-    chula_mem_mgr_init (&mgr);
+    /* Execute */
+    for (uint32_t n=0; n<=total_calls; n++) {
+        PRINT ("\t% 3d of % 3d: ", n, total_calls);
+        chula_mem_policy_sched_fail_init (&policy_f, n);
+        chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy_f));
+        re += test();
+        PRINT ("\n");
+    }
 
-    /* Tests */
-    SCHED_FAIL (buffer_new);
-    SCHED_FAIL (buffer_add);
-    SCHED_FAIL (buffer_dup);
-    SCHED_FAIL (buffer_operations);
-    SCHED_FAIL (buffer_encoders);
-    SCHED_FAIL (buffer_repr);
+    /* Disable memory manager */
+    chula_mem_mgr_reset (&mgr);
 
     /* Clean up */
-    chula_mem_mgr_reset(&mgr);
-    chula_mem_mgr_mrproper (&mgr);
-
-    printf ("Everything did work\n");
+    chula_mem_policy_counter_mrproper (&policy_c);
+    chula_mem_policy_sched_fail_mrproper (&policy_f);
     return re;
 }

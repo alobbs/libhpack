@@ -30,41 +30,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "oom.h"
-#include "buffer.h"
+#ifndef OOM_H
+#define OOM_H
 
-#define SCHED_FAIL(func)                        \
-    do {                                        \
-        PRINT ("* %s\n", #func);                \
-        fflush (stdout);                        \
-        re += exec_sched_fail(func);            \
-        PRINT ("\n");                           \
-    } while (false)
+#include <libchula-qa/libchula-qa.h>
+#include <assert.h>
 
+extern chula_mem_mgr_t mgr;
 
-int
-main (int argc, char *argv[])
-{
-    int re = 0;
+#define WORK(...)  chula_mem_mgr_work (&mgr, __VA_ARGS__)
+#define PRINT(...) chula_mem_mgr_work (&mgr, printf(__VA_ARGS__))
 
-    UNUSED(argc);
-    UNUSED(argv);
+int exec_sched_fail (int (*test)(void));
 
-    /* Init */
-    chula_mem_mgr_init (&mgr);
-
-    /* Tests */
-    SCHED_FAIL (buffer_new);
-    SCHED_FAIL (buffer_add);
-    SCHED_FAIL (buffer_dup);
-    SCHED_FAIL (buffer_operations);
-    SCHED_FAIL (buffer_encoders);
-    SCHED_FAIL (buffer_repr);
-
-    /* Clean up */
-    chula_mem_mgr_reset(&mgr);
-    chula_mem_mgr_mrproper (&mgr);
-
-    printf ("Everything did work\n");
-    return re;
-}
+#endif /* OOM_H */
