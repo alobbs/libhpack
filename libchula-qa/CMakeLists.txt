@@ -6,9 +6,6 @@ set(LIB_NAME chula-qa)
 file(GLOB chula_qa_SRCS *.c *.h)
 file(GLOB chula_qa_HDRS *.h)
 
-# HACK: Wait until Chula's ret file is ready
-list(APPEND chula_qa_SRCS ../libchula/chula-ret.h)
-
 add_library (
     ${LIB_NAME}
     STATIC
@@ -22,6 +19,8 @@ set_target_properties (
     SOVERSION ${chula_SOVERSION}
     COMPILE_FLAGS -DCHULA_QA_COMPILATION
 )
+
+add_dependencies(${LIB_NAME} libchula)
 
 if (UNIX AND NOT APPLE)
     set_target_properties (
