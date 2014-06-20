@@ -462,7 +462,6 @@ START_TEST (_getgrnam)
     grp.gr_gid = -1;
     ret = chula_getgrnam (group_name, &grp, buffer, sizeof(buffer));
     ch_assert (ret == ret_ok);
-    ch_assert (grp.gr_gid >= 0);
     ch_assert_str_eq (grp.gr_name, group_name);
 }
 END_TEST
@@ -484,7 +483,6 @@ START_TEST (_getgrgid)
     grp.gr_gid = -1;
     ret = chula_getgrgid (group_id, &grp, buffer, sizeof(buffer));
     ch_assert (ret == ret_ok);
-    ch_assert (grp.gr_gid >= 0);
 }
 END_TEST
 
@@ -506,7 +504,6 @@ START_TEST (_getgrnam_gid)
     grp.gr_name = NULL;
     ret = chula_getgrnam_gid (group_name, &grp, buffer, sizeof(buffer));
     ch_assert (ret == ret_ok);
-    ch_assert (grp.gr_gid >= 0);
     ch_assert_str_eq (grp.gr_name, group_name);
 
     /* Feed it an ID as string */
@@ -520,7 +517,6 @@ START_TEST (_getgrnam_gid)
     grp.gr_name = NULL;
     ret = chula_getgrnam_gid (group_name, &grp, buffer, sizeof(buffer));
     ch_assert (ret == ret_ok);
-    ch_assert (grp.gr_gid >= 0);
     ch_assert (grp.gr_name != NULL);
 }
 END_TEST
