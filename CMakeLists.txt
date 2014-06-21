@@ -54,13 +54,18 @@ include(TestBigEndian)
 include(CMakePushCheckState)
 
 # Compiler options
+add_definitions (-std=gnu99)
 add_definitions (-D_GNU_SOURCE)
 set (CMAKE_C_FLAGS_DEBUG "-O0 -Wall -Wextra")
 
 if (CMAKE_COMPILER_IS_GNUCC)
-  add_definitions (-std=gnu99)
+  MESSAGE (STATUS "Compiler is GCC")
   set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb3 -gdwarf-2")
-else (CMAKE_COMPILER_IS_GNUCC)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  MESSAGE (STATUS "Compiler is Clang")
+  set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
+else()
+  MESSAGE (STATUS "Unknown compiler")
   set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 endif (CMAKE_COMPILER_IS_GNUCC)
 
