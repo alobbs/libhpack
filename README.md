@@ -103,7 +103,8 @@ $ git checkout bug-33
 $ git rebase master
 ```
 
-## Project architecture
+## Architecture
+The current 10,000 foot view of the project is:
 ![Libraries](doc/images/project_libs.jpg)
 
 * **libchula**: Utility library that provides a wide variaty of basic classes.
