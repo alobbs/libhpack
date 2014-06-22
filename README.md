@@ -103,6 +103,13 @@ $ git checkout bug-33
 $ git rebase master
 ```
 
+## Project architecture
+![Libraries](doc/images/project_libs.jpg)
+
+* **libchula**: Utility library that provides a wide variaty of basic classes.
+* **libchula-qa**: Bits and pieces necessary to build a QA bench for a libchula based project. Among different things, it includes the "Out of Memory" (OoM) emulator that is used to ensure memory management corner cases as correctly handled.
+* **libhpack**: The HTTP2 header parsing library. It's a libchula based library implementing the encoding and decoding of HTTP2 headers.
+
 ## References
 * HTTPbis Working Group: HPACK:  
 http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-06
