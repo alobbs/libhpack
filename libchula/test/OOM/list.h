@@ -30,44 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "oom.h"
-#include "list.h"
-#include "buffer.h"
+#ifndef OOM_LIST
+#define OOM_LIST
 
-#define SCHED_FAIL(func)                        \
-    do {                                        \
-        PRINT ("* %s\n", #func);                \
-        fflush (stdout);                        \
-        re += exec_sched_fail(func);            \
-        PRINT ("\n");                           \
-    } while (false)
+int list_new (void);
 
-
-int
-main (int argc, char *argv[])
-{
-    int re = 0;
-
-    UNUSED(argc);
-    UNUSED(argv);
-
-    /* Init */
-    chula_mem_mgr_init (&mgr);
-
-    /* Tests */
-    SCHED_FAIL (buffer_new);
-    SCHED_FAIL (buffer_add);
-    SCHED_FAIL (buffer_dup);
-    SCHED_FAIL (buffer_operations);
-    SCHED_FAIL (buffer_encoders);
-    SCHED_FAIL (buffer_repr);
-
-    SCHED_FAIL (list_new);
-
-    /* Clean up */
-    chula_mem_mgr_reset(&mgr);
-    chula_mem_mgr_mrproper (&mgr);
-
-    printf ("Everything did work\n");
-    return re;
-}
+#endif /* OOM_LIST */
