@@ -33,6 +33,6 @@
 #ifndef OOM_LIST
 #define OOM_LIST
 
-int list_new (void);
+int list_add (void);
 
 #endif /* OOM_LIST */

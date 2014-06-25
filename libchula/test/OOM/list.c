@@ -33,7 +33,37 @@
 #include "oom.h"
 
 int
-list_new (void)
+list_add (void)
 {
+    ret_t        ret;
+    size_t       s1, s2;
+    chula_list_t list    = LIST_HEAD_INIT(list);
+
+    for (int i=0; i<10; i++) {
+        /* Add a new list entry */
+        chula_list_get_len (&list, &s1);
+        ret = chula_list_content_add (&list, INT_TO_POINTER(i));
+        chula_list_get_len (&list, &s2);
+
+        /* Check return code */
+        assert (((ret == ret_ok) && (s2 > s1)) ||
+                ((ret == ret_nomem) && (s2 <= s1)));
+    }
+
+    chula_list_content_free (&list, NULL);
+
+    for (int i=0; i<10; i++) {
+        /* Add a new list entry */
+        chula_list_get_len (&list, &s1);
+        ret = chula_list_content_add_tail (&list, INT_TO_POINTER(100 + i));
+        chula_list_get_len (&list, &s2);
+
+        /* Check return code */
+        assert (((ret == ret_ok) && (s2 > s1)) ||
+                ((ret == ret_nomem) && (s2 <= s1)));
+    }
+
+    chula_list_content_free (&list, NULL);
+
     return 0;
 }

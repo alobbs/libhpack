@@ -62,7 +62,7 @@ main (int argc, char *argv[])
     SCHED_FAIL (buffer_encoders);
     SCHED_FAIL (buffer_repr);
 
-    SCHED_FAIL (list_new);
+    SCHED_FAIL (list_add);
 
     /* Clean up */
     chula_mem_mgr_reset(&mgr);
