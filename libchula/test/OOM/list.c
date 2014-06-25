@@ -32,8 +32,8 @@
 
 #include "oom.h"
 
-
 int
 list_new (void)
 {
+    return 0;
 }
