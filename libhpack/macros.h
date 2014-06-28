@@ -45,7 +45,7 @@
 #define HPACK_ADD_FUNC_NEW(klass)  CHULA_GEN_ADD_FUNC_NEW(hpack,klass)
 #define HPACK_ADD_FUNC_FREE(klass) CHULA_GEN_ADD_FUNC_FREE(hpack,klass)
 
-#define HPACK_NEW_OBJ(klass,...)   CHULA_GEN_NEW_OBJ(hpack,klass,__VA_ARGS__)
+#define HPACK_NEW_OBJ(klass,...)   CHULA_GEN_NEW_OBJ(hpack,klass,##__VA_ARGS__)
 
 #define SETTINGS_HEADER_TABLE_SIZE       4096
 
