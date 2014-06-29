@@ -47,7 +47,7 @@
  * Header Parser Structure.
  */
 typedef struct {
-    int foo;
+    hpack_header_store_t store;
 } hpack_header_encoder_t;
 
 ret_t hpack_header_encoder_init     (hpack_header_encoder_t *enc);

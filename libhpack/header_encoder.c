@@ -31,18 +31,29 @@
  */
 
 #include "header_encoder.h"
+#include "header_field.h"
 #include "integer.h"
 #include "huffman.h"
 
 ret_t
 hpack_header_encoder_init (hpack_header_encoder_t *enc)
 {
+    ret_t ret;
+
+    ret = hpack_header_store_init (&enc->store);
+    if (ret != ret_ok) return ret;
+
     return ret_ok;
 }
 
 ret_t
 hpack_header_encoder_mrproper (hpack_header_encoder_t *enc)
 {
+    ret_t ret;
+
+    ret = hpack_header_store_mrproper (&enc->store);
+    if (ret != ret_ok) return ret;
+
     return ret_ok;
 }
 
@@ -51,6 +62,8 @@ hpack_header_encoder_add (hpack_header_encoder_t *enc,
                           chula_buffer_t         *name,
                           chula_buffer_t         *value)
 {
+    hpack_header_field_t *field = HPACK_NEW_OBJ(header_field);
+
     return ret_ok;
 }
 
@@ -59,7 +72,7 @@ ret_t
 hpack_header_encoder_add_field (hpack_header_encoder_t *enc,
                                 hpack_header_field_t   *field)
 {
-    return ret_ok;
+    return hpack_header_store_emit (&enc->store, field);
 }
 
 
