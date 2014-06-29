@@ -122,12 +122,14 @@ typedef struct {
 } hpack_header_field_t;
 
 
-ret_t hpack_header_field_init     (hpack_header_field_t *header);
-ret_t hpack_header_field_clean    (hpack_header_field_t *header);
-ret_t hpack_header_field_mrproper (hpack_header_field_t *header);
-bool  hpack_header_field_is_empty (hpack_header_field_t *header);
-ret_t hpack_header_field_copy     (hpack_header_field_t *header, hpack_header_field_t *tocopy);
-ret_t hpack_header_field_repr     (hpack_header_field_t *header, chula_buffer_t       *output);
-ret_t hpack_header_field_get_size (hpack_header_field_t *header, uint64_t             *size);
+ret_t hpack_header_field_new      (hpack_header_field_t **header);
+ret_t hpack_header_field_free     (hpack_header_field_t  *header);
+ret_t hpack_header_field_init     (hpack_header_field_t  *header);
+ret_t hpack_header_field_clean    (hpack_header_field_t  *header);
+ret_t hpack_header_field_mrproper (hpack_header_field_t  *header);
+bool  hpack_header_field_is_empty (hpack_header_field_t  *header);
+ret_t hpack_header_field_copy     (hpack_header_field_t  *header, hpack_header_field_t *tocopy);
+ret_t hpack_header_field_repr     (hpack_header_field_t  *header, chula_buffer_t       *output);
+ret_t hpack_header_field_get_size (hpack_header_field_t  *header, uint64_t             *size);
 
 #endif /* LIBHPACK_HEADER_FIELD_H */

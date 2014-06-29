@@ -48,6 +48,7 @@
  */
 
 #include <libchula/libchula.h>
+#include "macros.h"
 #include "header_field.h"
 
 /**
@@ -129,6 +130,9 @@ hpack_header_field_clean (hpack_header_field_t *header)
 
     return ret_ok;
 }
+
+HPACK_ADD_FUNC_NEW(header_field);
+HPACK_ADD_FUNC_FREE(header_field);
 
 
 /** Clean up all memory used by the Header Field
