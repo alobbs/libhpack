@@ -274,17 +274,9 @@
 #define TRACE_ENV "TRACE"
 
 #ifdef TRACE_ENABLED
-# ifdef __GNUC__
-#  define TRACE(fmt,arg...) chula_trace_do_trace (fmt, __FILE__, __LINE__, __chula_func__, ##arg)
-# else
-#  define TRACE(fmt,...) chula_trace_do_trace (fmt, __FILE__, __LINE__, __chula_func__, __VA_ARGS__)
-# endif
+# define TRACE(fmt,...) chula_trace_do_trace (fmt, __FILE__, __LINE__, __chula_func__, __VA_ARGS__)
 #else
-# ifdef __GNUC__
-#  define TRACE(section,fmt,arg...) do { } while(0)
-# else
-#  define TRACE(section,fmt,...) do { } while(0)
-# endif
+# define TRACE(section,fmt,...) do { } while(0)
 #endif
 
 #ifndef MIN
