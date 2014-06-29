@@ -49,17 +49,25 @@ exec_sched_fail (int (*test)(void))
     total_calls = policy_c.n_malloc + policy_c.n_realloc + policy_c.n_free;
     chula_mem_policy_counter_mrproper (&policy_c);
 
-    /* Execute */
+    /* Execute: Fail after N */
     for (uint32_t n=0; n<=total_calls; n++) {
         PRINT ("\t% 3d of % 3d: ", n, total_calls);
-        chula_mem_policy_sched_fail_init (&policy_f, n);
+        chula_mem_policy_sched_fail_init (&policy_f, n, INT_MAX);
         chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy_f));
         re += test();
         PRINT ("\n");
     }
 
-    /* Disable memory manager */
     chula_mem_mgr_reset (&mgr);
+
+    /* Execute: Fail and recover after N */
+    for (uint32_t n=0; n<=total_calls; n++) {
+        PRINT ("\t% 3d of % 3d: ", n, total_calls);
+        chula_mem_policy_sched_fail_init (&policy_f, n, 1);
+        chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy_f));
+        re += test();
+        PRINT ("\n");
+    }
 
     /* Clean up */
     chula_mem_policy_counter_mrproper (&policy_c);

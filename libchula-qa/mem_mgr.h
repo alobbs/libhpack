@@ -61,6 +61,7 @@ typedef struct {
     chula_mem_policy_t base;
     uint32_t           counter;
     uint32_t           fail_after;
+    uint32_t           recover_after;
 } chula_mem_policy_sched_fail_t;
 
 typedef struct {
@@ -84,7 +85,7 @@ ret_t chula_mem_policy_counter_init     (chula_mem_policy_counter_t *polcnt);
 ret_t chula_mem_policy_counter_mrproper (chula_mem_policy_counter_t *polcnt);
 
 /* Memory Policy: Scheduled Failure */
-ret_t chula_mem_policy_sched_fail_init     (chula_mem_policy_sched_fail_t *polschd, uint32_t fail_after);
+ret_t chula_mem_policy_sched_fail_init     (chula_mem_policy_sched_fail_t *polschd, uint32_t fail_after, uint32_t recover_after);
 ret_t chula_mem_policy_sched_fail_mrproper (chula_mem_policy_sched_fail_t *polschd);
 
 /* Memory Manager */

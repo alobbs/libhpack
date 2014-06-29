@@ -282,7 +282,9 @@ FUNC_MALLOC (after)
 
     if (! current_manager->frozen) {
         policy->counter++;
-        if (policy->counter > policy->fail_after) {
+        if ((policy->counter > policy->fail_after) &&
+            ((policy->counter - policy->fail_after) <= policy->recover_after))
+        {
             PRINT (red("M"));
             return NULL;
         }
@@ -298,7 +300,9 @@ FUNC_REALLOC (after)
 
     if (! current_manager->frozen) {
         policy->counter++;
-        if (policy->counter > policy->fail_after) {
+        if ((policy->counter > policy->fail_after) &&
+            ((policy->counter - policy->fail_after) <= policy->recover_after))
+        {
             PRINT (red("R"));
             return NULL;
         }
@@ -321,16 +325,17 @@ FUNC_FREE (after)
 
 
 ret_t
-chula_mem_policy_sched_fail_init (chula_mem_policy_sched_fail_t *polschd, uint32_t fail_after)
+chula_mem_policy_sched_fail_init (chula_mem_policy_sched_fail_t *polschd, uint32_t fail_after, uint32_t recover_after)
 {
     chula_mem_policy_init (&polschd->base);
 
-    polschd->counter      = 0;
-    polschd->fail_after   = fail_after;
+    polschd->counter       = 0;
+    polschd->fail_after    = fail_after;
+    polschd->recover_after = recover_after;
 
-    polschd->base.malloc  = _after_malloc;
-    polschd->base.realloc = _after_realloc;
-    polschd->base.free    = _after_free;
+    polschd->base.malloc   = _after_malloc;
+    polschd->base.realloc  = _after_realloc;
+    polschd->base.free     = _after_free;
 
     return ret_ok;
 }
