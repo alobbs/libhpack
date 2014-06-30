@@ -62,7 +62,16 @@ hpack_header_encoder_add (hpack_header_encoder_t *enc,
                           chula_buffer_t         *name,
                           chula_buffer_t         *value)
 {
+    ret_t                 ret;
     hpack_header_field_t *field = HPACK_NEW_OBJ(header_field);
+
+    /* Build new header field */
+    chula_buffer_add_buffer_RET (&field->name, name);
+    chula_buffer_add_buffer_RET (&field->value, value);
+
+    /* Add the field */
+    ret = hpack_header_encoder_add_field (enc, field);
+    if (unlikely (ret != ret_ok)) return ret;
 
     return ret_ok;
 }
@@ -80,5 +89,7 @@ ret_t
 hpack_header_encoder_render (hpack_header_encoder_t *enc,
                              chula_buffer_t         *output)
 {
+    UNUSED(enc);
+    UNUSED(output);
     return ret_ok;
 }
