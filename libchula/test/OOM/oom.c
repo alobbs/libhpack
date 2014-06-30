@@ -50,6 +50,7 @@ exec_sched_fail (int (*test)(void))
     chula_mem_policy_counter_mrproper (&policy_c);
 
     /* Execute: Fail after N */
+    PRINT ("Permanent Fail:\n");
     for (uint32_t n=0; n<=total_calls; n++) {
         PRINT ("\t% 3d of % 3d: ", n, total_calls);
         chula_mem_policy_sched_fail_init (&policy_f, n, INT_MAX);
@@ -61,12 +62,23 @@ exec_sched_fail (int (*test)(void))
     chula_mem_mgr_reset (&mgr);
 
     /* Execute: Fail and recover after N */
+    uint32_t total   = 0;
+    uint32_t current = 1;
+
+    PRINT ("Temporary Fail & Recover:\n");
+
+    for (uint32_t n=0; n<=total_calls; n++)
+        for (uint32_t l=1; l<=total_calls-n; l++)
+            total++;
+
     for (uint32_t n=0; n<=total_calls; n++) {
-        PRINT ("\t% 3d of % 3d: ", n, total_calls);
-        chula_mem_policy_sched_fail_init (&policy_f, n, 1);
-        chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy_f));
-        re += test();
-        PRINT ("\n");
+        for (uint32_t l=1; l<=total_calls-n; l++) {
+            PRINT ("\t% 3d of % 3d: ", current++, total);
+            chula_mem_policy_sched_fail_init (&policy_f, n, l);
+            chula_mem_mgr_set_policy (&mgr, MEM_POLICY(&policy_f));
+            re += test();
+            PRINT ("\n");
+        }
     }
 
     /* Clean up */
