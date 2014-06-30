@@ -61,6 +61,8 @@ typedef struct {
 ret_t hpack_header_store_init     (hpack_header_store_t *store);
 ret_t hpack_header_store_mrproper (hpack_header_store_t *store);
 
+ret_t hpack_header_store_add      (hpack_header_store_t *store,
+                                   hpack_header_field_t *field);
 ret_t hpack_header_store_emit     (hpack_header_store_t *store,
                                    hpack_header_field_t *field);
 

@@ -59,8 +59,8 @@ entry_free (entry_t *e)
 
 
 static ret_t
-emit (hpack_header_store_t *store,
-      hpack_header_field_t *field)
+add (hpack_header_store_t *store,
+     hpack_header_field_t *field)
 {
     ret_t    ret;
     entry_t *e;
@@ -75,12 +75,25 @@ emit (hpack_header_store_t *store,
     return ret_ok;
 }
 
+static ret_t
+emit (hpack_header_store_t *store,
+      hpack_header_field_t *field)
+{
+    return add(store, field);
+}
 
 ret_t
 hpack_header_store_emit (hpack_header_store_t *store,
                          hpack_header_field_t *field)
 {
     return store->emit (store, field);
+}
+
+ret_t
+hpack_header_store_add (hpack_header_store_t *store,
+                        hpack_header_field_t *field)
+{
+    return add(store, field);
 }
 
 
