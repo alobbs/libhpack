@@ -44,12 +44,12 @@ main (void)
 {
     int re;
 
-    re  = integer_tests();
+    re  = header_encoding_tests();
+    re += integer_tests();
     re += huffman_tests();
     re += bitmap_set_tests();
     re += header_table_tests();
     re += header_tests();
-    re += header_encoding_tests();
 
     return re;
 }
