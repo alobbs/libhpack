@@ -62,6 +62,27 @@ START_TEST (add) {
 }
 END_TEST
 
+START_TEST (encode1) {
+    ret_t                  ret;
+    hpack_header_encoder_t enc;
+    chula_buffer_t         buf   = CHULA_BUF_INIT;
+    chula_buffer_t         name  = CHULA_BUF_INIT_FAKE("name");
+    chula_buffer_t         value = CHULA_BUF_INIT_FAKE("value");
+
+    hpack_header_encoder_init (&enc);
+
+    ret = hpack_header_encoder_add (&enc, &name, &value);
+    ch_assert (ret == ret_ok);
+
+    ret = hpack_header_encoder_render (&enc, &buf);
+    ch_assert (ret == ret_ok);
+    ch_assert (! chula_buffer_is_empty(&buf));
+
+    hpack_header_encoder_mrproper (&enc);
+    chula_buffer_mrproper (&buf);
+}
+END_TEST
+
 
 int
 basics (void)
@@ -69,6 +90,7 @@ basics (void)
     Suite *s1 = suite_create("Basic header encoding");
     check_add (s1, init_mrproper);
     check_add (s1, add);
+    check_add (s1, encode1);
     run_test (s1);
 }
 
