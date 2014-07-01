@@ -58,6 +58,9 @@ typedef struct {
     chula_list_t         entry;
 } hpack_header_store_entry_t;
 
+#define hpack_header_store_foreach(i,store)         \
+    list_for_each_entry(i, &(store)->headers, entry)
+
 ret_t hpack_header_store_init     (hpack_header_store_t *store);
 ret_t hpack_header_store_mrproper (hpack_header_store_t *store);
 

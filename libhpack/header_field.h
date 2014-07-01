@@ -121,6 +121,8 @@ typedef struct {
     chula_buffer_t             value; /**< Value part of the header. */
 } hpack_header_field_t;
 
+#define HPACK_HEADER_FIELD(f) ((hpack_header_field_t *)(f))
+
 
 ret_t hpack_header_field_new      (hpack_header_field_t **header);
 ret_t hpack_header_field_free     (hpack_header_field_t  *header);
