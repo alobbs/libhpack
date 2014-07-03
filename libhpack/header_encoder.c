@@ -40,6 +40,9 @@ hpack_header_encoder_init (hpack_header_encoder_t *enc)
 {
     ret_t ret;
 
+    chula_buffer_init_RET (&enc->tmp);
+    chula_buffer_ensure_size_RET (&enc->tmp, 32);
+
     ret = hpack_header_store_init (&enc->store);
     if (ret != ret_ok) return ret;
 
@@ -53,6 +56,8 @@ hpack_header_encoder_mrproper (hpack_header_encoder_t *enc)
 
     ret = hpack_header_store_mrproper (&enc->store);
     if (ret != ret_ok) return ret;
+
+    chula_buffer_mrproper_RET (&enc->tmp);
 
     return ret_ok;
 }
@@ -85,22 +90,39 @@ hpack_header_encoder_add_field (hpack_header_encoder_t *enc,
 }
 
 static ret_t
-add_string (chula_buffer_t *output,
-            chula_buffer_t *in,
-            bool            huffman)
+add_string (hpack_header_encoder_t *enc,
+            chula_buffer_t         *output,
+            chula_buffer_t         *in,
+            bool                    huffman)
 {
     ret_t   ret;
     uint8_t mem_len = 16;
     uint8_t mem[16] = {[0 ... 15] =  0};
 
-    /* TODO */
-    UNUSED(huffman);
+    chula_buffer_clean (&enc->tmp);
+
+    if (huffman) {
+        /* Encode */
+        ret = hpack_huffman_encode (in, &enc->tmp);
+        if (unlikely (ret != ret_ok)) return ret;
+
+        /* Length */
+        mem[0] = 1 << 7;
+        ret = hpack_integer_encode (7, enc->tmp.len, mem, &mem_len);
+        if (unlikely (ret != ret_ok)) return ret;
+
+        /* Compose */
+        chula_buffer_add_RET (output, (const char *)mem, mem_len);
+        chula_buffer_add_buffer_RET (output, &enc->tmp);
+
+        return ret_ok;
+    }
 
     /* Length */
     ret = hpack_integer_encode (7, in->len, mem, &mem_len);
     if (unlikely (ret != ret_ok)) return ret;
 
-    /* Content */
+    /* Compose */
     chula_buffer_add_RET (output, (const char *)mem, mem_len);
     chula_buffer_add_buffer_RET (output, in);
 
@@ -134,10 +156,10 @@ field_encode_plain (hpack_header_encoder_t *enc,
     chula_buffer_add_char_RET (output, '\0');
 
     /* Name */
-    ret = add_string (output, &field->name, false);
+    ret = add_string (enc, output, &field->name, false);
     if (unlikely (ret != ret_ok)) return ret;
 
-    ret = add_string (output, &field->value, false);
+    ret = add_string (enc, output, &field->value, false);
     if (unlikely (ret != ret_ok)) return ret;
 
     return ret_ok;

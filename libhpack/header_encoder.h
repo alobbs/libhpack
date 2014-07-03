@@ -48,6 +48,7 @@
  */
 typedef struct {
     hpack_header_store_t store;
+    chula_buffer_t       tmp;
 } hpack_header_encoder_t;
 
 ret_t hpack_header_encoder_init     (hpack_header_encoder_t *enc);
