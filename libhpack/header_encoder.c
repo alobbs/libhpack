@@ -91,9 +91,9 @@ hpack_header_encoder_add_field (hpack_header_encoder_t *enc,
 
 static ret_t
 add_string (hpack_header_encoder_t *enc,
-            chula_buffer_t         *output,
             chula_buffer_t         *in,
-            bool                    huffman)
+            bool                    huffman,
+            chula_buffer_t         *output)
 {
     ret_t   ret;
     uint8_t mem_len = 16;
@@ -130,13 +130,12 @@ add_string (hpack_header_encoder_t *enc,
 }
 
 static ret_t
-field_encode_plain (hpack_header_encoder_t *enc,
-                    hpack_header_field_t   *field,
-                    chula_buffer_t         *output)
+literal_wo_indexing (hpack_header_encoder_t *enc,
+                     hpack_header_field_t   *field,
+                     bool                    huffman,
+                     chula_buffer_t         *output)
 {
-    ret_t   ret;
-
-    UNUSED (enc);
+    ret_t ret;
 
     /* Literal Header Field without Indexing - New Name
      *
@@ -156,10 +155,10 @@ field_encode_plain (hpack_header_encoder_t *enc,
     chula_buffer_add_char_RET (output, '\0');
 
     /* Name */
-    ret = add_string (enc, output, &field->name, false);
+    ret = add_string (enc, &field->name, huffman, output);
     if (unlikely (ret != ret_ok)) return ret;
 
-    ret = add_string (enc, output, &field->value, false);
+    ret = add_string (enc, &field->value, huffman, output);
     if (unlikely (ret != ret_ok)) return ret;
 
     return ret_ok;
@@ -175,7 +174,7 @@ hpack_header_encoder_render (hpack_header_encoder_t *enc,
     hpack_header_store_foreach (i, &enc->store) {
         hpack_header_field_t *field = HPACK_HEADER_FIELD(i);
 
-        ret = field_encode_plain (enc, field, output);
+        ret = literal_wo_indexing (enc, field, true, output);
         if (unlikely (ret != ret_ok)) return ret;
     }
 
