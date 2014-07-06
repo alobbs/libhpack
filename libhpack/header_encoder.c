@@ -130,10 +130,11 @@ add_string (hpack_header_encoder_t *enc,
 }
 
 static ret_t
-literal_wo_indexing (hpack_header_encoder_t *enc,
-                     hpack_header_field_t   *field,
-                     bool                    huffman,
-                     chula_buffer_t         *output)
+render_literal (hpack_header_encoder_t *enc,
+                hpack_header_field_t   *field,
+                bool                    huffman,
+                bool                    indexing,
+                chula_buffer_t         *output)
 {
     ret_t ret;
 
@@ -151,8 +152,27 @@ literal_wo_indexing (hpack_header_encoder_t *enc,
      *   +---+---------------------------+
      *   | Value String (Length octets)  |
      *   +-------------------------------+
+     *
+     * Literal Header Field with Incremental Indexing - New Name
+     *
+     *     0   1   2   3   4   5   6   7
+     *   +---+---+---+---+---+---+---+---+
+     *   | 0 | 1 |           0           |
+     *   +---+---+-----------------------+
+     *   | H |     Name Length (7+)      |
+     *   +---+---------------------------+
+     *   |  Name String (Length octets)  |
+     *   +---+---------------------------+
+     *   | H |     Value Length (7+)     |
+     *   +---+---------------------------+
+     *   | Value String (Length octets)  |
+     *   +-------------------------------+
      */
-    chula_buffer_add_char_RET (output, '\0');
+    if (indexing) {
+        chula_buffer_add_char_RET (output, (char)1<<7);
+    } else {
+        chula_buffer_add_char_RET (output, (char)0);
+    }
 
     /* Name */
     ret = add_string (enc, &field->name, huffman, output);
@@ -174,7 +194,7 @@ hpack_header_encoder_render (hpack_header_encoder_t *enc,
     hpack_header_store_foreach (i, &enc->store) {
         hpack_header_field_t *field = HPACK_HEADER_FIELD(i);
 
-        ret = literal_wo_indexing (enc, field, true, output);
+        ret = render_literal (enc, field, true, false, output);
         if (unlikely (ret != ret_ok)) return ret;
     }
 
