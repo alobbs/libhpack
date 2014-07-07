@@ -129,6 +129,49 @@ add_string (hpack_header_encoder_t *enc,
     return ret_ok;
 }
 
+
+static ret_t
+render_indexed (hpack_header_encoder_t *enc,
+                hpack_header_field_t   *field,
+                bool                    huffman,
+                bool                    indexing,
+                chula_buffer_t         *output)
+{
+    /* Literal Header Field never Indexed - Indexed Name
+     *
+     *     0   1   2   3   4   5   6   7
+     *   +---+---+---+---+---+---+---+---+
+     *   | 0 | 0 | 0 | 1 |  Index (4+)   |
+     *   +---+---+-----------------------+
+     *   | H |     Value Length (7+)     |
+     *   +---+---------------------------+
+     *   | Value String (Length octets)  |
+     *   +-------------------------------+
+     *
+     * Literal Header Field without Indexing - Indexed Name
+     *
+     *     0   1   2   3   4   5   6   7
+     *   +---+---+---+---+---+---+---+---+
+     *   | 0 | 0 | 0 | 0 |  Index (4+)   |
+     *   +---+---+-----------------------+
+     *   | H |     Value Length (7+)     |
+     *   +---+---------------------------+
+     *   | Value String (Length octets)  |
+     *   +-------------------------------+
+     */
+    if (indexing) {
+        chula_buffer_add_char_RET (output, (char)1<<3);
+    } else {
+        chula_buffer_add_char_RET (output, (char)0);
+    }
+
+    ret = add_string (enc, &field->name, huffman, output);
+    if (unlikely (ret != ret_ok)) return ret;
+
+    return ret_ok;
+}
+
+
 static ret_t
 render_literal (hpack_header_encoder_t *enc,
                 hpack_header_field_t   *field,
