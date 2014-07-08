@@ -137,6 +137,8 @@ render_indexed (hpack_header_encoder_t *enc,
                 bool                    indexing,
                 chula_buffer_t         *output)
 {
+    ret_t ret;
+
     /* Literal Header Field never Indexed - Indexed Name
      *
      *     0   1   2   3   4   5   6   7
