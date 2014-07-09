@@ -129,13 +129,28 @@ add_string (hpack_header_encoder_t *enc,
     return ret_ok;
 }
 
-
 static ret_t
 render_indexed (hpack_header_encoder_t *enc,
                 hpack_header_field_t   *field,
-                bool                    huffman,
-                bool                    indexing,
                 chula_buffer_t         *output)
+{
+    /* Indexed Header Field
+     *     0   1   2   3   4   5   6   7
+     *   +---+---+---+---+---+---+---+---+
+     *   | 1 |        Index (7+)         |
+     *   +---+---------------------------+
+     */
+
+
+    return ret_ok;
+}
+
+static ret_t
+render_indexed_value (hpack_header_encoder_t *enc,
+                      hpack_header_field_t   *field,
+                      bool                    huffman,
+                      bool                    indexing,
+                      chula_buffer_t         *output)
 {
     ret_t ret;
 
@@ -167,7 +182,7 @@ render_indexed (hpack_header_encoder_t *enc,
         chula_buffer_add_char_RET (output, (char)0);
     }
 
-    ret = add_string (enc, &field->name, huffman, output);
+    ret = add_string (enc, &field->value, huffman, output);
     if (unlikely (ret != ret_ok)) return ret;
 
     return ret_ok;
