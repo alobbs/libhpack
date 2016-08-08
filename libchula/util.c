@@ -174,6 +174,7 @@ chula_strerror_r (int err, char *buf, size_t bufsize)
     if (bufsize < ERROR_MIN_BUFSIZE)
         return NULL;
 
+
 #ifdef HAVE_GLIBC_STRERROR_R
     char *re = strerror_r (err, buf, bufsize);
     if (re != NULL)
